@@ -84,6 +84,7 @@ export default function Topbar({
     { id: "evals-configs", label: "Eval Configs" },
     { id: "evals-scores", label: "Eval Scores" },
     { id: "usage", label: "Consumo" },
+    { id: "projects", label: "Projetos & Keys" },
   ];
 
   return (

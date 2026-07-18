@@ -11,6 +11,7 @@ import GuardrailEventsView from "./components/GuardrailEventsView";
 import EvalConfigsView from "./components/EvalConfigsView";
 import EvalScoresView from "./components/EvalScoresView";
 import UsageView from "./components/UsageView";
+import ProjectsView from "./components/ProjectsView";
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState("dashboard");
@@ -138,6 +139,8 @@ export default function App() {
             selectedSources={selectedSources}
           />
         );
+      case "projects":
+        return <ProjectsView />;
       default:
         return (
           <DashboardView

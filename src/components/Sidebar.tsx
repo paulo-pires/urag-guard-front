@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
+  KeyRound,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -43,6 +44,8 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
     { id: "evals-scores", label: "Scores Evals", icon: BarChart3 },
     { id: "divider-3", isDivider: true },
     { id: "usage", label: "Consumo", icon: Cpu },
+    { id: "divider-admin", isDivider: true },
+    { id: "projects", label: "Projetos & Keys", icon: KeyRound },
   ];
 
   const handleTabClick = (tabId: string) => {

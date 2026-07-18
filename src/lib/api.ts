@@ -1,4 +1,4 @@
-import { DashboardStats, Run, Session, GuardrailRule, GuardrailEvent, EvalConfig, EvalScore, UsageGroup } from "../types";
+import { DashboardStats, Run, Session, GuardrailRule, GuardrailEvent, EvalConfig, EvalScore, UsageGroup, Project, APIKey } from "../types";
 
 const getApiUrl = (path: string, params?: Record<string, string | number | boolean | undefined>) => {
   const url = new URL(path, window.location.origin);
@@ -175,6 +175,47 @@ export const api = {
   }): Promise<UsageGroup[]> {
     const res = await fetch(getApiUrl("/v1/usage", params));
     if (!res.ok) throw new Error("Failed to load usage statistics");
+    return res.json();
+  },
+
+  // Projects & API Keys
+  async getProjects(): Promise<Project[]> {
+    const res = await fetch(getApiUrl("/v1/projects"));
+    if (!res.ok) throw new Error("Failed to load projects");
+    return res.json();
+  },
+
+  async createProject(name: string): Promise<{ id: string }> {
+    const res = await fetch(getApiUrl("/v1/projects"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    if (!res.ok) throw new Error("Failed to create project");
+    return res.json();
+  },
+
+  async getProjectAPIKeys(projectId: string): Promise<APIKey[]> {
+    const res = await fetch(getApiUrl(`/v1/projects/${projectId}/api-keys`));
+    if (!res.ok) throw new Error("Failed to load project API keys");
+    return res.json();
+  },
+
+  async createProjectAPIKey(projectId: string, kind: "ingest" | "dashboard"): Promise<{ key: string }> {
+    const res = await fetch(getApiUrl(`/v1/projects/${projectId}/api-keys`), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind }),
+    });
+    if (!res.ok) throw new Error("Failed to create API key");
+    return res.json();
+  },
+
+  async deleteProjectAPIKey(projectId: string, keyId: string): Promise<{ status: string }> {
+    const res = await fetch(getApiUrl(`/v1/projects/${projectId}/api-keys/${keyId}`), {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Failed to delete API key");
     return res.json();
   },
 };

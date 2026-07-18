@@ -154,3 +154,19 @@ export interface UsageGroup {
   tokens_out: number;
   cost: number;
 }
+
+export interface Project {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface APIKey {
+  id: string;
+  project_id: string;
+  key_prefix: string;
+  kind: "ingest" | "dashboard";
+  created_at: string;
+  last_used_at?: string;
+}
+
