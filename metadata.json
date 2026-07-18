@@ -1,0 +1,6 @@
+{
+  "name": "uRag Guard",
+  "description": "A comprehensive dashboard for LLM and RAG observability, guardrails, and evaluations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
