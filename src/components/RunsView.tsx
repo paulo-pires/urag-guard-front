@@ -116,11 +116,11 @@ export default function RunsView({
     scoreMax !== "";
 
   const sourceColors: Record<string, string> = {
-    proxy: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    "uRag-go": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    "uRag-agent-go": "bg-purple-500/10 text-purple-400 border-purple-500/20",
-    "uRag-workflow-go": "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    "uRag-gateway-go": "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    proxy: "bg-blue-50 text-blue-800 border-blue-200",
+    "uRag-go": "bg-emerald-50 text-emerald-800 border-emerald-200",
+    "uRag-agent-go": "bg-purple-50 text-purple-800 border-purple-200",
+    "uRag-workflow-go": "bg-amber-50 text-amber-800 border-amber-200",
+    "uRag-gateway-go": "bg-[#f5f4f0] text-[#575652] border-[#e6e4df]",
   };
 
   const formatDate = (isoStr: string) => {
@@ -134,23 +134,23 @@ export default function RunsView({
   };
 
   const renderScoreProgress = (score?: number) => {
-    if (score === undefined) return <span className="text-zinc-500">—</span>;
+    if (score === undefined) return <span className="text-[#8e8d87]">—</span>;
     const pct = Math.round(score * 100);
 
     // Color ranges
-    let barColor = "bg-emerald-500";
-    let textColor = "text-emerald-400";
+    let barColor = "bg-emerald-600";
+    let textColor = "text-emerald-700";
     if (score < 0.6) {
-      barColor = "bg-rose-500";
-      textColor = "text-rose-400";
+      barColor = "bg-red-600";
+      textColor = "text-red-700";
     } else if (score < 0.8) {
-      barColor = "bg-amber-500";
-      textColor = "text-amber-400";
+      barColor = "bg-amber-600";
+      textColor = "text-amber-700";
     }
 
     return (
       <div className="flex items-center gap-2 max-w-[100px]">
-        <div className="w-12 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+        <div className="w-12 h-1.5 bg-[#e6e4df] rounded-full overflow-hidden">
           <div className={`h-full ${barColor}`} style={{ width: `${pct}%` }} />
         </div>
         <span className={`text-[10px] font-semibold font-mono ${textColor}`}>{pct}%</span>
@@ -159,19 +159,19 @@ export default function RunsView({
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn text-[#1a1a1a]">
       {/* Filters Bar */}
-      <div className="flex flex-col lg:flex-row gap-3 p-3 rounded-lg border border-zinc-900 bg-zinc-900/20 shadow-sm justify-between items-stretch lg:items-center">
+      <div className="flex flex-col lg:flex-row gap-3 p-3 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs justify-between items-stretch lg:items-center">
         <div className="flex flex-wrap items-center gap-3 flex-1">
           {/* Query Search */}
           <div className="relative min-w-[200px] flex-1 max-w-sm">
-            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-zinc-500" />
+            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-[#6e6d68]" />
             <input
               type="text"
               placeholder="Buscar ID, input, output..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-zinc-950 border border-zinc-900 hover:border-zinc-800 focus:border-zinc-700 rounded pl-8 pr-3 py-1 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
+              className="w-full bg-[#ffffff] border border-[#e6e4df] hover:border-[#1a1a1a] focus:border-[#1a1a1a] rounded pl-8 pr-3 py-1 text-xs text-[#1a1a1a] placeholder-[#8e8d87] focus:outline-none transition-colors"
             />
           </div>
 
@@ -182,7 +182,7 @@ export default function RunsView({
               setStatus(e.target.value);
               setPage(1);
             }}
-            className="bg-zinc-950 border border-zinc-900 hover:border-zinc-800 rounded px-2.5 py-1 text-xs text-zinc-300 focus:outline-none cursor-pointer"
+            className="bg-[#ffffff] border border-[#e6e4df] hover:border-[#1a1a1a] rounded px-2.5 py-1 text-xs text-[#1a1a1a] focus:outline-none cursor-pointer"
           >
             <option value="todos">Todos os Status</option>
             <option value="ok">Ok</option>
@@ -196,7 +196,7 @@ export default function RunsView({
               setModel(e.target.value);
               setPage(1);
             }}
-            className="bg-zinc-950 border border-zinc-900 hover:border-zinc-800 rounded px-2.5 py-1 text-xs text-zinc-300 focus:outline-none cursor-pointer"
+            className="bg-[#ffffff] border border-[#e6e4df] hover:border-[#1a1a1a] rounded px-2.5 py-1 text-xs text-[#1a1a1a] focus:outline-none cursor-pointer"
           >
             <option value="all">Todos os Modelos</option>
             <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
@@ -207,8 +207,8 @@ export default function RunsView({
           </select>
 
           {/* Score Min / Max */}
-          <div className="flex items-center gap-1 bg-zinc-950 border border-zinc-900 rounded px-2 py-1 text-xs">
-            <span className="text-zinc-500 text-[11px]">Score:</span>
+          <div className="flex items-center gap-1 bg-[#ffffff] border border-[#e6e4df] rounded px-2 py-1 text-xs">
+            <span className="text-[#6e6d68] text-[11px]">Score:</span>
             <input
               type="number"
               min="0"
@@ -221,9 +221,9 @@ export default function RunsView({
                 setScoreMin(val);
                 setPage(1);
               }}
-              className="w-8 bg-transparent text-zinc-100 focus:outline-none border-b border-zinc-900 text-center py-0"
+              className="w-8 bg-transparent text-[#1a1a1a] focus:outline-none border-b border-[#e6e4df] text-center py-0"
             />
-            <span className="text-zinc-700">-</span>
+            <span className="text-[#8e8d87]">-</span>
             <input
               type="number"
               min="0"
@@ -236,12 +236,12 @@ export default function RunsView({
                 setScoreMax(val);
                 setPage(1);
               }}
-              className="w-8 bg-transparent text-zinc-100 focus:outline-none border-b border-zinc-900 text-center py-0"
+              className="w-8 bg-transparent text-[#1a1a1a] focus:outline-none border-b border-[#e6e4df] text-center py-0"
             />
           </div>
 
           {/* Guardrail Violation Toggle */}
-          <label className="flex items-center gap-2 cursor-pointer select-none text-xs text-zinc-400 hover:text-zinc-300">
+          <label className="flex items-center gap-2 cursor-pointer select-none text-xs text-[#575652] hover:text-[#1a1a1a]">
             <input
               type="checkbox"
               checked={onlyViolations}
@@ -249,7 +249,7 @@ export default function RunsView({
                 setOnlyViolations(e.target.checked);
                 setPage(1);
               }}
-              className="rounded bg-zinc-950 border-zinc-900 text-emerald-500 focus:ring-emerald-500 h-3.5 w-3.5 accent-emerald-500"
+              className="rounded bg-[#ffffff] border-[#e6e4df] text-[#1a1a1a] focus:ring-[#1a1a1a] h-3.5 w-3.5 accent-[#1a1a1a]"
             />
             <span>Apenas Violações 🚩</span>
           </label>
@@ -259,7 +259,7 @@ export default function RunsView({
         {isFilterActive && (
           <button
             onClick={handleClearFilters}
-            className="flex items-center justify-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 transition-colors bg-rose-950/20 border border-rose-900/30 px-2.5 py-1 rounded"
+            className="flex items-center justify-center gap-1.5 text-xs text-rose-700 hover:text-rose-800 transition-colors bg-rose-50 border border-rose-200 px-2.5 py-1 rounded font-medium"
           >
             <FilterX size={12} />
             <span>Limpar Filtros</span>
@@ -268,11 +268,11 @@ export default function RunsView({
       </div>
 
       {/* Runs Table Card */}
-      <div className="border border-zinc-900/50 rounded-lg bg-zinc-950/40 overflow-hidden shadow-sm">
+      <div className="border border-[#e6e4df] rounded-lg bg-[#ffffff] overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-zinc-900/60 text-zinc-500 bg-zinc-950/20">
+              <tr className="border-b border-[#e6e4df] text-[#6e6d68] bg-[#f5f4f0] font-mono text-[10px] uppercase tracking-wider">
                 <th className="px-4 py-2 font-medium">ID</th>
                 <th className="px-4 py-2 font-medium">Iniciado em</th>
                 <th className="px-4 py-2 font-medium">Fonte</th>
@@ -290,9 +290,9 @@ export default function RunsView({
             <tbody>
               {loading ? (
                 Array.from({ length: 8 }).map((_, idx) => (
-                  <tr key={idx} className="border-b border-zinc-900/30 animate-pulse">
+                  <tr key={idx} className="border-b border-[#e6e4df] animate-pulse">
                     <td colSpan={12} className="px-4 py-3">
-                      <div className="h-3 bg-zinc-900/50 rounded w-full" />
+                      <div className="h-3 bg-[#f5f4f0] rounded w-full" />
                     </td>
                   </tr>
                 ))
@@ -301,128 +301,128 @@ export default function RunsView({
                   <tr
                     key={run.id}
                     onClick={() => onNavigateToTab(`run-detail-${run.id}`)}
-                    className="border-b border-zinc-900/30 even:bg-zinc-900/10 odd:bg-transparent hover:bg-zinc-900/40 cursor-pointer text-zinc-300 transition-colors"
+                    className="border-b border-[#e6e4df] even:bg-[#faf9f6] odd:bg-white hover:bg-[#f5f4f0]/60 cursor-pointer text-[#1a1a1a] transition-colors"
                   >
                     {/* Copyable ID */}
-                    <td className="px-4 py-1.5 font-mono text-[10px] group flex items-center gap-1">
-                      <span className="truncate max-w-[50px] text-zinc-500">{run.id}</span>
+                    <td className="px-4 py-2 font-mono text-[10px] group flex items-center gap-1">
+                      <span className="truncate max-w-[50px] text-[#6e6d68]">{run.id}</span>
                       <button
                         onClick={(e) => handleCopy(run.id, e)}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 text-zinc-600 hover:text-zinc-300 rounded transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 p-0.5 text-[#8e8d87] hover:text-[#1a1a1a] rounded transition-opacity"
                         title="Copy ID"
                       >
-                        {copiedId === run.id ? <Check size={10} className="text-emerald-400" /> : <Copy size={10} />}
+                        {copiedId === run.id ? <Check size={10} className="text-emerald-700" /> : <Copy size={10} />}
                       </button>
                     </td>
 
                     {/* Timestamp */}
-                    <td className="px-4 py-1.5 text-zinc-500 text-[11px] whitespace-nowrap">
+                    <td className="px-4 py-2 text-[#6e6d68] text-[11px] whitespace-nowrap font-mono">
                       {formatDate(run.timestamp)}
                     </td>
 
                     {/* Source badge */}
-                    <td className="px-4 py-1.5">
-                      <span className={`px-1 py-0.5 rounded-[3px] text-[9px] font-mono border ${sourceColors[run.source] || "border-zinc-800 bg-zinc-900 text-zinc-400"}`}>
+                    <td className="px-4 py-2">
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono border ${sourceColors[run.source] || "border-[#e6e4df] bg-[#f5f4f0] text-[#575652]"}`}>
                         {run.source}
                       </span>
                     </td>
 
                     {/* Name */}
-                    <td className="px-4 py-1.5 truncate max-w-[140px] font-medium text-zinc-300 text-[11px]" title={run.name}>
+                    <td className="px-4 py-2 truncate max-w-[140px] font-medium text-[#1a1a1a] text-[11px]" title={run.name}>
                       {run.name}
                     </td>
 
                     {/* Model */}
-                    <td className="px-4 py-1.5 font-mono text-[10px] text-zinc-500 whitespace-nowrap">
+                    <td className="px-4 py-2 font-mono text-[10px] text-[#6e6d68] whitespace-nowrap">
                       {run.model}
                     </td>
 
                     {/* Status Badge */}
-                    <td className="px-4 py-1.5">
+                    <td className="px-4 py-2">
                       <span
-                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[3px] text-[10px] font-medium border ${
+                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium font-mono border ${
                           run.status === "ok"
-                            ? "bg-emerald-950/20 text-emerald-400 border-emerald-900/30"
-                            : "bg-rose-950/20 text-rose-400 border-rose-900/30"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            : "bg-red-50 text-red-800 border-red-200"
                         }`}
                       >
-                        <span className={`w-1 h-1 rounded-full ${run.status === "ok" ? "bg-emerald-500" : "bg-rose-500"}`} />
+                        <span className={`w-1.5 h-1.5 rounded-full ${run.status === "ok" ? "bg-emerald-600" : "bg-red-600"}`} />
                         {run.status === "ok" ? "OK" : "ERRO"}
                       </span>
                     </td>
 
                     {/* Latency */}
-                    <td className="px-4 py-1.5 text-right font-mono text-zinc-400 text-[11px]">
+                    <td className="px-4 py-2 text-right font-mono text-[#575652] text-[11px]">
                       {run.latency_ms.toLocaleString()} ms
                     </td>
 
                     {/* Tokens */}
-                    <td className="px-4 py-1.5 text-right font-mono text-[10px] text-zinc-500">
+                    <td className="px-4 py-2 text-right font-mono text-[10px] text-[#6e6d68]">
                       {run.tokens_in}/{run.tokens_out}
                     </td>
 
                     {/* Cost */}
-                    <td className="px-4 py-1.5 text-right font-mono text-zinc-400 text-[11px] whitespace-nowrap">
+                    <td className="px-4 py-2 text-right font-mono text-[#575652] text-[11px] whitespace-nowrap">
                       ${run.cost.toFixed(4)}
                     </td>
 
                     {/* Guardrail status */}
-                    <td className="px-4 py-1.5 text-center">
+                    <td className="px-4 py-2 text-center">
                       {run.has_violation ? (
                         <span
-                          className={`inline-flex items-center justify-center px-1 rounded-[3px] text-[9px] font-mono ${
+                          className={`inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[9px] font-mono border ${
                             run.max_violation_verdict === "block"
-                              ? "bg-rose-950/20 text-rose-400 border border-rose-900/30"
-                              : "bg-amber-950/20 text-amber-400 border border-amber-900/30"
+                              ? "bg-red-50 text-red-800 border-red-200"
+                              : "bg-amber-50 text-amber-800 border-amber-200"
                           }`}
                           title={`Violação detectada: ${run.max_violation_verdict}`}
                         >
                           {run.max_violation_verdict === "block" ? "BLOCK" : "FLAG"}
                         </span>
                       ) : (
-                        <span className="text-zinc-600 text-xs">✔</span>
+                        <span className="text-emerald-700 text-xs">✔</span>
                       )}
                     </td>
 
                     {/* Evaluation Score */}
-                    <td className="px-4 py-1.5 whitespace-nowrap">
+                    <td className="px-4 py-2 whitespace-nowrap">
                       {renderScoreProgress(run.average_eval_score)}
                     </td>
 
                     {/* Session link */}
-                    <td className="px-4 py-1.5 text-center">
+                    <td className="px-4 py-2 text-center">
                       {run.session_id ? (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             onNavigateToTab(`session-detail-${run.session_id}`);
                           }}
-                          className="p-1 text-zinc-500 hover:text-emerald-400 hover:bg-zinc-900 rounded transition-colors inline-block"
+                          className="p-1 text-[#6e6d68] hover:text-[#1a1a1a] hover:bg-[#f5f4f0] rounded transition-colors inline-block"
                           title={`Ver Sessão ${run.session_id}`}
                         >
                           <Link2 size={12} />
                         </button>
                       ) : (
-                        <span className="text-zinc-700 font-mono text-[10px]">—</span>
+                        <span className="text-[#8e8d87] font-mono text-[10px]">—</span>
                       )}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={12} className="px-6 py-16 text-center text-zinc-500">
+                  <td colSpan={12} className="px-6 py-16 text-center text-[#6e6d68]">
                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto space-y-3">
-                      <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center">
-                        <FilterX size={20} className="text-zinc-400" />
+                      <div className="w-10 h-10 rounded-full bg-[#f5f4f0] border border-[#e6e4df] flex items-center justify-center">
+                        <FilterX size={20} className="text-[#6e6d68]" />
                       </div>
-                      <h4 className="font-medium text-zinc-300">Nenhuma execução encontrada</h4>
-                      <p className="text-xs text-zinc-500 leading-normal">
+                      <h4 className="font-medium text-[#1a1a1a]">Nenhuma execução encontrada</h4>
+                      <p className="text-xs text-[#6e6d68] leading-normal">
                         Nenhum registro de run coincide com os filtros ativos. Remova ou limpe os filtros para visualizar a lista completa.
                       </p>
                       {isFilterActive && (
                         <button
                           onClick={handleClearFilters}
-                          className="px-3.5 py-1.5 bg-emerald-500 text-zinc-950 font-medium text-xs rounded-lg hover:bg-emerald-400 transition-colors"
+                          className="px-3.5 py-1.5 bg-[#1a1a1a] text-white font-medium text-xs rounded-md hover:bg-[#2d2d2d] transition-colors"
                         >
                           Limpar todos os filtros
                         </button>
@@ -437,27 +437,27 @@ export default function RunsView({
 
         {/* Pagination bar */}
         {!loading && runs.length > 0 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-zinc-800 bg-zinc-900/60 text-xs">
-            <span className="text-zinc-400">
-              Mostrando <span className="font-semibold text-zinc-200">{runs.length}</span> de{" "}
-              <span className="font-semibold text-zinc-200">{totalItems}</span> runs
+          <div className="flex items-center justify-between px-6 py-4 border-t border-[#e6e4df] bg-[#f5f4f0] text-xs">
+            <span className="text-[#6e6d68]">
+              Mostrando <span className="font-semibold text-[#1a1a1a]">{runs.length}</span> de{" "}
+              <span className="font-semibold text-[#1a1a1a]">{totalItems}</span> runs
             </span>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage(page - 1)}
                 disabled={page <= 1}
-                className="p-1.5 rounded-md border border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 rounded-md border border-[#e6e4df] bg-[#ffffff] text-[#1a1a1a] hover:bg-[#f5f4f0] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-xs"
               >
                 <ChevronLeft size={16} />
               </button>
-              <span className="text-zinc-400 px-2 font-mono">
-                Página <span className="text-zinc-200">{page}</span> de <span className="text-zinc-200">{totalPages}</span>
+              <span className="text-[#6e6d68] px-2 font-mono">
+                Página <span className="text-[#1a1a1a]">{page}</span> de <span className="text-[#1a1a1a]">{totalPages}</span>
               </span>
               <button
                 onClick={() => setPage(page + 1)}
                 disabled={page >= totalPages}
-                className="p-1.5 rounded-md border border-zinc-800 bg-zinc-950 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 rounded-md border border-[#e6e4df] bg-[#ffffff] text-[#1a1a1a] hover:bg-[#f5f4f0] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-xs"
               >
                 <ChevronRight size={16} />
               </button>

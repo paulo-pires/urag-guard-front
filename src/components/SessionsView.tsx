@@ -75,11 +75,11 @@ export default function SessionsView({
   };
 
   const sourceColors: Record<string, string> = {
-    proxy: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    "uRag-go": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    "uRag-agent-go": "bg-purple-500/10 text-purple-400 border-purple-500/20",
-    "uRag-workflow-go": "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    "uRag-gateway-go": "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    proxy: "bg-blue-50 text-blue-800 border-blue-200",
+    "uRag-go": "bg-emerald-50 text-emerald-800 border-emerald-200",
+    "uRag-agent-go": "bg-purple-50 text-purple-800 border-purple-200",
+    "uRag-workflow-go": "bg-amber-50 text-amber-800 border-amber-200",
+    "uRag-gateway-go": "bg-[#f5f4f0] text-[#575652] border-[#e6e4df]",
   };
 
   const formatDate = (isoStr: string) => {
@@ -107,36 +107,36 @@ export default function SessionsView({
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn text-[#1a1a1a]">
       {/* Table Header Statistics row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 border border-zinc-800 rounded-xl bg-zinc-900/50 flex items-center gap-3">
-          <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg">
+        <div className="p-4 border border-[#e6e4df] rounded-xl bg-[#ffffff] shadow-xs flex items-center gap-3">
+          <div className="p-2 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg">
             <MessageSquare size={16} />
           </div>
           <div>
-            <p className="text-zinc-500 text-[10px] uppercase font-semibold">Total de Sessões</p>
-            <p className="text-lg font-bold text-zinc-100 font-mono mt-0.5">{totalItems}</p>
+            <p className="text-[#6e6d68] text-[10px] uppercase font-semibold">Total de Sessões</p>
+            <p className="text-lg font-bold text-[#1a1a1a] font-mono mt-0.5">{totalItems}</p>
           </div>
         </div>
-        <div className="p-4 border border-zinc-800 rounded-xl bg-zinc-900/50 flex items-center gap-3">
-          <div className="p-2 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-lg">
+        <div className="p-4 border border-[#e6e4df] rounded-xl bg-[#ffffff] shadow-xs flex items-center gap-3">
+          <div className="p-2 bg-purple-50 border border-purple-200 text-purple-800 rounded-lg">
             <Zap size={16} />
           </div>
           <div>
-            <p className="text-zinc-500 text-[10px] uppercase font-semibold">Tokens Acumulados</p>
-            <p className="text-lg font-bold text-zinc-100 font-mono mt-0.5">
+            <p className="text-[#6e6d68] text-[10px] uppercase font-semibold">Tokens Acumulados</p>
+            <p className="text-lg font-bold text-[#1a1a1a] font-mono mt-0.5">
               {sessions.reduce((sum, s) => sum + s.tokens_total, 0).toLocaleString()}
             </p>
           </div>
         </div>
-        <div className="p-4 border border-zinc-800 rounded-xl bg-zinc-900/50 flex items-center gap-3">
-          <div className="p-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg">
+        <div className="p-4 border border-[#e6e4df] rounded-xl bg-[#ffffff] shadow-xs flex items-center gap-3">
+          <div className="p-2 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg">
             <DollarSign size={16} />
           </div>
           <div>
-            <p className="text-zinc-500 text-[10px] uppercase font-semibold">Custo Consolidado</p>
-            <p className="text-lg font-bold text-zinc-100 font-mono mt-0.5">
+            <p className="text-[#6e6d68] text-[10px] uppercase font-semibold">Custo Consolidado</p>
+            <p className="text-lg font-bold text-[#1a1a1a] font-mono mt-0.5">
               ${sessions.reduce((sum, s) => sum + s.cost_total, 0).toFixed(4)}
             </p>
           </div>
@@ -144,28 +144,28 @@ export default function SessionsView({
       </div>
 
       {/* Table card */}
-      <div className="border border-zinc-900/50 rounded-lg bg-zinc-950/40 overflow-hidden shadow-sm">
+      <div className="border border-[#e6e4df] rounded-lg bg-[#ffffff] overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-zinc-900/60 text-zinc-500 bg-zinc-950/20">
-                <th className="px-4 py-2 font-medium">Session ID</th>
-                <th className="px-4 py-2 font-medium">Fonte</th>
-                <th className="px-4 py-2 font-medium">Iniciado em</th>
-                <th className="px-4 py-2 font-medium">User ID</th>
-                <th className="px-4 py-2 font-medium text-right">Duração</th>
-                <th className="px-4 py-2 font-medium text-center">Runs</th>
-                <th className="px-4 py-2 font-medium text-right">Tokens Totais</th>
-                <th className="px-4 py-2 font-medium text-right">Custo Total</th>
-                <th className="px-4 py-2 font-medium">Status Geral</th>
+              <tr className="border-b border-[#e6e4df] text-[#6e6d68] bg-[#f5f4f0]">
+                <th className="px-4 py-2.5 font-semibold">Session ID</th>
+                <th className="px-4 py-2.5 font-semibold">Fonte</th>
+                <th className="px-4 py-2.5 font-semibold">Iniciado em</th>
+                <th className="px-4 py-2.5 font-semibold">User ID</th>
+                <th className="px-4 py-2.5 font-semibold text-right">Duração</th>
+                <th className="px-4 py-2.5 font-semibold text-center">Runs</th>
+                <th className="px-4 py-2.5 font-semibold text-right">Tokens Totais</th>
+                <th className="px-4 py-2.5 font-semibold text-right">Custo Total</th>
+                <th className="px-4 py-2.5 font-semibold">Status Geral</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 Array.from({ length: 6 }).map((_, idx) => (
-                  <tr key={idx} className="border-b border-zinc-900/30 animate-pulse">
+                  <tr key={idx} className="border-b border-[#e6e4df] animate-pulse">
                     <td colSpan={9} className="px-4 py-3">
-                      <div className="h-3 bg-zinc-900/50 rounded w-full" />
+                      <div className="h-3 bg-[#f5f4f0] rounded w-full" />
                     </td>
                   </tr>
                 ))
@@ -174,72 +174,72 @@ export default function SessionsView({
                   <tr
                     key={session.id}
                     onClick={() => onNavigateToTab(`session-detail-${session.id}`)}
-                    className="border-b border-zinc-900/30 even:bg-zinc-900/10 odd:bg-transparent hover:bg-zinc-900/40 cursor-pointer text-zinc-300 transition-colors"
+                    className="border-b border-[#e6e4df] even:bg-[#faf9f6] odd:bg-[#ffffff] hover:bg-[#f5f4f0] cursor-pointer text-[#1a1a1a] transition-colors"
                   >
                     {/* Session ID */}
-                    <td className="px-4 py-1.5 font-mono text-[10px] group flex items-center gap-1">
-                      <span className="truncate max-w-[80px] text-zinc-500">{session.id}</span>
+                    <td className="px-4 py-2 font-mono text-[10px] group flex items-center gap-1">
+                      <span className="truncate max-w-[80px] text-[#6e6d68] group-hover:text-[#1a1a1a]">{session.id}</span>
                       <button
                         onClick={(e) => handleCopy(session.id, e)}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 text-zinc-600 hover:text-zinc-300 rounded transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 p-0.5 text-[#6e6d68] hover:text-[#1a1a1a] rounded transition-opacity"
                         title="Copy ID"
                       >
-                        {copiedId === session.id ? <Check size={10} className="text-emerald-400" /> : <Copy size={10} />}
+                        {copiedId === session.id ? <Check size={10} className="text-emerald-700" /> : <Copy size={10} />}
                       </button>
                     </td>
 
                     {/* Source */}
-                    <td className="px-4 py-1.5">
-                      <span className={`px-1 py-0.5 rounded-[3px] text-[9px] font-mono border ${sourceColors[session.source] || "border-zinc-800 bg-zinc-900 text-zinc-400"}`}>
+                    <td className="px-4 py-2">
+                      <span className={`px-1 py-0.5 rounded-[3px] text-[9px] font-mono border ${sourceColors[session.source] || "border-[#e6e4df] bg-[#f5f4f0] text-[#575652]"}`}>
                         {session.source}
                       </span>
                     </td>
 
                     {/* Start Date */}
-                    <td className="px-4 py-1.5 text-zinc-500 text-[11px] whitespace-nowrap">
+                    <td className="px-4 py-2 text-[#575652] text-[11px] whitespace-nowrap">
                       {formatDate(session.start_time)}
                     </td>
 
                     {/* User ID */}
-                    <td className="px-4 py-1.5 text-zinc-500 font-mono text-[10px]">
-                      {session.user_id || <span className="text-zinc-700">—</span>}
+                    <td className="px-4 py-2 text-[#6e6d68] font-mono text-[10px]">
+                      {session.user_id || <span className="text-[#8e8d87]">—</span>}
                     </td>
 
                     {/* Duration */}
-                    <td className="px-4 py-1.5 text-right font-mono text-zinc-400 text-[11px] whitespace-nowrap">
+                    <td className="px-4 py-2 text-right font-mono text-[#575652] text-[11px] whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1">
-                        <Clock size={10} className="text-zinc-500" />
+                        <Clock size={10} className="text-[#6e6d68]" />
                         <span>{formatDuration(session.duration_ms)}</span>
                       </div>
                     </td>
 
                     {/* Runs count */}
-                    <td className="px-4 py-1.5 text-center">
-                      <span className="px-1.5 py-0.2 bg-zinc-900 text-zinc-400 border border-zinc-800/80 rounded-[3px] font-mono text-[10px]">
+                    <td className="px-4 py-2 text-center">
+                      <span className="px-1.5 py-0.2 bg-[#f5f4f0] text-[#575652] border border-[#e6e4df] rounded-[3px] font-mono text-[10px]">
                         {session.run_count}
                       </span>
                     </td>
 
                     {/* Total Tokens */}
-                    <td className="px-4 py-1.5 text-right font-mono text-zinc-400 text-[11px]">
+                    <td className="px-4 py-2 text-right font-mono text-[#575652] text-[11px]">
                       {session.tokens_total.toLocaleString()}
                     </td>
 
                     {/* Total Cost */}
-                    <td className="px-4 py-1.5 text-right font-mono text-zinc-400 text-[11px] whitespace-nowrap">
+                    <td className="px-4 py-2 text-right font-mono text-[#575652] text-[11px] whitespace-nowrap">
                       ${session.cost_total.toFixed(4)}
                     </td>
 
                     {/* Status Badge */}
-                    <td className="px-4 py-1.5">
+                    <td className="px-4 py-2">
                       <span
-                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[3px] text-[10px] font-medium border ${
+                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[3px] text-[10px] font-medium font-mono border ${
                           session.status === "ok"
-                            ? "bg-emerald-950/20 text-emerald-400 border-emerald-900/30"
-                            : "bg-rose-950/20 text-rose-400 border-rose-900/30"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            : "bg-red-50 text-red-800 border-red-200"
                         }`}
                       >
-                        <span className={`w-1 h-1 rounded-full ${session.status === "ok" ? "bg-emerald-500" : "bg-rose-500"}`} />
+                        <span className={`w-1 h-1 rounded-full ${session.status === "ok" ? "bg-emerald-600" : "bg-red-600"}`} />
                         {session.status === "ok" ? "OK" : "FALHAS"}
                       </span>
                     </td>
@@ -247,13 +247,13 @@ export default function SessionsView({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="px-4 py-12 text-center text-zinc-500">
+                  <td colSpan={9} className="px-4 py-12 text-center text-[#6e6d68]">
                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto space-y-3">
-                      <div className="w-8 h-8 rounded-full bg-zinc-900 flex items-center justify-center">
-                        <FilterX size={16} className="text-zinc-500" />
+                      <div className="w-8 h-8 rounded-full bg-[#f5f4f0] border border-[#e6e4df] flex items-center justify-center">
+                        <FilterX size={16} className="text-[#6e6d68]" />
                       </div>
-                      <h4 className="font-medium text-zinc-400">Nenhuma sessão encontrada</h4>
-                      <p className="text-xs text-zinc-600 leading-normal">
+                      <h4 className="font-medium text-[#1a1a1a]">Nenhuma sessão encontrada</h4>
+                      <p className="text-xs text-[#6e6d68] leading-normal">
                         Nenhuma sessão de conversação foi registrada de acordo com as fontes selecionadas.
                       </p>
                     </div>
@@ -266,27 +266,27 @@ export default function SessionsView({
 
         {/* Pagination bar */}
         {!loading && sessions.length > 0 && (
-          <div className="flex items-center justify-between px-4 py-2 border-t border-zinc-900 bg-zinc-950/40 text-[11px]">
-            <span className="text-zinc-500">
-              Mostrando <span className="font-semibold text-zinc-400">{sessions.length}</span> de{" "}
-              <span className="font-semibold text-zinc-400">{totalItems}</span> sessões
+          <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#e6e4df] bg-[#faf9f6] text-[11px]">
+            <span className="text-[#6e6d68]">
+              Mostrando <span className="font-semibold text-[#1a1a1a]">{sessions.length}</span> de{" "}
+              <span className="font-semibold text-[#1a1a1a]">{totalItems}</span> sessões
             </span>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage(page - 1)}
                 disabled={page <= 1}
-                className="p-1 rounded border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="p-1 rounded border border-[#e6e4df] bg-[#ffffff] text-[#1a1a1a] hover:bg-[#f5f4f0] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-xs"
               >
                 <ChevronLeft size={14} />
               </button>
-              <span className="text-zinc-500 font-mono">
-                Página <span className="text-zinc-400">{page}</span> de <span className="text-zinc-400">{totalPages}</span>
+              <span className="text-[#6e6d68] font-mono">
+                Página <span className="text-[#1a1a1a] font-semibold">{page}</span> de <span className="text-[#1a1a1a] font-semibold">{totalPages}</span>
               </span>
               <button
                 onClick={() => setPage(page + 1)}
                 disabled={page >= totalPages}
-                className="p-1 rounded border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="p-1 rounded border border-[#e6e4df] bg-[#ffffff] text-[#1a1a1a] hover:bg-[#f5f4f0] disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-xs"
               >
                 <ChevronRight size={14} />
               </button>

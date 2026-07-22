@@ -151,20 +151,20 @@ export default function EvalScoresView({
 
   const renderScoreBar = (val: number, verdictStr: "pass" | "warn" | "fail") => {
     const pct = Math.round(val * 100);
-    let barColor = "bg-emerald-500";
-    let textColor = "text-emerald-400";
+    let barColor = "bg-[#1a1a1a]";
+    let textColor = "text-emerald-800";
 
     if (verdictStr === "fail") {
-      barColor = "bg-rose-500";
-      textColor = "text-rose-400";
+      barColor = "bg-red-600";
+      textColor = "text-red-700";
     } else if (verdictStr === "warn") {
-      barColor = "bg-amber-500";
-      textColor = "text-amber-400";
+      barColor = "bg-amber-600";
+      textColor = "text-amber-700";
     }
 
     return (
       <div className="flex items-center gap-2 max-w-[120px]">
-        <div className="w-12 h-1 bg-zinc-950 rounded-full overflow-hidden border border-zinc-900/60">
+        <div className="w-12 h-1 bg-[#e6e4df] rounded-full overflow-hidden">
           <div className={`h-full ${barColor}`} style={{ width: `${pct}%` }} />
         </div>
         <span className={`text-[10px] font-mono font-semibold ${textColor}`}>{val.toFixed(2)}</span>
@@ -173,9 +173,9 @@ export default function EvalScoresView({
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn text-[#1a1a1a]">
       {/* Search and Filters panel */}
-      <div className="flex flex-col xl:flex-row gap-3 p-3 rounded-lg border border-zinc-900 bg-zinc-900/20 shadow-sm justify-between">
+      <div className="flex flex-col xl:flex-row gap-3 p-3 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs justify-between">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 flex-1">
           {/* Metric select */}
           <div className="flex flex-col">
@@ -185,7 +185,7 @@ export default function EvalScoresView({
                 setMetric(e.target.value);
                 setPage(1);
               }}
-              className="bg-zinc-950 border border-zinc-900 hover:border-zinc-850 rounded px-2.5 py-1 text-xs text-zinc-300 focus:outline-none cursor-pointer transition-colors"
+              className="bg-[#ffffff] border border-[#e6e4df] hover:border-[#1a1a1a] rounded px-2.5 py-1 text-xs text-[#1a1a1a] focus:outline-none cursor-pointer transition-colors"
             >
               <option value="all">Todas as Métricas</option>
               <option value="faithfulness">Fidelidade (Faithfulness)</option>
@@ -204,7 +204,7 @@ export default function EvalScoresView({
                 setVerdict(e.target.value);
                 setPage(1);
               }}
-              className="bg-zinc-950 border border-zinc-900 hover:border-zinc-850 rounded px-2.5 py-1 text-xs text-zinc-300 focus:outline-none cursor-pointer transition-colors"
+              className="bg-[#ffffff] border border-[#e6e4df] hover:border-[#1a1a1a] rounded px-2.5 py-1 text-xs text-[#1a1a1a] focus:outline-none cursor-pointer transition-colors"
             >
               <option value="all">Todos os Vereditos</option>
               <option value="pass">PASS (Aprovado)</option>
@@ -215,25 +215,25 @@ export default function EvalScoresView({
 
           {/* Run ID Input */}
           <div className="relative">
-            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-zinc-500" />
+            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-[#8e8d87]" />
             <input
               type="text"
               placeholder="Buscar por Run ID..."
               value={runId}
               onChange={(e) => setRunId(e.target.value)}
-              className="w-full bg-zinc-950 border border-zinc-900 focus:border-zinc-800 rounded pl-8 pr-2.5 py-1 text-xs text-zinc-300 focus:outline-none"
+              className="w-full bg-[#ffffff] border border-[#e6e4df] focus:border-[#1a1a1a] rounded pl-8 pr-2.5 py-1 text-xs text-[#1a1a1a] focus:outline-none"
             />
           </div>
 
           {/* Session ID Input */}
           <div className="relative">
-            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-zinc-500" />
+            <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-[#8e8d87]" />
             <input
               type="text"
               placeholder="Buscar por Session ID..."
               value={sessionId}
               onChange={(e) => setSessionId(e.target.value)}
-              className="w-full bg-zinc-950 border border-zinc-900 focus:border-zinc-800 rounded pl-8 pr-2.5 py-1 text-xs text-zinc-300 focus:outline-none"
+              className="w-full bg-[#ffffff] border border-[#e6e4df] focus:border-[#1a1a1a] rounded pl-8 pr-2.5 py-1 text-xs text-[#1a1a1a] focus:outline-none"
             />
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function EvalScoresView({
         {isFilterActive && (
           <button
             onClick={handleClearFilters}
-            className="flex items-center justify-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 transition-colors bg-rose-950/20 border border-rose-900/30 px-2.5 py-1 rounded w-full xl:w-auto"
+            className="flex items-center justify-center gap-1.5 text-xs text-red-700 hover:text-red-800 transition-colors bg-red-50 border border-red-200 px-2.5 py-1 rounded w-full xl:w-auto font-medium"
           >
             <FilterX size={12} />
             <span>Limpar Filtros</span>
@@ -253,21 +253,21 @@ export default function EvalScoresView({
       {/* Analysis charts (side-by-side) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Histogram distribution */}
-        <div className="p-4 border border-zinc-900/50 rounded-lg bg-zinc-950/40 space-y-3">
+        <div className="p-4 border border-[#e6e4df] rounded-lg bg-[#ffffff] space-y-3 shadow-xs">
           <div className="flex items-center justify-between">
-            <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Distribuição de Scores</h4>
-            <span className="text-[10px] text-zinc-500">Métrica: {metric === "all" ? "Geral" : metric}</span>
+            <h4 className="text-[10px] font-bold text-[#6e6d68] uppercase tracking-wider">Distribuição de Scores</h4>
+            <span className="text-[10px] text-[#6e6d68]">Métrica: {metric === "all" ? "Geral" : metric}</span>
           </div>
 
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <RechartsBarChart data={histogram} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1d1d20" />
-                <XAxis dataKey="range" stroke="#52525b" fontSize={10} tickLine={false} />
-                <YAxis stroke="#52525b" fontSize={10} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e6e4df" />
+                <XAxis dataKey="range" stroke="#6e6d68" fontSize={10} tickLine={false} />
+                <YAxis stroke="#6e6d68" fontSize={10} tickLine={false} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#09090b", borderColor: "#27272a", borderRadius: "4px" }}
-                  labelStyle={{ color: "#71717a", fontSize: "10px" }}
+                  contentStyle={{ backgroundColor: "#ffffff", borderColor: "#e6e4df", borderRadius: "6px", color: "#1a1a1a" }}
+                  labelStyle={{ color: "#6e6d68", fontSize: "10px" }}
                   itemStyle={{ fontSize: "10px" }}
                 />
                 <RechartsBar name="Quantidade" dataKey="count" radius={[2, 2, 0, 0]}>
@@ -285,26 +285,26 @@ export default function EvalScoresView({
         </div>
 
         {/* Score Trend chart */}
-        <div className="p-4 border border-zinc-900/50 rounded-lg bg-zinc-950/40 space-y-3">
+        <div className="p-4 border border-[#e6e4df] rounded-lg bg-[#ffffff] space-y-3 shadow-xs">
           <div className="flex items-center justify-between">
-            <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Tendência Temporal do Score</h4>
-            <span className="text-[10px] text-zinc-500">Média Móvel Diária</span>
+            <h4 className="text-[10px] font-bold text-[#6e6d68] uppercase tracking-wider">Tendência Temporal do Score</h4>
+            <span className="text-[10px] text-[#6e6d68]">Média Móvel Diária</span>
           </div>
 
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <RechartsLineChart data={trend} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1d1d20" />
-                <XAxis dataKey="day" stroke="#52525b" fontSize={10} tickLine={false} />
-                <YAxis stroke="#52525b" fontSize={10} tickLine={false} domain={[0.4, 1.0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e6e4df" />
+                <XAxis dataKey="day" stroke="#6e6d68" fontSize={10} tickLine={false} />
+                <YAxis stroke="#6e6d68" fontSize={10} tickLine={false} domain={[0.4, 1.0]} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#09090b", borderColor: "#27272a", borderRadius: "4px" }}
-                  labelStyle={{ color: "#71717a", fontSize: "10px" }}
+                  contentStyle={{ backgroundColor: "#ffffff", borderColor: "#e6e4df", borderRadius: "6px", color: "#1a1a1a" }}
+                  labelStyle={{ color: "#6e6d68", fontSize: "10px" }}
                   itemStyle={{ fontSize: "10px" }}
                 />
-                <RechartsLine name="Score Médio" type="monotone" dataKey="score" stroke="#10b981" strokeWidth={2} dot={{ r: 3 }} />
-                <RechartsLine name="Aviso Threshold" type="monotone" dataKey="warn_limit" stroke="#f59e0b" strokeWidth={1} strokeDasharray="4 4" dot={false} activeDot={false} />
-                <RechartsLine name="Falha Threshold" type="monotone" dataKey="fail_limit" stroke="#ef4444" strokeWidth={1} strokeDasharray="4 4" dot={false} activeDot={false} />
+                <RechartsLine name="Score Médio" type="monotone" dataKey="score" stroke="#1a1a1a" strokeWidth={2} dot={{ r: 3 }} />
+                <RechartsLine name="Aviso Threshold" type="monotone" dataKey="warn_limit" stroke="#d97706" strokeWidth={1} strokeDasharray="4 4" dot={false} activeDot={false} />
+                <RechartsLine name="Falha Threshold" type="monotone" dataKey="fail_limit" stroke="#dc2626" strokeWidth={1} strokeDasharray="4 4" dot={false} activeDot={false} />
               </RechartsLineChart>
             </ResponsiveContainer>
           </div>
@@ -312,26 +312,26 @@ export default function EvalScoresView({
       </div>
 
       {/* Scores log table */}
-      <div className="border border-zinc-900/50 rounded-lg bg-zinc-950/40 overflow-hidden shadow-sm">
+      <div className="border border-[#e6e4df] rounded-lg bg-[#ffffff] overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-zinc-900/60 text-zinc-500 bg-zinc-950/20">
-                <th className="px-4 py-2 font-medium">Horário (UTC)</th>
-                <th className="px-4 py-2 font-medium">Run ID</th>
-                <th className="px-4 py-2 font-medium">Métrica</th>
-                <th className="px-4 py-2 font-medium">Valor Registrado</th>
-                <th className="px-4 py-2 font-medium">Veredito</th>
-                <th className="px-4 py-2 font-medium">Feedback do Avaliador</th>
-                <th className="px-4 py-2 font-medium text-right">Ação</th>
+              <tr className="border-b border-[#e6e4df] text-[#6e6d68] bg-[#f5f4f0] font-mono text-[10px] uppercase tracking-wider">
+                <th className="px-4 py-2.5 font-medium">Horário (UTC)</th>
+                <th className="px-4 py-2.5 font-medium">Run ID</th>
+                <th className="px-4 py-2.5 font-medium">Métrica</th>
+                <th className="px-4 py-2.5 font-medium">Valor Registrado</th>
+                <th className="px-4 py-2.5 font-medium">Veredito</th>
+                <th className="px-4 py-2.5 font-medium">Feedback do Avaliador</th>
+                <th className="px-4 py-2.5 font-medium text-right">Ação</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 Array.from({ length: 6 }).map((_, idx) => (
-                  <tr key={idx} className="border-b border-zinc-900/30 animate-pulse">
+                  <tr key={idx} className="border-b border-[#e6e4df] animate-pulse">
                     <td colSpan={7} className="px-4 py-3">
-                      <div className="h-3 bg-zinc-900/50 rounded w-full" />
+                      <div className="h-3 bg-[#f5f4f0] rounded w-full" />
                     </td>
                   </tr>
                 ))
@@ -340,37 +340,37 @@ export default function EvalScoresView({
                   <tr
                     key={score.id}
                     onClick={() => onNavigateToTab(`run-detail-${score.run_id}`)}
-                    className="border-b border-zinc-900/30 even:bg-zinc-900/10 odd:bg-transparent hover:bg-zinc-900/40 cursor-pointer text-zinc-300 transition-colors"
+                    className="border-b border-[#e6e4df] even:bg-[#faf9f6] odd:bg-white hover:bg-[#f5f4f0]/60 cursor-pointer text-[#1a1a1a] transition-colors"
                   >
                     {/* Timestamp */}
-                    <td className="px-4 py-1.5 text-zinc-500 text-[11px] font-mono whitespace-nowrap">
+                    <td className="px-4 py-2 text-[#6e6d68] text-[11px] font-mono whitespace-nowrap">
                       {formatDate(score.timestamp)}
                     </td>
 
                     {/* Run ID Link */}
-                    <td className="px-4 py-1.5 font-mono text-[11px] text-zinc-500">
+                    <td className="px-4 py-2 font-mono text-[11px] text-[#575652]">
                       {score.run_id}
                     </td>
 
                     {/* Metric badge */}
-                    <td className="px-4 py-1.5 capitalize font-semibold text-zinc-300 text-[11px]">
+                    <td className="px-4 py-2 capitalize font-medium text-[#1a1a1a] text-[11px]">
                       {score.metric.replace("_", " ")}
                     </td>
 
                     {/* Progress score bar */}
-                    <td className="px-4 py-1.5">
+                    <td className="px-4 py-2">
                       {renderScoreBar(score.value, score.verdict)}
                     </td>
 
                     {/* Verdict badge */}
-                    <td className="px-4 py-1.5">
+                    <td className="px-4 py-2">
                       <span
-                        className={`px-1.5 py-0.5 rounded-[3px] text-[10px] font-bold border ${
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
                           score.verdict === "pass"
-                            ? "bg-emerald-950/20 text-emerald-400 border-emerald-900/30"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                             : score.verdict === "warn"
-                            ? "bg-amber-950/20 text-amber-400 border-amber-900/30"
-                            : "bg-rose-950/20 text-rose-400 border-rose-900/30"
+                            ? "bg-amber-50 text-amber-800 border-amber-200"
+                            : "bg-red-50 text-red-800 border-red-200"
                         }`}
                       >
                         {score.verdict.toUpperCase()}
@@ -378,13 +378,13 @@ export default function EvalScoresView({
                     </td>
 
                     {/* Evaluator Comment */}
-                    <td className="px-4 py-1.5 text-zinc-500 text-[11px] truncate max-w-[200px]" title={score.comment}>
+                    <td className="px-4 py-2 text-[#6e6d68] text-[11px] truncate max-w-[200px]" title={score.comment}>
                       {score.comment}
                     </td>
 
                     {/* Link */}
-                    <td className="px-4 py-1.5 text-right">
-                      <button className="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-0.5 text-[11px] font-semibold">
+                    <td className="px-4 py-2 text-right">
+                      <button className="text-[#1a1a1a] hover:underline inline-flex items-center gap-0.5 text-[11px] font-medium">
                         <span>Ver Trace</span>
                         <ArrowUpRight size={10} />
                       </button>
@@ -393,13 +393,13 @@ export default function EvalScoresView({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-zinc-500">
+                  <td colSpan={7} className="px-4 py-12 text-center text-[#6e6d68]">
                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto space-y-3">
-                      <div className="w-8 h-8 rounded-full bg-zinc-900 flex items-center justify-center">
-                        <Sparkles size={16} className="text-zinc-500" />
+                      <div className="w-8 h-8 rounded-full bg-[#f5f4f0] flex items-center justify-center">
+                        <Sparkles size={16} className="text-[#6e6d68]" />
                       </div>
-                      <h4 className="font-medium text-zinc-400">Nenhum score registrado</h4>
-                      <p className="text-xs text-zinc-600 leading-normal">
+                      <h4 className="font-medium text-[#1a1a1a]">Nenhum score registrado</h4>
+                      <p className="text-xs text-[#6e6d68] leading-normal">
                         Nenhum score de avaliação coincide com os filtros ativos. Remova filtros ou amplie o período.
                       </p>
                     </div>
@@ -412,27 +412,27 @@ export default function EvalScoresView({
 
         {/* Pagination bar */}
         {!loading && scores.length > 0 && (
-          <div className="flex items-center justify-between px-4 py-2 border-t border-zinc-900 bg-zinc-950/40 text-[11px]">
-            <span className="text-zinc-500">
-              Mostrando <span className="font-semibold text-zinc-400">{scores.length}</span> de{" "}
-              <span className="font-semibold text-zinc-400">{totalItems}</span> avaliações
+          <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#e6e4df] bg-[#f5f4f0] text-[11px]">
+            <span className="text-[#6e6d68]">
+              Mostrando <span className="font-semibold text-[#1a1a1a]">{scores.length}</span> de{" "}
+              <span className="font-semibold text-[#1a1a1a]">{totalItems}</span> avaliações
             </span>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage(page - 1)}
                 disabled={page <= 1}
-                className="p-1 rounded border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="p-1 rounded border border-[#e6e4df] bg-[#ffffff] text-[#1a1a1a] hover:bg-[#f5f4f0] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft size={14} />
               </button>
-              <span className="text-zinc-500 font-mono">
-                Página <span className="text-zinc-400">{page}</span> de <span className="text-zinc-400">{totalPages}</span>
+              <span className="text-[#6e6d68] font-mono">
+                Página <span className="text-[#1a1a1a] font-semibold">{page}</span> de <span className="text-[#1a1a1a] font-semibold">{totalPages}</span>
               </span>
               <button
                 onClick={() => setPage(page + 1)}
                 disabled={page >= totalPages}
-                className="p-1 rounded border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="p-1 rounded border border-[#e6e4df] bg-[#ffffff] text-[#1a1a1a] hover:bg-[#f5f4f0] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight size={14} />
               </button>

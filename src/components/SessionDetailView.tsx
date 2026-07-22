@@ -100,22 +100,22 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
   }
 
   const sourceColors: Record<string, string> = {
-    proxy: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    "uRag-go": "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    "uRag-agent-go": "bg-purple-500/10 text-purple-400 border-purple-500/20",
-    "uRag-workflow-go": "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    "uRag-gateway-go": "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    proxy: "bg-blue-50 text-blue-800 border-blue-200",
+    "uRag-go": "bg-emerald-50 text-emerald-800 border-emerald-200",
+    "uRag-agent-go": "bg-purple-50 text-purple-800 border-purple-200",
+    "uRag-workflow-go": "bg-amber-50 text-amber-800 border-amber-200",
+    "uRag-gateway-go": "bg-[#f5f4f0] text-[#575652] border-[#e6e4df]",
   };
 
   const renderScoreProgress = (score?: number) => {
-    if (score === undefined) return <span className="text-zinc-500">—</span>;
+    if (score === undefined) return <span className="text-[#6e6d68]">—</span>;
     const pct = Math.round(score * 100);
 
-    let textColor = "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
+    let textColor = "text-emerald-800 bg-emerald-50 border-emerald-200";
     if (score < 0.6) {
-      textColor = "text-rose-400 bg-rose-500/10 border-rose-500/20";
+      textColor = "text-red-800 bg-red-50 border-red-200";
     } else if (score < 0.8) {
-      textColor = "text-amber-400 bg-amber-500/10 border-amber-500/20";
+      textColor = "text-amber-800 bg-amber-50 border-amber-200";
     }
 
     return (
@@ -126,64 +126,64 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn text-[#1a1a1a]">
       {/* Back to Sessions */}
       <button
         onClick={onBack}
-        className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg"
+        className="flex items-center gap-1.5 text-xs text-[#1a1a1a] hover:bg-[#f5f4f0] transition-colors bg-[#ffffff] border border-[#e6e4df] px-3 py-1.5 rounded-lg shadow-xs"
       >
         <ChevronLeft size={14} />
         <span>Voltar para as Sessões</span>
       </button>
 
       {/* Header Panel Card */}
-      <div className="p-6 border border-zinc-800 rounded-xl bg-zinc-900 shadow-sm space-y-4">
+      <div className="p-6 border border-[#e6e4df] rounded-xl bg-[#ffffff] shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`px-1.5 py-0.5 rounded text-[10px] border font-mono ${sourceColors[session.source] || "border-zinc-800"}`}>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] border font-mono ${sourceColors[session.source] || "border-[#e6e4df] bg-[#f5f4f0]"}`}>
                 {session.source}
               </span>
-              <h2 className="text-base font-semibold text-zinc-100">Sessão {session.id.toUpperCase()}</h2>
+              <h2 className="text-base font-serif italic font-bold text-[#1a1a1a]">Sessão {session.id.toUpperCase()}</h2>
               <span
-                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium font-mono border ${
                   session.status === "ok"
-                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                    : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                    ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                    : "bg-red-50 text-red-800 border-red-200"
                 }`}
               >
                 {session.status === "ok" ? "OK" : "Com erros"}
               </span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-zinc-500 font-mono">
+            <div className="flex items-center gap-1.5 text-xs text-[#6e6d68] font-mono">
               <span>Session ID: {session.id}</span>
               <button
                 onClick={(e) => handleCopy(session.id, e)}
-                className="hover:text-zinc-300 p-0.5 rounded transition-colors"
+                className="hover:text-[#1a1a1a] p-0.5 rounded transition-colors"
                 title="Copiar ID"
               >
-                {copiedId === session.id ? <Check size={10} className="text-emerald-400" /> : <Copy size={10} />}
+                {copiedId === session.id ? <Check size={10} className="text-emerald-700" /> : <Copy size={10} />}
               </button>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-4 text-xs font-mono">
             {session.user_id && (
-              <div className="px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded-lg flex items-center gap-1.5 text-zinc-300">
-                <User size={13} className="text-zinc-500" />
+              <div className="px-3 py-1.5 bg-[#f5f4f0] border border-[#e6e4df] rounded-lg flex items-center gap-1.5 text-[#1a1a1a]">
+                <User size={13} className="text-[#6e6d68]" />
                 <div>
-                  <p className="text-zinc-500 text-[9px] font-sans">User ID</p>
+                  <p className="text-[#6e6d68] text-[9px] font-sans">User ID</p>
                   <p className="font-semibold">{session.user_id}</p>
                 </div>
               </div>
             )}
-            <div className="px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded-lg">
-              <p className="text-zinc-500 text-[9px] font-sans">Início</p>
-              <p className="font-semibold text-zinc-300 mt-0.5">{formatDate(session.start_time)}</p>
+            <div className="px-3 py-1.5 bg-[#f5f4f0] border border-[#e6e4df] rounded-lg">
+              <p className="text-[#6e6d68] text-[9px] font-sans">Início</p>
+              <p className="font-semibold text-[#1a1a1a] mt-0.5">{formatDate(session.start_time)}</p>
             </div>
-            <div className="px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded-lg">
-              <p className="text-zinc-500 text-[9px] font-sans">Duração</p>
-              <p className="font-semibold text-zinc-300 mt-0.5">{formatDuration(session.duration_ms)}</p>
+            <div className="px-3 py-1.5 bg-[#f5f4f0] border border-[#e6e4df] rounded-lg">
+              <p className="text-[#6e6d68] text-[9px] font-sans">Duração</p>
+              <p className="font-semibold text-[#1a1a1a] mt-0.5">{formatDuration(session.duration_ms)}</p>
             </div>
           </div>
         </div>
@@ -192,40 +192,40 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
       {/* Session Aggregated Summary widgets */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* Total Runs */}
-        <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm">
-          <div className="flex items-center justify-between text-zinc-400 text-xs">
+        <div className="p-4 rounded-xl border border-[#e6e4df] bg-[#ffffff] shadow-xs">
+          <div className="flex items-center justify-between text-[#6e6d68] text-xs">
             <span>Runs da Sessão</span>
-            <Activity size={14} className="text-zinc-500" />
+            <Activity size={14} className="text-[#6e6d68]" />
           </div>
-          <p className="text-xl font-bold font-mono mt-2 text-zinc-100">{session.run_count}</p>
+          <p className="text-xl font-bold font-mono mt-2 text-[#1a1a1a]">{session.run_count}</p>
         </div>
 
         {/* Total Tokens */}
-        <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm">
-          <div className="flex items-center justify-between text-zinc-400 text-xs">
+        <div className="p-4 rounded-xl border border-[#e6e4df] bg-[#ffffff] shadow-xs">
+          <div className="flex items-center justify-between text-[#6e6d68] text-xs">
             <span>Tokens Consumidos</span>
-            <Zap size={14} className="text-zinc-500" />
+            <Zap size={14} className="text-[#6e6d68]" />
           </div>
-          <p className="text-xl font-bold font-mono mt-2 text-zinc-100">{session.tokens_total.toLocaleString()}</p>
+          <p className="text-xl font-bold font-mono mt-2 text-[#1a1a1a]">{session.tokens_total.toLocaleString()}</p>
         </div>
 
         {/* Total Cost */}
-        <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm">
-          <div className="flex items-center justify-between text-zinc-400 text-xs">
+        <div className="p-4 rounded-xl border border-[#e6e4df] bg-[#ffffff] shadow-xs">
+          <div className="flex items-center justify-between text-[#6e6d68] text-xs">
             <span>Custo Acumulado</span>
-            <DollarSign size={14} className="text-zinc-500" />
+            <DollarSign size={14} className="text-[#6e6d68]" />
           </div>
-          <p className="text-xl font-bold font-mono mt-2 text-emerald-400">${session.cost_total.toFixed(4)}</p>
+          <p className="text-xl font-bold font-mono mt-2 text-emerald-700">${session.cost_total.toFixed(4)}</p>
         </div>
 
         {/* Guardrail and Average Evals */}
-        <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900 shadow-sm">
-          <div className="flex items-center justify-between text-zinc-400 text-xs">
+        <div className="p-4 rounded-xl border border-[#e6e4df] bg-[#ffffff] shadow-xs">
+          <div className="flex items-center justify-between text-[#6e6d68] text-xs">
             <span>Pontuação Eval / Violações</span>
-            <ShieldAlert size={14} className="text-zinc-500" />
+            <ShieldAlert size={14} className="text-[#6e6d68]" />
           </div>
           <div className="flex items-center justify-between mt-2.5">
-            <span className="text-sm font-semibold font-mono text-zinc-100">
+            <span className="text-sm font-semibold font-mono text-[#1a1a1a]">
               {session.average_eval_score !== undefined
                 ? `${(session.average_eval_score * 100).toFixed(0)}%`
                 : "N/A"}
@@ -233,8 +233,8 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
             <span
               className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
                 session.total_violations > 0
-                  ? "bg-rose-500/15 text-rose-400 border border-rose-500/20"
-                  : "bg-emerald-500/10 text-emerald-400"
+                  ? "bg-red-50 text-red-800 border border-red-200"
+                  : "bg-emerald-50 text-emerald-800 border border-emerald-200"
               }`}
             >
               {session.total_violations > 0 ? `🚩 ${session.total_violations} Violações` : "Segura ✔"}
@@ -245,21 +245,21 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
 
       {/* Runs sequence inside this session */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-zinc-200">Rastreamento de Execuções (Passos)</h3>
+        <h3 className="text-sm font-serif italic font-bold text-[#1a1a1a]">Rastreamento de Execuções (Passos)</h3>
 
-        <div className="border border-zinc-800 rounded-xl bg-zinc-900 overflow-hidden shadow-sm">
+        <div className="border border-[#e6e4df] rounded-xl bg-[#ffffff] overflow-hidden shadow-xs">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-zinc-800 text-zinc-400 bg-zinc-900/40">
-                <th className="px-6 py-3 font-medium">Passo ID</th>
-                <th className="px-6 py-3 font-medium">Horário</th>
-                <th className="px-6 py-3 font-medium">Nome do Passo</th>
-                <th className="px-6 py-3 font-medium">Modelo</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3 font-medium text-right">Latência</th>
-                <th className="px-6 py-3 font-medium text-center">Guardrail</th>
-                <th className="px-6 py-3 font-medium">Score Eval</th>
-                <th className="px-6 py-3 font-medium text-right">Ação</th>
+              <tr className="border-b border-[#e6e4df] text-[#6e6d68] bg-[#f5f4f0]">
+                <th className="px-6 py-3 font-semibold">Passo ID</th>
+                <th className="px-6 py-3 font-semibold">Horário</th>
+                <th className="px-6 py-3 font-semibold">Nome do Passo</th>
+                <th className="px-6 py-3 font-semibold">Modelo</th>
+                <th className="px-6 py-3 font-semibold">Status</th>
+                <th className="px-6 py-3 font-semibold text-right">Latência</th>
+                <th className="px-6 py-3 font-semibold text-center">Guardrail</th>
+                <th className="px-6 py-3 font-semibold">Score Eval</th>
+                <th className="px-6 py-3 font-semibold text-right">Ação</th>
               </tr>
             </thead>
             <tbody>
@@ -268,46 +268,46 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
                   <tr
                     key={run.id}
                     onClick={() => onNavigateToTab(`run-detail-${run.id}`)}
-                    className="border-b border-zinc-800/40 hover:bg-zinc-800/25 cursor-pointer text-zinc-300 transition-colors"
+                    className="border-b border-[#e6e4df] hover:bg-[#f5f4f0] cursor-pointer text-[#1a1a1a] transition-colors"
                   >
-                    <td className="px-6 py-4 font-mono text-[10px] text-zinc-500">
+                    <td className="px-6 py-4 font-mono text-[10px] text-[#6e6d68]">
                       Step {index + 1} ({run.id})
                     </td>
-                    <td className="px-6 py-4 text-zinc-400 font-mono whitespace-nowrap">
+                    <td className="px-6 py-4 text-[#575652] font-mono whitespace-nowrap">
                       {new Date(run.timestamp).toLocaleTimeString()}
                     </td>
-                    <td className="px-6 py-4 font-semibold text-zinc-200 truncate max-w-[150px]">
+                    <td className="px-6 py-4 font-semibold text-[#1a1a1a] truncate max-w-[150px]">
                       {run.name}
                     </td>
-                    <td className="px-6 py-4 font-mono text-[10px] text-zinc-500">
+                    <td className="px-6 py-4 font-mono text-[10px] text-[#6e6d68]">
                       {run.model}
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${
+                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium font-mono border ${
                           run.status === "ok"
-                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                            : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            : "bg-red-50 text-red-800 border-red-200"
                         }`}
                       >
                         {run.status === "ok" ? "OK" : "Falhou"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right font-mono text-zinc-400">
+                    <td className="px-6 py-4 text-right font-mono text-[#575652]">
                       {run.latency_ms} ms
                     </td>
                     <td className="px-6 py-4 text-center">
                       {run.has_violation ? (
-                        <span className="text-rose-400 font-bold" title="Violação!">🚩</span>
+                        <span className="text-red-700 font-bold" title="Violação!">🚩</span>
                       ) : (
-                        <span className="text-emerald-400">✔</span>
+                        <span className="text-emerald-700">✔</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       {renderScoreProgress(run.average_eval_score)}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="text-emerald-400 hover:text-emerald-300 hover:underline font-semibold flex items-center justify-end gap-1 ml-auto">
+                      <button className="text-[#1a1a1a] hover:underline font-semibold flex items-center justify-end gap-1 ml-auto">
                         <span>Detalhes</span>
                         <ArrowRight size={12} />
                       </button>
@@ -316,7 +316,7 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center text-zinc-500">
+                  <td colSpan={9} className="px-6 py-12 text-center text-[#6e6d68]">
                     Nenhum passo registrado nesta sessão.
                   </td>
                 </tr>

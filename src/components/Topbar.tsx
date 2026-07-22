@@ -88,19 +88,19 @@ export default function Topbar({
   ];
 
   return (
-    <header className="flex flex-col bg-zinc-950 border-b border-zinc-900/60 shrink-0 select-none">
+    <header className="flex flex-col bg-[#faf9f6] border-b border-[#e6e4df] shrink-0 select-none">
       {/* Top Row: Breadcrumb, Project Name & Filters */}
       <div className="flex flex-row items-center justify-between px-6 pt-3 pb-2">
         {/* Breadcrumb & Project Label */}
         <div className="flex flex-col">
-          <div className="text-[10px] text-zinc-500 font-mono tracking-wider uppercase">
+          <div className="text-[10px] text-[#6e6d68] font-mono tracking-wider uppercase">
             {currentTab === "dashboard" ? "Personal / Monitoring" : "Personal / Tracing / uRag"}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-sm font-semibold text-zinc-100 tracking-tight">
-              uRag
+            <span className="font-serif italic text-base font-semibold text-[#1a1a1a] tracking-tight">
+              uRag Guard
             </span>
-            <span className="px-1.5 py-0.5 rounded text-[9px] bg-zinc-900 text-zinc-400 border border-zinc-800">
+            <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#f5f4f0] text-[#575652] border border-[#e6e4df] font-mono">
               prod-us-east
             </span>
           </div>
@@ -109,35 +109,35 @@ export default function Topbar({
         {/* Right Aligned Global Filters with High Density */}
         <div className="flex items-center gap-2">
           {/* Period Filter */}
-          <div className="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-zinc-300">
-            <Calendar size={12} className="text-zinc-500" />
+          <div className="flex items-center gap-1.5 bg-[#ffffff] border border-[#e6e4df] rounded px-2 py-1 text-xs text-[#1a1a1a] shadow-xs">
+            <Calendar size={12} className="text-[#6e6d68]" />
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
-              className="bg-transparent focus:outline-none text-zinc-200 cursor-pointer pr-1 text-[11px] font-medium"
+              className="bg-transparent focus:outline-none text-[#1a1a1a] cursor-pointer pr-1 text-[11px] font-medium"
             >
-              <option value="24h" className="bg-zinc-950 text-zinc-100">Últimas 24h</option>
-              <option value="7d" className="bg-zinc-950 text-zinc-100">Últimos 7 dias</option>
-              <option value="30d" className="bg-zinc-950 text-zinc-100">Últimos 30 dias</option>
-              <option value="custom" className="bg-zinc-950 text-zinc-100">Personalizado</option>
+              <option value="24h" className="bg-[#ffffff] text-[#1a1a1a]">Últimas 24h</option>
+              <option value="7d" className="bg-[#ffffff] text-[#1a1a1a]">Últimos 7 dias</option>
+              <option value="30d" className="bg-[#ffffff] text-[#1a1a1a]">Últimos 30 dias</option>
+              <option value="custom" className="bg-[#ffffff] text-[#1a1a1a]">Personalizado</option>
             </select>
           </div>
 
           {/* Custom Date Picker */}
           {period === "custom" && (
-            <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded px-1.5 py-0.5 text-[10px]">
+            <div className="flex items-center gap-1 bg-[#ffffff] border border-[#e6e4df] rounded px-1.5 py-0.5 text-[10px] shadow-xs">
               <input
                 type="date"
                 value={customFrom}
                 onChange={(e) => setCustomFrom(e.target.value)}
-                className="bg-transparent text-zinc-300 focus:outline-none border-none py-0.5"
+                className="bg-transparent text-[#1a1a1a] focus:outline-none border-none py-0.5 font-mono"
               />
-              <span className="text-zinc-500 text-[9px]">to</span>
+              <span className="text-[#6e6d68] text-[9px]">até</span>
               <input
                 type="date"
                 value={customTo}
                 onChange={(e) => setCustomTo(e.target.value)}
-                className="bg-transparent text-zinc-300 focus:outline-none border-none py-0.5"
+                className="bg-transparent text-[#1a1a1a] focus:outline-none border-none py-0.5 font-mono"
               />
             </div>
           )}
@@ -146,38 +146,38 @@ export default function Topbar({
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsSourceDropdownOpen(!isSourceDropdownOpen)}
-              className="flex items-center gap-1.5 bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800 hover:border-zinc-700 rounded px-2 py-1 text-xs text-zinc-300 transition-colors"
+              className="flex items-center gap-1.5 bg-[#ffffff] hover:bg-[#f5f4f0] border border-[#e6e4df] rounded px-2.5 py-1 text-xs text-[#1a1a1a] transition-colors shadow-xs"
             >
-              <Layers size={12} className="text-zinc-500" />
-              <span className="text-zinc-300 text-[11px] font-medium truncate max-w-[100px]">
+              <Layers size={12} className="text-[#6e6d68]" />
+              <span className="text-[#1a1a1a] text-[11px] font-medium truncate max-w-[120px]">
                 Fonte: {isAllSourcesSelected ? "Todas" : selectedSources.join(", ")}
               </span>
-              <ChevronDown size={10} className="text-zinc-500 shrink-0" />
+              <ChevronDown size={10} className="text-[#6e6d68] shrink-0" />
             </button>
 
             {isSourceDropdownOpen && (
-              <div className="absolute right-0 mt-1 w-52 rounded border border-zinc-800 bg-zinc-900 shadow-xl z-50 p-1 space-y-0.5">
+              <div className="absolute right-0 mt-1 w-52 rounded border border-[#e6e4df] bg-[#ffffff] shadow-lg z-50 p-1 space-y-0.5">
                 <button
                   onClick={handleAllSourcesToggle}
-                  className="flex items-center justify-between w-full px-2 py-1 rounded text-[11px] hover:bg-zinc-800 text-left text-zinc-300"
+                  className="flex items-center justify-between w-full px-2 py-1.5 rounded text-[11px] hover:bg-[#f5f4f0] text-left text-[#1a1a1a] font-medium"
                 >
                   <span>Todas as fontes</span>
-                  {isAllSourcesSelected && <Check size={10} className="text-emerald-400 shrink-0" />}
+                  {isAllSourcesSelected && <Check size={10} className="text-emerald-700 shrink-0" />}
                 </button>
-                <div className="h-px bg-zinc-800 my-1" />
+                <div className="h-px bg-[#e6e4df] my-1" />
                 {sourceOptions.map((opt) => {
                   const checked = selectedSources.includes(opt.id);
                   return (
                     <button
                       key={opt.id}
                       onClick={() => handleSourceToggle(opt.id)}
-                      className="flex items-center justify-between w-full px-2 py-1 rounded text-[11px] hover:bg-zinc-800 text-left text-zinc-300 transition-colors"
+                      className="flex items-center justify-between w-full px-2 py-1 rounded text-[11px] hover:bg-[#f5f4f0] text-left text-[#1a1a1a] transition-colors"
                     >
-                      <span className={`px-1 rounded text-[9px] font-mono border ${opt.color}`}>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-[#f5f4f0] text-[#1a1a1a] border border-[#e6e4df]">
                         {opt.label}
                       </span>
                       {checked && !isAllSourcesSelected && (
-                        <Check size={10} className="text-emerald-400 shrink-0" />
+                        <Check size={10} className="text-emerald-700 shrink-0" />
                       )}
                     </button>
                   );
@@ -189,7 +189,7 @@ export default function Topbar({
       </div>
 
       {/* Bottom Row: Project Navigation Tabs */}
-      <div className="flex items-center px-6 border-t border-zinc-900/40">
+      <div className="flex items-center px-6 border-t border-[#e6e4df]">
         <div className="flex gap-4 overflow-x-auto scrollbar-none">
           {tabs.map((tab) => {
             const active = activeBaseTab === tab.id;
@@ -199,8 +199,8 @@ export default function Topbar({
                 onClick={() => setCurrentTab(tab.id)}
                 className={`py-2 text-[11px] uppercase tracking-wider font-mono border-b-2 transition-all duration-150 ${
                   active
-                    ? "border-zinc-200 text-zinc-100 font-medium"
-                    : "border-transparent text-zinc-500 hover:text-zinc-300"
+                    ? "border-[#1a1a1a] text-[#1a1a1a] font-semibold"
+                    : "border-transparent text-[#6e6d68] hover:text-[#1a1a1a]"
                 }`}
               >
                 {tab.label}

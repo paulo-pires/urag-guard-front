@@ -61,18 +61,18 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
 
   return (
     <aside
-      className={`flex flex-col h-screen border-r border-zinc-900/60 bg-zinc-950 text-zinc-100 transition-all duration-200 select-none ${
+      className={`flex flex-col h-screen border-r border-[#e6e4df] bg-[#f5f4f0] text-[#1a1a1a] transition-all duration-200 select-none ${
         isExpanded ? "w-52" : "w-14"
       }`}
     >
       {/* Brand Logo / Slim Header */}
-      <div className="flex items-center justify-between h-12 px-3 border-b border-zinc-900/60">
+      <div className="flex items-center justify-between h-12 px-3 border-b border-[#e6e4df]">
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className="flex items-center justify-center w-8 h-8 rounded bg-zinc-900 text-zinc-100 border border-zinc-800 shrink-0">
-            <ShieldCheck size={16} className="text-zinc-400" />
+          <div className="flex items-center justify-center w-8 h-8 rounded bg-[#1a1a1a] text-white border border-[#1a1a1a] shrink-0">
+            <ShieldCheck size={16} className="text-white" />
           </div>
           {isExpanded && (
-            <span className="font-medium text-xs tracking-tight text-zinc-200 whitespace-nowrap">
+            <span className="font-serif italic font-semibold text-sm tracking-tight text-[#1a1a1a] whitespace-nowrap">
               uRag Guard
             </span>
           )}
@@ -80,7 +80,7 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
         {isExpanded && (
           <button
             onClick={() => setIsExpanded(false)}
-            className="flex items-center justify-center w-5 h-5 rounded hover:bg-zinc-900 text-zinc-400 hover:text-zinc-200"
+            className="flex items-center justify-center w-5 h-5 rounded hover:bg-[#e8e6e1] text-[#6e6d68] hover:text-[#1a1a1a] transition-colors"
           >
             <ChevronLeft size={14} />
           </button>
@@ -88,7 +88,7 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
         {!isExpanded && (
           <button
             onClick={() => setIsExpanded(true)}
-            className="absolute left-11 z-50 flex items-center justify-center w-4 h-8 rounded-r bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border-y border-r border-zinc-800 opacity-0 hover:opacity-100 transition-opacity"
+            className="absolute left-11 z-50 flex items-center justify-center w-4 h-8 rounded-r bg-[#f5f4f0] hover:bg-[#e8e6e1] text-[#6e6d68] hover:text-[#1a1a1a] border-y border-r border-[#e6e4df] opacity-0 hover:opacity-100 transition-opacity"
           >
             <ChevronRight size={12} />
           </button>
@@ -102,7 +102,7 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
             return (
               <div
                 key={item.id}
-                className="my-2 border-t border-zinc-900/80 mx-2"
+                className="my-2 border-t border-[#e6e4df] mx-2"
               />
             );
           }
@@ -118,19 +118,19 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
                 isExpanded ? "px-2.5 py-1.5 gap-2.5" : "p-2.5 justify-center"
               } ${
                 active
-                  ? "bg-zinc-900 text-zinc-100"
-                  : "text-zinc-400 hover:bg-zinc-900/50 hover:text-zinc-200"
+                  ? "bg-[#1a1a1a] text-white font-medium"
+                  : "text-[#575652] hover:bg-[#e8e6e1] hover:text-[#1a1a1a]"
               }`}
               title={!isExpanded ? item.label : undefined}
             >
               <Icon size={16} className="shrink-0" />
               {isExpanded && (
-                <span className="text-xs font-normal truncate">{item.label}</span>
+                <span className="text-xs truncate">{item.label}</span>
               )}
               
               {/* Minimal Tooltip for Slim Mode */}
               {!isExpanded && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-zinc-900 text-zinc-100 text-[11px] font-normal rounded border border-zinc-800 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-md">
+                <div className="absolute left-full ml-2 px-2.5 py-1 bg-[#1a1a1a] text-white text-[11px] font-normal rounded border border-[#1a1a1a] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-md">
                   {item.label}
                 </div>
               )}
@@ -140,17 +140,17 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
       </nav>
 
       {/* Compact Backend Status Footer */}
-      <div className="p-2 border-t border-zinc-900/60 text-[10px] text-zinc-500 flex items-center justify-center">
+      <div className="p-2 border-t border-[#e6e4df] text-[10px] text-[#6e6d68] flex items-center justify-center">
         {isExpanded ? (
           <div className="flex items-center justify-between w-full px-1">
-            <span className="truncate max-w-[80px]">uRag Guard</span>
+            <span className="truncate max-w-[80px] font-serif italic text-[#1a1a1a]">uRag Guard</span>
             <div className="flex items-center gap-1 shrink-0">
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  backendOnline ? "bg-emerald-500" : "bg-rose-500"
+                  backendOnline ? "bg-emerald-600" : "bg-rose-600"
                 }`}
               />
-              <span className={backendOnline ? "text-emerald-500" : "text-rose-500"}>
+              <span className={backendOnline ? "text-emerald-700 font-medium" : "text-rose-700 font-medium"}>
                 {backendOnline ? "online" : "offline"}
               </span>
             </div>
@@ -158,7 +158,7 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
         ) : (
           <div
             className={`w-1.5 h-1.5 rounded-full ${
-              backendOnline ? "bg-emerald-500" : "bg-rose-500"
+              backendOnline ? "bg-emerald-600" : "bg-rose-600"
             }`}
             title={backendOnline ? "API Online" : "API Offline"}
           />

@@ -222,20 +222,20 @@ export default function ProjectsView() {
     <div id="projects-view-root" className="min-h-full">
       {/* Page Title & Context Header */}
       <div className="flex flex-col gap-1 mb-6">
-        <h1 className="text-xl font-semibold text-zinc-100 tracking-tight flex items-center gap-2">
-          <KeyRound size={20} className="text-zinc-400" />
+        <h1 className="font-serif italic text-2xl font-semibold text-[#1a1a1a] tracking-tight flex items-center gap-2">
+          <KeyRound size={22} className="text-[#1a1a1a]" />
           Projetos &amp; API Keys
         </h1>
-        <p className="text-xs text-zinc-400 max-w-2xl">
+        <p className="text-xs text-[#6e6d68] max-w-2xl">
           Gerencie múltiplos projetos isolados ("tenants") e controle chaves de autenticação individuais para ingestão de dados ou acesso ao dashboard.
         </p>
       </div>
 
       {errorMsg && (
-        <div className="mb-6 p-4 rounded border border-red-900/40 bg-red-950/20 text-red-400 text-xs flex items-center gap-2">
-          <AlertTriangle size={14} className="shrink-0" />
+        <div className="mb-6 p-4 rounded border border-red-200 bg-red-50 text-red-700 text-xs flex items-center gap-2">
+          <AlertTriangle size={14} className="shrink-0 text-red-600" />
           <span>{errorMsg}</span>
-          <button onClick={() => loadProjects()} className="ml-auto underline hover:text-red-300">
+          <button onClick={() => loadProjects()} className="ml-auto underline hover:text-red-900 font-medium">
             Tentar Novamente
           </button>
         </div>
@@ -244,28 +244,28 @@ export default function ProjectsView() {
       {/* Main Responsive Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 items-start">
         {/* Left Column: Projects List */}
-        <div className="flex flex-col rounded border border-zinc-900/60 bg-zinc-950 overflow-hidden">
-          <div className="flex items-center justify-between p-3 border-b border-zinc-900/60 bg-zinc-900/20">
-            <span className="text-xs font-semibold text-zinc-300 tracking-tight">
+        <div className="flex flex-col rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs overflow-hidden">
+          <div className="flex items-center justify-between p-3 border-b border-[#e6e4df] bg-[#f5f4f0]">
+            <span className="font-serif italic text-xs font-semibold text-[#1a1a1a] tracking-tight">
               Projetos ({projects.length})
             </span>
             <button
               onClick={() => setIsNewProjectModalOpen(true)}
-              className="flex items-center gap-1 px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 text-[11px] text-zinc-200 border border-zinc-800 hover:border-zinc-700 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#1a1a1a] hover:bg-[#2e2e2e] text-[11px] text-white transition-colors font-medium shadow-xs"
             >
               <Plus size={12} />
               <span>Novo</span>
             </button>
           </div>
 
-          <div className="p-1.5 space-y-1 max-h-[600px] overflow-y-auto scrollbar-none min-h-[160px]">
+          <div className="p-2 space-y-1 max-h-[600px] overflow-y-auto scrollbar-none min-h-[160px]">
             {loadingProjects ? (
               <div className="flex flex-col items-center justify-center py-10 gap-2">
-                <Loader2 size={16} className="text-zinc-500 animate-spin" />
-                <span className="text-[10px] text-zinc-500">Buscando projetos...</span>
+                <Loader2 size={16} className="text-[#6e6d68] animate-spin" />
+                <span className="text-[10px] text-[#6e6d68]">Buscando projetos...</span>
               </div>
             ) : sortedProjects.length === 0 ? (
-              <div className="text-center py-8 text-zinc-500 text-xs">
+              <div className="text-center py-8 text-[#6e6d68] text-xs">
                 Nenhum projeto encontrado.
               </div>
             ) : (
@@ -280,24 +280,28 @@ export default function ProjectsView() {
                   <button
                     key={project.id}
                     onClick={() => setSelectedProject(project)}
-                    className={`flex flex-col w-full text-left p-2.5 rounded transition-colors group relative ${
+                    className={`flex flex-col w-full text-left p-3 rounded-md transition-all group relative ${
                       isSelected
-                        ? "bg-zinc-900 text-zinc-100 border border-zinc-800"
-                        : "text-zinc-400 hover:bg-zinc-900/40 hover:text-zinc-200 border border-transparent"
+                        ? "bg-[#1a1a1a] text-white shadow-xs"
+                        : "text-[#575652] hover:bg-[#f5f4f0] hover:text-[#1a1a1a] border border-transparent"
                     }`}
                   >
                     <div className="flex items-center justify-between w-full">
-                      <span className="font-medium text-xs truncate max-w-[170px] text-zinc-200 group-hover:text-zinc-100">
+                      <span className={`font-medium text-xs truncate max-w-[170px] ${isSelected ? "text-white" : "text-[#1a1a1a]"}`}>
                         {project.name}
                       </span>
                       {isDefault && (
-                        <span className="px-1 py-0.5 rounded text-[8px] bg-emerald-950/40 border border-emerald-900/60 text-emerald-400 font-medium tracking-wide">
+                        <span className={`px-1.5 py-0.5 rounded text-[8px] font-mono tracking-wide ${
+                          isSelected 
+                            ? "bg-white/20 text-white font-medium" 
+                            : "bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium"
+                        }`}>
                           Padrão
                         </span>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between w-full mt-2 text-[10px] text-zinc-500">
+                    <div className={`flex items-center justify-between w-full mt-2 text-[10px] ${isSelected ? "text-white/70" : "text-[#6e6d68]"}`}>
                       <span className="flex items-center gap-1 font-mono">
                         <KeyRound size={10} />
                         {keyCount} {keyCount === 1 ? "chave" : "chaves"}
@@ -312,34 +316,34 @@ export default function ProjectsView() {
         </div>
 
         {/* Right Column: Project Details & API Keys Table */}
-        <div className="flex flex-col rounded border border-zinc-900/60 bg-zinc-950 overflow-hidden min-h-[400px]">
+        <div className="flex flex-col rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs overflow-hidden min-h-[400px]">
           {selectedProject ? (
             <div className="flex flex-col flex-1">
               {/* Project Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-zinc-900/60 bg-zinc-900/20 gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-[#e6e4df] bg-[#f5f4f0] gap-3">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-sm font-semibold text-zinc-100">
+                    <h2 className="font-serif italic text-base font-semibold text-[#1a1a1a]">
                       {selectedProject.name}
                     </h2>
                     {(selectedProject.name.toLowerCase() === "default" ||
                       selectedProject.id === "default") && (
-                      <span className="px-1.5 py-0.5 rounded text-[9px] bg-emerald-950/40 border border-emerald-900/50 text-emerald-400">
+                      <span className="px-2 py-0.5 rounded text-[9px] bg-emerald-50 border border-emerald-200 text-emerald-800 font-medium font-mono">
                         Projeto Padrão
                       </span>
                     )}
                   </div>
-                  <span className="text-[10px] text-zinc-500 flex items-center gap-1">
+                  <span className="text-[10px] text-[#6e6d68] flex items-center gap-1 font-mono">
                     <Calendar size={11} />
                     Criado em {formatFullDate(selectedProject.created_at)}
-                    <span className="text-zinc-700">•</span>
-                    ID: <span className="font-mono">{selectedProject.id}</span>
+                    <span className="text-[#e6e4df]">•</span>
+                    ID: <span>{selectedProject.id}</span>
                   </span>
                 </div>
 
                 <button
                   onClick={() => setIsNewKeyModalOpen(true)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded bg-zinc-100 hover:bg-zinc-200 text-xs text-zinc-950 font-medium tracking-tight transition-colors shrink-0"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded bg-[#1a1a1a] hover:bg-[#2e2e2e] text-xs text-white font-medium transition-colors shrink-0 shadow-xs"
                 >
                   <Plus size={14} />
                   <span>Nova Key</span>
@@ -350,23 +354,23 @@ export default function ProjectsView() {
               <div className="flex-1 p-4">
                 {loadingKeys ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-3">
-                    <Loader2 size={24} className="text-zinc-500 animate-spin" />
-                    <span className="text-xs text-zinc-400">Buscando chaves de API...</span>
+                    <Loader2 size={24} className="text-[#6e6d68] animate-spin" />
+                    <span className="text-xs text-[#6e6d68]">Buscando chaves de API...</span>
                   </div>
                 ) : apiKeys.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-zinc-900 rounded p-8">
-                    <div className="w-10 h-10 rounded bg-zinc-900/60 border border-zinc-800 flex items-center justify-center mb-3">
-                      <KeyRound size={18} className="text-zinc-500" />
+                  <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-[#e6e4df] rounded-lg p-8 bg-[#faf9f6]">
+                    <div className="w-10 h-10 rounded-full bg-[#f5f4f0] border border-[#e6e4df] flex items-center justify-center mb-3">
+                      <KeyRound size={18} className="text-[#1a1a1a]" />
                     </div>
-                    <h3 className="text-xs font-semibold text-zinc-300">
+                    <h3 className="font-serif italic text-sm font-semibold text-[#1a1a1a]">
                       Nenhuma chave de API criada ainda
                     </h3>
-                    <p className="text-[11px] text-zinc-500 max-w-[280px] mt-1">
+                    <p className="text-[11px] text-[#6e6d68] max-w-[280px] mt-1">
                       Crie chaves de API para permitir que aplicações enviem dados (ingestão) ou interajam com o dashboard com segurança.
                     </p>
                     <button
                       onClick={() => setIsNewKeyModalOpen(true)}
-                      className="mt-4 flex items-center gap-1.5 px-3 py-1.5 rounded bg-zinc-900 hover:bg-zinc-800 text-[11px] font-medium text-zinc-200 border border-zinc-800 transition-colors"
+                      className="mt-4 flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#1a1a1a] hover:bg-[#2e2e2e] text-[11px] font-medium text-white transition-colors shadow-xs"
                     >
                       <Plus size={12} />
                       <span>Gerar Primeira Key</span>
@@ -376,51 +380,51 @@ export default function ProjectsView() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-zinc-900/60 text-[10px] text-zinc-500 font-mono tracking-wider uppercase">
-                          <th className="pb-2.5 font-medium">Prefixo</th>
-                          <th className="pb-2.5 font-medium">Tipo</th>
-                          <th className="pb-2.5 font-medium">Criada Em</th>
-                          <th className="pb-2.5 font-medium">Último Uso</th>
-                          <th className="pb-2.5 font-medium text-right">Ações</th>
+                        <tr className="border-b border-[#e6e4df] bg-[#f5f4f0] text-[10px] text-[#6e6d68] font-mono tracking-wider uppercase">
+                          <th className="py-2.5 px-3 font-medium rounded-l">Prefixo</th>
+                          <th className="py-2.5 px-3 font-medium">Tipo</th>
+                          <th className="py-2.5 px-3 font-medium">Criada Em</th>
+                          <th className="py-2.5 px-3 font-medium">Último Uso</th>
+                          <th className="py-2.5 px-3 font-medium text-right rounded-r">Ações</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-zinc-900/40 text-xs">
+                      <tbody className="divide-y divide-[#e6e4df] text-xs">
                         {apiKeys.map((key) => {
                           const isIngest = key.kind === "ingest";
                           return (
-                            <tr key={key.id} className="hover:bg-zinc-900/10 group">
-                              <td className="py-3 font-mono text-[11px] text-zinc-300">
+                            <tr key={key.id} className="hover:bg-[#f5f4f0]/60 group transition-colors">
+                              <td className="py-3 px-3 font-mono text-[11px] text-[#1a1a1a] font-medium">
                                 {key.key_prefix}...
                               </td>
-                              <td className="py-3">
+                              <td className="py-3 px-3">
                                 {isIngest ? (
-                                  <span className="px-2 py-0.5 rounded text-[10px] bg-blue-950/40 border border-blue-900/60 text-blue-400 font-medium">
+                                  <span className="px-2 py-0.5 rounded text-[10px] bg-blue-50 border border-blue-200 text-blue-800 font-medium font-mono">
                                     Ingestão
                                   </span>
                                 ) : (
-                                  <span className="px-2 py-0.5 rounded text-[10px] bg-purple-950/40 border border-purple-900/60 text-purple-400 font-medium">
+                                  <span className="px-2 py-0.5 rounded text-[10px] bg-purple-50 border border-purple-200 text-purple-800 font-medium font-mono">
                                     Dashboard
                                   </span>
                                 )}
                               </td>
-                              <td className="py-3 text-zinc-400 text-[11px]">
+                              <td className="py-3 px-3 text-[#6e6d68] text-[11px]">
                                 {getRelativeTimeString(key.created_at)}
                               </td>
-                              <td className="py-3">
+                              <td className="py-3 px-3">
                                 {key.last_used_at ? (
-                                  <span className="text-zinc-300 text-[11px]">
+                                  <span className="text-[#1a1a1a] text-[11px]">
                                     {getRelativeTimeString(key.last_used_at)}
                                   </span>
                                 ) : (
-                                  <span className="text-zinc-600 text-[11px] italic">
+                                  <span className="text-[#8e8d87] text-[11px] italic">
                                     nunca usada
                                   </span>
                                 )}
                               </td>
-                              <td className="py-3 text-right">
+                              <td className="py-3 px-3 text-right">
                                 <button
                                   onClick={() => setKeyToRevoke(key)}
-                                  className="p-1 rounded text-zinc-500 hover:text-red-400 hover:bg-red-950/10 transition-all opacity-80 group-hover:opacity-100"
+                                  className="p-1.5 rounded text-[#6e6d68] hover:text-red-600 hover:bg-red-50 transition-all"
                                   title="Revogar chave de API"
                                 >
                                   <Trash2 size={13} />
@@ -436,8 +440,8 @@ export default function ProjectsView() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center flex-1 py-12 text-center text-zinc-500 p-8">
-              <KeyRound size={28} className="mb-2 text-zinc-700" />
+            <div className="flex flex-col items-center justify-center flex-1 py-12 text-center text-[#6e6d68] p-8">
+              <KeyRound size={28} className="mb-2 text-[#8e8d87]" />
               <p className="text-xs">Nenhum projeto carregado ou selecionado.</p>
             </div>
           )}
@@ -447,21 +451,21 @@ export default function ProjectsView() {
       {/* NEW PROJECT MODAL */}
       <AnimatePresence>
         {isNewProjectModalOpen && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.15 }}
-              className="bg-zinc-950 border border-zinc-900 rounded-lg shadow-xl max-w-sm w-full overflow-hidden"
+              className="bg-[#ffffff] border border-[#e6e4df] rounded-xl shadow-xl max-w-sm w-full overflow-hidden"
             >
-              <div className="flex items-center justify-between p-4 border-b border-zinc-900 bg-zinc-900/20">
-                <h3 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider font-mono">
+              <div className="flex items-center justify-between p-4 border-b border-[#e6e4df] bg-[#f5f4f0]">
+                <h3 className="font-serif italic text-sm font-semibold text-[#1a1a1a]">
                   Criar Novo Projeto
                 </h3>
                 <button
                   onClick={() => setIsNewProjectModalOpen(false)}
-                  className="text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="text-[#6e6d68] hover:text-[#1a1a1a] transition-colors"
                 >
                   <X size={14} />
                 </button>
@@ -469,7 +473,7 @@ export default function ProjectsView() {
 
               <form onSubmit={handleCreateProject} className="p-4 space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+                  <label className="text-[10px] font-mono uppercase tracking-wider text-[#6e6d68]">
                     Nome do Projeto
                   </label>
                   <input
@@ -478,22 +482,22 @@ export default function ProjectsView() {
                     placeholder="Ex: Produção, App de Teste"
                     value={newProjectName}
                     onChange={(e) => setNewProjectName(e.target.value)}
-                    className="w-full rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 focus:ring-0 transition-colors"
+                    className="w-full rounded-md border border-[#e6e4df] bg-[#ffffff] px-3 py-2 text-xs text-[#1a1a1a] placeholder-[#8e8d87] focus:outline-none focus:border-[#1a1a1a] transition-colors"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#e6e4df]">
                   <button
                     type="button"
                     onClick={() => setIsNewProjectModalOpen(false)}
-                    className="px-3 py-1.5 rounded text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 font-medium transition-colors"
+                    className="px-3 py-1.5 rounded-md text-xs text-[#6e6d68] hover:text-[#1a1a1a] hover:bg-[#f5f4f0] font-medium transition-colors"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={actionLoading || !newProjectName.trim()}
-                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-xs transition-colors disabled:opacity-50"
+                    className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#1a1a1a] hover:bg-[#2e2e2e] text-white font-medium text-xs transition-colors disabled:opacity-50 shadow-xs"
                   >
                     {actionLoading && <Loader2 size={12} className="animate-spin" />}
                     <span>Criar Projeto</span>
@@ -508,26 +512,26 @@ export default function ProjectsView() {
       {/* NEW API KEY MODAL */}
       <AnimatePresence>
         {isNewKeyModalOpen && selectedProject && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.15 }}
-              className="bg-zinc-950 border border-zinc-900 rounded-lg shadow-xl max-w-md w-full overflow-hidden"
+              className="bg-[#ffffff] border border-[#e6e4df] rounded-xl shadow-xl max-w-md w-full overflow-hidden"
             >
-              <div className="flex items-center justify-between p-4 border-b border-zinc-900 bg-zinc-900/20">
+              <div className="flex items-center justify-between p-4 border-b border-[#e6e4df] bg-[#f5f4f0]">
                 <div className="flex flex-col">
-                  <h3 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider font-mono">
+                  <h3 className="font-serif italic text-sm font-semibold text-[#1a1a1a]">
                     Nova Chave de API
                   </h3>
-                  <span className="text-[10px] text-zinc-500 mt-0.5">
+                  <span className="text-[10px] text-[#6e6d68] mt-0.5">
                     Projeto: {selectedProject.name}
                   </span>
                 </div>
                 <button
                   onClick={() => setIsNewKeyModalOpen(false)}
-                  className="text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="text-[#6e6d68] hover:text-[#1a1a1a] transition-colors"
                 >
                   <X size={14} />
                 </button>
@@ -535,7 +539,7 @@ export default function ProjectsView() {
 
               <div className="p-4 space-y-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block">
+                  <label className="text-[10px] font-mono uppercase tracking-wider text-[#6e6d68] block">
                     Selecione o Tipo de Chave
                   </label>
 
@@ -543,10 +547,10 @@ export default function ProjectsView() {
                     {/* Ingest Key Option */}
                     <label
                       onClick={() => setNewKeyKind("ingest")}
-                      className={`flex items-start gap-3 p-3 rounded border cursor-pointer select-none transition-all ${
+                      className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer select-none transition-all ${
                         newKeyKind === "ingest"
-                          ? "bg-blue-950/20 border-blue-900/80 text-blue-300"
-                          : "bg-zinc-900/40 border-zinc-800 hover:border-zinc-700/60 text-zinc-400"
+                          ? "bg-blue-50/50 border-blue-300 text-blue-900"
+                          : "bg-[#ffffff] border-[#e6e4df] hover:bg-[#f5f4f0] text-[#575652]"
                       }`}
                     >
                       <input
@@ -558,18 +562,18 @@ export default function ProjectsView() {
                       />
                       <div className="mt-0.5 shrink-0">
                         <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                          newKeyKind === "ingest" ? "border-blue-400" : "border-zinc-700"
+                          newKeyKind === "ingest" ? "border-blue-600" : "border-[#8e8d87]"
                         }`}>
                           {newKeyKind === "ingest" && (
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />
                           )}
                         </div>
                       </div>
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-xs font-semibold text-zinc-200">
+                        <span className="text-xs font-semibold text-[#1a1a1a]">
                           Ingestão (X-Guard-Token)
                         </span>
-                        <span className="text-[10px] leading-relaxed text-zinc-400">
+                        <span className="text-[10px] leading-relaxed text-[#6e6d68]">
                           Usada para APIs de servidor (server-to-server) que transmitem dados de monitoramento e logs de execução.
                         </span>
                       </div>
@@ -578,10 +582,10 @@ export default function ProjectsView() {
                     {/* Dashboard Key Option */}
                     <label
                       onClick={() => setNewKeyKind("dashboard")}
-                      className={`flex items-start gap-3 p-3 rounded border cursor-pointer select-none transition-all ${
+                      className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer select-none transition-all ${
                         newKeyKind === "dashboard"
-                          ? "bg-purple-950/20 border-purple-900/80 text-purple-300"
-                          : "bg-zinc-900/40 border-zinc-800 hover:border-zinc-700/60 text-zinc-400"
+                          ? "bg-purple-50/50 border-purple-300 text-purple-900"
+                          : "bg-[#ffffff] border-[#e6e4df] hover:bg-[#f5f4f0] text-[#575652]"
                       }`}
                     >
                       <input
@@ -593,18 +597,18 @@ export default function ProjectsView() {
                       />
                       <div className="mt-0.5 shrink-0">
                         <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                          newKeyKind === "dashboard" ? "border-purple-400" : "border-zinc-700"
+                          newKeyKind === "dashboard" ? "border-purple-600" : "border-[#8e8d87]"
                         }`}>
                           {newKeyKind === "dashboard" && (
-                            <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-purple-600" />
                           )}
                         </div>
                       </div>
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-xs font-semibold text-zinc-200">
+                        <span className="text-xs font-semibold text-[#1a1a1a]">
                           Dashboard (X-Api-Key)
                         </span>
-                        <span className="text-[10px] leading-relaxed text-zinc-400">
+                        <span className="text-[10px] leading-relaxed text-[#6e6d68]">
                           Chave para acesso ao front-end e interagir com o painel principal de visualização.
                         </span>
                       </div>
@@ -612,11 +616,11 @@ export default function ProjectsView() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#e6e4df]">
                   <button
                     type="button"
                     onClick={() => setIsNewKeyModalOpen(false)}
-                    className="px-3 py-1.5 rounded text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 font-medium transition-colors"
+                    className="px-3 py-1.5 rounded-md text-xs text-[#6e6d68] hover:text-[#1a1a1a] hover:bg-[#f5f4f0] font-medium transition-colors"
                   >
                     Cancelar
                   </button>
@@ -624,7 +628,7 @@ export default function ProjectsView() {
                     type="button"
                     onClick={handleCreateAPIKey}
                     disabled={actionLoading}
-                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-xs transition-colors disabled:opacity-50"
+                    className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#1a1a1a] hover:bg-[#2e2e2e] text-white font-medium text-xs transition-colors disabled:opacity-50 shadow-xs"
                   >
                     {actionLoading && <Loader2 size={12} className="animate-spin" />}
                     <span>Gerar Chave</span>
@@ -639,47 +643,47 @@ export default function ProjectsView() {
       {/* SINGLE REVEAL KEY MODAL */}
       <AnimatePresence>
         {isRevealModalOpen && revealedKey && (
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.18 }}
-              className="bg-zinc-950 border border-zinc-900 rounded-lg shadow-2xl max-w-lg w-full overflow-hidden"
+              className="bg-[#ffffff] border border-[#e6e4df] rounded-xl shadow-2xl max-w-lg w-full overflow-hidden"
             >
-              <div className="flex items-center justify-between p-4 border-b border-zinc-900 bg-zinc-900/20">
-                <h3 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider font-mono flex items-center gap-2">
-                  <Sparkles size={13} className="text-zinc-400 animate-pulse" />
+              <div className="flex items-center justify-between p-4 border-b border-[#e6e4df] bg-[#f5f4f0]">
+                <h3 className="font-serif italic text-sm font-semibold text-[#1a1a1a] flex items-center gap-2">
+                  <Sparkles size={14} className="text-[#1a1a1a]" />
                   Chave Gerada com Sucesso
                 </h3>
               </div>
 
               <div className="p-5 space-y-4">
                 {/* Warning Alert Banner */}
-                <div className="flex gap-2.5 p-3.5 rounded border border-amber-800/50 bg-amber-950/40 text-amber-300">
-                  <AlertTriangle size={16} className="shrink-0 mt-0.5 text-amber-400" />
+                <div className="flex gap-2.5 p-3.5 rounded-lg border border-amber-200 bg-amber-50 text-amber-900">
+                  <AlertTriangle size={16} className="shrink-0 mt-0.5 text-amber-600" />
                   <div className="flex flex-col gap-0.5">
                     <span className="text-xs font-semibold">Cuidado e Atenção!</span>
-                    <p className="text-[10px] leading-relaxed text-amber-400/90">
+                    <p className="text-[10px] leading-relaxed text-amber-800">
                       Essa é a única vez que você vê essa key. Copie agora — não é possível recuperá-la depois.
                     </p>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#6e6d68]">
                     Sua Chave Completa
                   </span>
-                  <div className="flex items-center gap-1.5 p-3 rounded border border-zinc-900 bg-zinc-950">
-                    <code className="text-xs font-mono text-zinc-100 flex-1 break-all select-all font-semibold tracking-tight">
+                  <div className="flex items-center gap-1.5 p-3 rounded-md border border-[#e6e4df] bg-[#f5f4f0]">
+                    <code className="text-xs font-mono text-[#1a1a1a] flex-1 break-all select-all font-semibold tracking-tight">
                       {revealedKey}
                     </code>
                     <button
                       onClick={() => copyToClipboard(revealedKey)}
-                      className={`p-2 rounded flex items-center justify-center transition-all shrink-0 ${
+                      className={`p-2 rounded-md flex items-center justify-center transition-all shrink-0 ${
                         copied
-                          ? "bg-emerald-950/40 text-emerald-400 border border-emerald-900/40"
-                          : "bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100"
+                          ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                          : "bg-[#ffffff] hover:bg-[#e6e4df] text-[#1a1a1a] border border-[#e6e4df]"
                       }`}
                       title="Copiar para área de transferência"
                     >
@@ -688,8 +692,8 @@ export default function ProjectsView() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
-                  <div className="text-[10px] text-zinc-500 flex items-center gap-1">
+                <div className="flex items-center justify-between pt-2 border-t border-[#e6e4df]">
+                  <div className="text-[10px] text-[#6e6d68] flex items-center gap-1">
                     <Info size={11} />
                     Certifique-se de salvar em local seguro.
                   </div>
@@ -698,7 +702,7 @@ export default function ProjectsView() {
                       setIsRevealModalOpen(false);
                       setRevealedKey(null);
                     }}
-                    className="px-4 py-1.5 rounded bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-xs transition-colors shadow-sm"
+                    className="px-4 py-1.5 rounded-md bg-[#1a1a1a] hover:bg-[#2e2e2e] text-white font-medium text-xs transition-colors shadow-xs"
                   >
                     Fechar &amp; Entendi
                   </button>
@@ -712,50 +716,50 @@ export default function ProjectsView() {
       {/* REVOKE CONFIRMATION DIALOG */}
       <AnimatePresence>
         {keyToRevoke && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.12 }}
-              className="bg-zinc-950 border border-zinc-900 rounded-lg shadow-xl max-w-sm w-full overflow-hidden"
+              className="bg-[#ffffff] border border-[#e6e4df] rounded-xl shadow-xl max-w-sm w-full overflow-hidden"
             >
-              <div className="flex items-center justify-between p-4 border-b border-zinc-900 bg-zinc-900/20">
-                <h3 className="text-xs font-semibold text-red-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+              <div className="flex items-center justify-between p-4 border-b border-[#e6e4df] bg-[#f5f4f0]">
+                <h3 className="font-serif italic text-sm font-semibold text-red-700 flex items-center gap-1.5">
                   <AlertTriangle size={14} />
                   Confirmar Revogação
                 </h3>
                 <button
                   onClick={() => setKeyToRevoke(null)}
-                  className="text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="text-[#6e6d68] hover:text-[#1a1a1a] transition-colors"
                 >
                   <X size={14} />
                 </button>
               </div>
 
               <div className="p-4 space-y-4">
-                <p className="text-xs leading-relaxed text-zinc-300">
+                <p className="text-xs leading-relaxed text-[#1a1a1a]">
                   Revogar essa key vai parar de funcionar imediatamente para qualquer serviço que a usa. Confirmar?
                 </p>
 
-                <div className="p-2 rounded bg-zinc-900/40 border border-zinc-900 text-[11px] space-y-1">
+                <div className="p-3 rounded-md bg-[#f5f4f0] border border-[#e6e4df] text-[11px] space-y-1 font-mono">
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-500">Prefixo da Chave:</span>
-                    <span className="font-mono text-zinc-300 font-semibold">{keyToRevoke.key_prefix}...</span>
+                    <span className="text-[#6e6d68]">Prefixo da Chave:</span>
+                    <span className="text-[#1a1a1a] font-semibold">{keyToRevoke.key_prefix}...</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-500">Tipo:</span>
-                    <span className="text-zinc-300 font-medium">
+                    <span className="text-[#6e6d68]">Tipo:</span>
+                    <span className="text-[#1a1a1a] font-medium">
                       {keyToRevoke.kind === "ingest" ? "Ingestão" : "Dashboard"}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#e6e4df]">
                   <button
                     type="button"
                     onClick={() => setKeyToRevoke(null)}
-                    className="px-3 py-1.5 rounded text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 font-medium transition-colors"
+                    className="px-3 py-1.5 rounded-md text-xs text-[#6e6d68] hover:text-[#1a1a1a] hover:bg-[#f5f4f0] font-medium transition-colors"
                   >
                     Cancelar
                   </button>
@@ -763,7 +767,7 @@ export default function ProjectsView() {
                     type="button"
                     onClick={handleRevokeAPIKey}
                     disabled={actionLoading}
-                    className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded bg-red-600 hover:bg-red-500 text-white font-medium text-xs transition-colors disabled:opacity-50 shadow-sm shadow-red-950/20"
+                    className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium text-xs transition-colors disabled:opacity-50 shadow-xs"
                   >
                     {actionLoading && <Loader2 size={12} className="animate-spin" />}
                     <span>Confirmar Revogação</span>

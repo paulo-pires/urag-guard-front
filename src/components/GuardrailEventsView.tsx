@@ -88,11 +88,11 @@ export default function GuardrailEventsView({
   const isFilterActive = selectedRule !== "all" || selectedVerdict !== "all";
 
   const sourceColors: Record<string, string> = {
-    proxy: "bg-blue-950/20 text-blue-400 border-blue-900/30",
-    "uRag-go": "bg-emerald-950/20 text-emerald-400 border-emerald-900/30",
-    "uRag-agent-go": "bg-purple-950/20 text-purple-400 border-purple-900/30",
-    "uRag-workflow-go": "bg-amber-950/20 text-amber-400 border-amber-900/30",
-    "uRag-gateway-go": "bg-zinc-950 border border-zinc-900 text-zinc-400",
+    proxy: "bg-blue-50 text-blue-700 border-blue-200",
+    "uRag-go": "bg-emerald-50 text-emerald-800 border-emerald-200",
+    "uRag-agent-go": "bg-purple-50 text-purple-700 border-purple-200",
+    "uRag-workflow-go": "bg-amber-50 text-amber-800 border-amber-200",
+    "uRag-gateway-go": "bg-[#f5f4f0] border-[#e6e4df] text-[#575652]",
   };
 
   const formatDate = (isoStr: string) => {
@@ -106,24 +106,24 @@ export default function GuardrailEventsView({
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn text-[#1a1a1a]">
       {/* Filters block */}
-      <div className="flex flex-col md:flex-row gap-3 p-3 rounded-lg border border-zinc-900 bg-zinc-900/20 shadow-sm items-center justify-between">
+      <div className="flex flex-col md:flex-row gap-3 p-3 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs items-center justify-between">
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           {/* Rule Filter dropdown */}
-          <div className="flex items-center gap-1.5 bg-zinc-950 border border-zinc-900 rounded px-2.5 py-1 text-xs text-zinc-300">
-            <span className="text-zinc-500 text-[11px]">Regra:</span>
+          <div className="flex items-center gap-1.5 bg-[#f5f4f0] border border-[#e6e4df] rounded px-2.5 py-1 text-xs text-[#1a1a1a]">
+            <span className="text-[#6e6d68] text-[11px]">Regra:</span>
             <select
               value={selectedRule}
               onChange={(e) => {
                 setSelectedRule(e.target.value);
                 setPage(1);
               }}
-              className="bg-transparent focus:outline-none text-zinc-300 cursor-pointer min-w-[150px]"
+              className="bg-transparent focus:outline-none text-[#1a1a1a] cursor-pointer min-w-[150px]"
             >
-              <option value="all" className="bg-zinc-950 text-zinc-300">Todas as Regras</option>
+              <option value="all" className="bg-[#ffffff] text-[#1a1a1a]">Todas as Regras</option>
               {rules.map((rule) => (
-                <option key={rule.id} value={rule.name} className="bg-zinc-950 text-zinc-300">
+                <option key={rule.id} value={rule.name} className="bg-[#ffffff] text-[#1a1a1a]">
                   {rule.name}
                 </option>
               ))}
@@ -131,20 +131,20 @@ export default function GuardrailEventsView({
           </div>
 
           {/* Verdict Filter dropdown */}
-          <div className="flex items-center gap-1.5 bg-zinc-950 border border-zinc-900 rounded px-2.5 py-1 text-xs text-zinc-300">
-            <span className="text-zinc-500 text-[11px]">Veredito:</span>
+          <div className="flex items-center gap-1.5 bg-[#f5f4f0] border border-[#e6e4df] rounded px-2.5 py-1 text-xs text-[#1a1a1a]">
+            <span className="text-[#6e6d68] text-[11px]">Veredito:</span>
             <select
               value={selectedVerdict}
               onChange={(e) => {
                 setSelectedVerdict(e.target.value);
                 setPage(1);
               }}
-              className="bg-transparent focus:outline-none text-zinc-300 cursor-pointer min-w-[120px]"
+              className="bg-transparent focus:outline-none text-[#1a1a1a] cursor-pointer min-w-[120px]"
             >
-              <option value="all" className="bg-zinc-950 text-zinc-300">Todos os Vereditos</option>
-              <option value="block" className="bg-zinc-950 text-zinc-300">BLOCK (Bloquear)</option>
-              <option value="flag" className="bg-zinc-950 text-zinc-300">FLAG (Sinalizar)</option>
-              <option value="log" className="bg-zinc-950 text-zinc-300">LOG (Apenas registrar)</option>
+              <option value="all" className="bg-[#ffffff] text-[#1a1a1a]">Todos os Vereditos</option>
+              <option value="block" className="bg-[#ffffff] text-[#1a1a1a]">BLOCK (Bloquear)</option>
+              <option value="flag" className="bg-[#ffffff] text-[#1a1a1a]">FLAG (Sinalizar)</option>
+              <option value="log" className="bg-[#ffffff] text-[#1a1a1a]">LOG (Apenas registrar)</option>
             </select>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function GuardrailEventsView({
         {isFilterActive && (
           <button
             onClick={handleClearFilters}
-            className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 transition-colors bg-rose-950/20 border border-rose-900/30 px-2.5 py-1 rounded w-full md:w-auto justify-center"
+            className="flex items-center gap-1.5 text-xs text-red-700 hover:text-red-800 transition-colors bg-red-50 border border-red-200 px-2.5 py-1 rounded w-full md:w-auto justify-center font-medium"
           >
             <FilterX size={12} />
             <span>Limpar Filtros</span>
@@ -162,26 +162,26 @@ export default function GuardrailEventsView({
       </div>
 
       {/* Events Table card */}
-      <div className="border border-zinc-900/50 rounded-lg bg-zinc-950/40 overflow-hidden shadow-sm">
+      <div className="border border-[#e6e4df] rounded-lg bg-[#ffffff] overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-zinc-900/60 text-zinc-500 bg-zinc-950/20">
-                <th className="px-4 py-2 font-medium">Horário (UTC)</th>
-                <th className="px-4 py-2 font-medium">Regra Disparada</th>
-                <th className="px-4 py-2 font-medium">Estágio</th>
-                <th className="px-4 py-2 font-medium">Veredito</th>
-                <th className="px-4 py-2 font-medium">Filtro / Trecho Violado</th>
-                <th className="px-4 py-2 font-medium font-mono">Fonte</th>
-                <th className="px-4 py-2 font-medium text-right">Ação</th>
+              <tr className="border-b border-[#e6e4df] text-[#6e6d68] bg-[#f5f4f0] font-mono text-[10px] uppercase tracking-wider">
+                <th className="px-4 py-2.5 font-medium">Horário (UTC)</th>
+                <th className="px-4 py-2.5 font-medium">Regra Disparada</th>
+                <th className="px-4 py-2.5 font-medium">Estágio</th>
+                <th className="px-4 py-2.5 font-medium">Veredito</th>
+                <th className="px-4 py-2.5 font-medium">Filtro / Trecho Violado</th>
+                <th className="px-4 py-2.5 font-medium font-mono">Fonte</th>
+                <th className="px-4 py-2.5 font-medium text-right">Ação</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 Array.from({ length: 6 }).map((_, idx) => (
-                  <tr key={idx} className="border-b border-zinc-900/30 animate-pulse">
+                  <tr key={idx} className="border-b border-[#e6e4df] animate-pulse">
                     <td colSpan={7} className="px-4 py-3">
-                      <div className="h-3 bg-zinc-900/50 rounded w-full" />
+                      <div className="h-3 bg-[#f5f4f0] rounded w-full" />
                     </td>
                   </tr>
                 ))
@@ -190,34 +190,34 @@ export default function GuardrailEventsView({
                   <tr
                     key={evt.id}
                     onClick={() => onNavigateToTab(`run-detail-${evt.run_id}`)}
-                    className="border-b border-zinc-900/30 even:bg-zinc-900/10 odd:bg-transparent hover:bg-zinc-900/40 cursor-pointer text-zinc-300 transition-colors"
+                    className="border-b border-[#e6e4df] even:bg-[#faf9f6] odd:bg-white hover:bg-[#f5f4f0]/60 cursor-pointer text-[#1a1a1a] transition-colors"
                   >
                     {/* Timestamp */}
-                    <td className="px-4 py-1.5 text-zinc-500 text-[11px] font-mono whitespace-nowrap">
+                    <td className="px-4 py-2 text-[#6e6d68] text-[11px] font-mono whitespace-nowrap">
                       {formatDate(evt.timestamp)}
                     </td>
 
                     {/* Rule name */}
-                    <td className="px-4 py-1.5 font-semibold text-zinc-300 text-[11px]">
+                    <td className="px-4 py-2 font-medium text-[#1a1a1a] text-[11px]">
                       {evt.rule_name}
                     </td>
 
                     {/* Stage badge */}
-                    <td className="px-4 py-1.5">
-                      <span className="px-1.5 py-0.5 rounded-[3px] text-[9px] bg-zinc-950 border border-zinc-900 text-zinc-500 font-mono">
+                    <td className="px-4 py-2">
+                      <span className="px-2 py-0.5 rounded text-[9px] bg-[#f5f4f0] border border-[#e6e4df] text-[#575652] font-mono">
                         {evt.stage.toUpperCase()}
                       </span>
                     </td>
 
                     {/* Verdict badge */}
-                    <td className="px-4 py-1.5">
+                    <td className="px-4 py-2">
                       <span
-                        className={`px-1.5 py-0.5 rounded-[3px] text-[10px] font-bold border ${
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold border font-mono ${
                           evt.verdict === "block"
-                            ? "bg-rose-950/20 text-rose-400 border-rose-900/30"
+                            ? "bg-red-50 text-red-800 border-red-200"
                             : evt.verdict === "flag"
-                            ? "bg-amber-950/20 text-amber-400 border-amber-900/30"
-                            : "bg-zinc-900 text-zinc-400 border-zinc-800/80"
+                            ? "bg-amber-50 text-amber-800 border-amber-200"
+                            : "bg-[#f5f4f0] text-[#575652] border-[#e6e4df]"
                         }`}
                       >
                         {evt.verdict.toUpperCase()}
@@ -225,22 +225,22 @@ export default function GuardrailEventsView({
                     </td>
 
                     {/* Snippet text snippet */}
-                    <td className="px-4 py-1.5 max-w-[250px] truncate" title={evt.snippet}>
-                      <span className="font-mono text-[10px] text-zinc-400 px-1.5 py-0.2 rounded-[3px] bg-zinc-950/40 border border-zinc-905">
+                    <td className="px-4 py-2 max-w-[250px] truncate" title={evt.snippet}>
+                      <span className="font-mono text-[10px] text-[#575652] px-1.5 py-0.5 rounded bg-[#f5f4f0] border border-[#e6e4df]">
                         "{evt.snippet}"
                       </span>
                     </td>
 
                     {/* Source */}
-                    <td className="px-4 py-1.5">
-                      <span className={`px-1 py-0.5 rounded-[3px] text-[9px] font-mono border ${sourceColors[evt.source] || "border-zinc-800 bg-zinc-900 text-zinc-400"}`}>
+                    <td className="px-4 py-2">
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-mono border ${sourceColors[evt.source] || "border-[#e6e4df] bg-[#f5f4f0] text-[#575652]"}`}>
                         {evt.source}
                       </span>
                     </td>
 
                     {/* Action link */}
-                    <td className="px-4 py-1.5 text-right">
-                      <button className="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-0.5 text-[11px] font-semibold">
+                    <td className="px-4 py-2 text-right">
+                      <button className="text-[#1a1a1a] hover:underline inline-flex items-center gap-0.5 text-[11px] font-medium">
                         <span>Ver Run</span>
                         <ArrowUpRight size={10} />
                       </button>
@@ -249,13 +249,13 @@ export default function GuardrailEventsView({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-zinc-500">
+                  <td colSpan={7} className="px-4 py-12 text-center text-[#6e6d68]">
                     <div className="flex flex-col items-center justify-center max-w-sm mx-auto space-y-3">
-                      <div className="w-8 h-8 rounded-full bg-zinc-900 flex items-center justify-center">
-                        <AlertTriangle size={16} className="text-zinc-500" />
+                      <div className="w-8 h-8 rounded-full bg-[#f5f4f0] border border-[#e6e4df] flex items-center justify-center">
+                        <AlertTriangle size={16} className="text-[#6e6d68]" />
                       </div>
-                      <h4 className="font-medium text-zinc-400">Nenhuma violação encontrada</h4>
-                      <p className="text-xs text-zinc-600 leading-normal">
+                      <h4 className="font-medium text-[#1a1a1a]">Nenhuma violação encontrada</h4>
+                      <p className="text-xs text-[#6e6d68] leading-normal">
                         Nenhum evento de guardrail foi registrado com os filtros e períodos especificados.
                       </p>
                     </div>
@@ -268,27 +268,27 @@ export default function GuardrailEventsView({
 
         {/* Pagination bar */}
         {!loading && events.length > 0 && (
-          <div className="flex items-center justify-between px-4 py-2 border-t border-zinc-900 bg-zinc-950/40 text-[11px]">
-            <span className="text-zinc-500">
-              Mostrando <span className="font-semibold text-zinc-400">{events.length}</span> de{" "}
-              <span className="font-semibold text-zinc-400">{totalItems}</span> eventos
+          <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#e6e4df] bg-[#f5f4f0] text-[11px]">
+            <span className="text-[#6e6d68]">
+              Mostrando <span className="font-semibold text-[#1a1a1a]">{events.length}</span> de{" "}
+              <span className="font-semibold text-[#1a1a1a]">{totalItems}</span> eventos
             </span>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage(page - 1)}
                 disabled={page <= 1}
-                className="p-1 rounded border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="p-1 rounded border border-[#e6e4df] bg-[#ffffff] text-[#575652] hover:text-[#1a1a1a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft size={14} />
               </button>
-              <span className="text-zinc-500 font-mono">
-                Página <span className="text-zinc-400">{page}</span> de <span className="text-zinc-400">{totalPages}</span>
+              <span className="text-[#6e6d68] font-mono">
+                Página <span className="text-[#1a1a1a]">{page}</span> de <span className="text-[#1a1a1a]">{totalPages}</span>
               </span>
               <button
                 onClick={() => setPage(page + 1)}
                 disabled={page >= totalPages}
-                className="p-1 rounded border border-zinc-900 bg-zinc-950 text-zinc-400 hover:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="p-1 rounded border border-[#e6e4df] bg-[#ffffff] text-[#575652] hover:text-[#1a1a1a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight size={14} />
               </button>
