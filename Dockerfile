@@ -23,7 +23,9 @@ RUN bun x esbuild server.ts \
 FROM node:20-slim
 WORKDIR /app
 ENV NODE_ENV=production \
-    PORT=3001
+    PORT=3001 \
+    GUARD_API_URL=http://urag-guard:8091 \
+    GUARD_API_KEY=
 
 COPY --from=builder /app/dist ./dist
 
