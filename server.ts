@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 
 // Interfaces matching our domain spec
 interface Span {
@@ -1033,6 +1032,7 @@ app.get("/v1/health", (req, res) => {
 // Configure Vite middleware in development or static asset serving in production
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",

@@ -16,6 +16,7 @@ RUN bun x esbuild server.ts \
       --platform=node \
       --format=cjs \
       --sourcemap \
+      --external:vite \
       --outfile=dist/server.cjs
 
 # ── runner ────────────────────────────────────────────────────────────────────
