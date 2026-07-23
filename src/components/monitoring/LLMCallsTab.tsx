@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -19,6 +19,7 @@ interface LLMCallsTabProps {
 }
 
 export default function LLMCallsTab({ chartData }: LLMCallsTabProps) {
+  const uid = useId();
   return (
     <div className="space-y-6 text-[#1a1a1a]">
       {/* LLM Call Count */}
@@ -29,7 +30,7 @@ export default function LLMCallsTab({ chartData }: LLMCallsTabProps) {
         </div>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e6e4df" />
               <XAxis dataKey="name" stroke="#8e8d87" fontSize={10} tickLine={false} />
               <YAxis stroke="#8e8d87" fontSize={10} tickLine={false} />
@@ -55,10 +56,10 @@ export default function LLMCallsTab({ chartData }: LLMCallsTabProps) {
           </div>
           <div className="h-60">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e6e4df" />
                 <XAxis dataKey="name" stroke="#8e8d87" fontSize={10} tickLine={false} />
-                <YAxis stroke="#8e8d87" fontSize={10} tickLine={false} />
+                <YAxis width={40} stroke="#8e8d87" fontSize={10} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{ backgroundColor: "#ffffff", borderColor: "#e6e4df", borderRadius: "6px", color: "#1a1a1a" }}
                   labelStyle={{ color: "#6e6d68", fontSize: "10px" }}
@@ -79,9 +80,9 @@ export default function LLMCallsTab({ chartData }: LLMCallsTabProps) {
           </div>
           <div className="h-60">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="colorLlmSuccess" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id={`colorLlmSuccess${uid}`} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#059669" stopOpacity={0.15} />
                     <stop offset="95%" stopColor="#059669" stopOpacity={0} />
                   </linearGradient>
@@ -94,7 +95,7 @@ export default function LLMCallsTab({ chartData }: LLMCallsTabProps) {
                   labelStyle={{ color: "#6e6d68", fontSize: "10px" }}
                   itemStyle={{ fontSize: "10px" }}
                 />
-                <Area name="Success Rate (%)" type="monotone" dataKey="llm_success_rate" stroke="#059669" strokeWidth={2} fillOpacity={1} fill="url(#colorLlmSuccess)" />
+                <Area name="Success Rate (%)" type="monotone" dataKey="llm_success_rate" stroke="#059669" strokeWidth={2} fillOpacity={1} fill={`url(#colorLlmSuccess${uid})`} />
               </AreaChart>
             </ResponsiveContainer>
           </div>

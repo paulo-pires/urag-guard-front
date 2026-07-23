@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import {
   Coins,
   ArrowUpRight,
@@ -41,6 +41,7 @@ export default function UsageView({
   customTo,
   selectedSources,
 }: UsageViewProps) {
+  const uid = useId();
   const [usageData, setUsageData] = useState<UsageGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -135,28 +136,28 @@ export default function UsageView({
             </div>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={sortedByDay} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+                <AreaChart data={sortedByDay} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="colorIn" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id={`colorIn${uid}`} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15}/>
                       <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
                     </linearGradient>
-                    <linearGradient id="colorOut" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id={`colorOut${uid}`} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#059669" stopOpacity={0.15}/>
                       <stop offset="95%" stopColor="#059669" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e6e4df" />
                   <XAxis dataKey="group" stroke="#6e6d68" fontSize={10} tickLine={false} />
-                  <YAxis stroke="#6e6d68" fontSize={10} tickLine={false} />
+                  <YAxis width={40} stroke="#6e6d68" fontSize={10} tickLine={false} axisLine={false} />
                   <Tooltip
                     contentStyle={{ backgroundColor: "#ffffff", borderColor: "#e6e4df", borderRadius: "6px", color: "#1a1a1a" }}
                     labelStyle={{ color: "#6e6d68", fontSize: "10px" }}
                     itemStyle={{ fontSize: "10px" }}
                   />
                   <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: "10px", color: "#6e6d68" }} />
-                  <Area name="Tokens In" type="monotone" dataKey="tokens_in" stroke="#2563eb" fillOpacity={1} fill="url(#colorIn)" />
-                  <Area name="Tokens Out" type="monotone" dataKey="tokens_out" stroke="#059669" fillOpacity={1} fill="url(#colorOut)" />
+                  <Area name="Tokens In" type="monotone" dataKey="tokens_in" stroke="#2563eb" fillOpacity={1} fill={`url(#colorIn${uid})`} />
+                  <Area name="Tokens Out" type="monotone" dataKey="tokens_out" stroke="#059669" fillOpacity={1} fill={`url(#colorOut${uid})`} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -173,7 +174,7 @@ export default function UsageView({
                 <LineChart data={sortedByDay} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e6e4df" />
                   <XAxis dataKey="group" stroke="#6e6d68" fontSize={10} tickLine={false} />
-                  <YAxis stroke="#6e6d68" fontSize={10} tickLine={false} />
+                  <YAxis width={40} stroke="#6e6d68" fontSize={10} tickLine={false} axisLine={false} />
                   <Tooltip
                     contentStyle={{ backgroundColor: "#ffffff", borderColor: "#e6e4df", borderRadius: "6px", color: "#1a1a1a" }}
                     labelStyle={{ color: "#6e6d68", fontSize: "10px" }}
@@ -236,7 +237,7 @@ export default function UsageView({
                 <BarChart data={usageData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e6e4df" />
                   <XAxis dataKey="group" stroke="#6e6d68" fontSize={10} tickLine={false} />
-                  <YAxis stroke="#6e6d68" fontSize={10} tickLine={false} />
+                  <YAxis width={40} stroke="#6e6d68" fontSize={10} tickLine={false} axisLine={false} />
                   <Tooltip
                     contentStyle={{ backgroundColor: "#ffffff", borderColor: "#e6e4df", borderRadius: "6px", color: "#1a1a1a" }}
                     labelStyle={{ color: "#6e6d68", fontSize: "10px" }}

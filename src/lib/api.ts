@@ -14,7 +14,7 @@ const getApiUrl = (path: string, params?: Record<string, string | number | boole
 
 export const api = {
   // Stats
-  async getDashboardStats(filters: { from?: string; to?: string; source?: string }): Promise<DashboardStats> {
+  async getDashboardStats(filters: { from?: string; to?: string; source?: string; env?: string }): Promise<DashboardStats> {
     const res = await fetch(getApiUrl("/v1/overview/stats", filters));
     if (!res.ok) throw new Error("Failed to load dashboard stats");
     return res.json();
@@ -33,6 +33,7 @@ export const api = {
     score_max?: number;
     page?: number;
     page_size?: number;
+    env?: string;
   }): Promise<{ runs: Run[]; total: number; page: number; page_size: number; total_pages: number }> {
     const res = await fetch(getApiUrl("/v1/runs", params));
     if (!res.ok) throw new Error("Failed to load runs list");
@@ -108,6 +109,7 @@ export const api = {
     verdict?: string;
     page?: number;
     page_size?: number;
+    env?: string;
   }): Promise<{ events: GuardrailEvent[]; total: number; page: number; page_size: number; total_pages: number }> {
     const res = await fetch(getApiUrl("/v1/guardrail-events", params));
     if (!res.ok) throw new Error("Failed to load guardrail events");

@@ -60,28 +60,49 @@ export default function DashboardView({
   const [recentEvents, setRecentEvents] = useState<GuardrailEvent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [monitoringData, setMonitoringData] = useState(() => generateMonitoringData(period, selectedSources));
 
   useEffect(() => {
     setLoading(true);
+    const env = selectedEnv !== "default" ? selectedEnv : undefined;
     Promise.all([
-      api.getDashboardStats({ from: period, source: selectedSources.join(",") }),
-      api.getRuns({ page_size: 5 }),
-      api.getGuardrailEvents({ page_size: 5 }),
+      api.getDashboardStats({ from: period, source: selectedSources.join(","), env }),
+      api.getRuns({ page_size: 5, env }),
+      api.getGuardrailEvents({ page_size: 5, env }),
     ])
       .then(([statsData, runsResponse, eventsResponse]) => {
         setStats(statsData);
         setRecentRuns(runsResponse.runs);
         setRecentEvents(eventsResponse.events);
         setLoading(false);
+
+        const base = generateMonitoringData(period, selectedSources);
+        if (period !== "24h") {
+          const raw = statsData as any;
+          const runsTs: { date: string; ok: number; error: number }[] = raw.runs_over_time || [];
+          const costTs: { date: string; cost_usd: number }[] = raw.cost_over_time || [];
+          const vioTs: { date: string; flag: number; block: number }[] = raw.violations_over_time || [];
+          setMonitoringData(base.map((point, i) => {
+            const r = runsTs[runsTs.length - base.length + i];
+            const c = costTs[costTs.length - base.length + i];
+            const v = vioTs[vioTs.length - base.length + i];
+            return {
+              ...point,
+              ...(r ? { ok: r.ok, erro: r.error, traces_success: r.ok, traces_error: r.error, error_rate: Number(((r.error / (r.ok + r.error || 1)) * 100).toFixed(1)) } : {}),
+              ...(c ? { custo: c.cost_usd } : {}),
+              ...(v ? { flag: v.flag, block: v.block } : {}),
+            };
+          }));
+        } else {
+          setMonitoringData(base);
+        }
       })
       .catch((err) => {
         console.error("Erro ao carregar dados do dashboard:", err);
+        setMonitoringData(generateMonitoringData(period, selectedSources));
         setLoading(false);
       });
-  }, [period, selectedSources]);
-
-  // Generate Monitoring Data for Recharts
-  const monitoringData = generateMonitoringData(period, selectedSources);
+  }, [period, selectedSources, selectedEnv]);
 
   const handleCopyId = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -109,7 +130,7 @@ export default function DashboardView({
   }
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#faf9f6] p-6 space-y-6 text-[#1a1a1a]">
+    <div className="flex-1 bg-[#faf9f6] p-6 space-y-6 text-[#1a1a1a]">
       
       {/* 1. Primary Header & Tabs (LangSmith style) */}
       <div className="flex flex-col gap-4 border-b border-[#e6e4df] pb-3">
@@ -156,6 +177,9 @@ export default function DashboardView({
             <div className="relative">
               <button
                 onClick={() => setIsEnvOpen(!isEnvOpen)}
+                aria-haspopup="listbox"
+                aria-expanded={isEnvOpen}
+                aria-label={`Ambiente: ${selectedEnv}`}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-[#ffffff] border border-[#e6e4df] rounded-md text-xs font-mono text-[#1a1a1a] hover:bg-[#f5f4f0] transition-colors shadow-xs"
               >
                 <Sliders size={12} className="text-[#6e6d68]" />
@@ -163,10 +187,12 @@ export default function DashboardView({
                 <span className="text-[10px] text-[#6e6d68]">▼</span>
               </button>
               {isEnvOpen && (
-                <div className="absolute left-0 mt-1 w-36 rounded-md border border-[#e6e4df] bg-[#ffffff] shadow-lg z-50 p-1 space-y-0.5">
+                <div role="listbox" aria-label="Selecionar ambiente" className="absolute left-0 mt-1 w-36 rounded-md border border-[#e6e4df] bg-[#ffffff] shadow-lg z-50 p-1 space-y-0.5">
                   {["default", "production", "staging", "development"].map((env) => (
                     <button
                       key={env}
+                      role="option"
+                      aria-selected={selectedEnv === env}
                       onClick={() => {
                         setSelectedEnv(env);
                         setIsEnvOpen(false);
@@ -216,27 +242,27 @@ export default function DashboardView({
           <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Total Runs</span>
-              <div className="text-lg font-bold text-[#1a1a1a]">{stats.totalRuns.toLocaleString()}</div>
+              <div className="text-lg font-bold text-[#1a1a1a]">{stats.kpis.totalRuns.toLocaleString()}</div>
             </div>
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Custo Total</span>
-              <div className="text-lg font-bold text-[#1a1a1a]">${stats.totalCost.toFixed(4)}</div>
+              <div className="text-lg font-bold text-[#1a1a1a]">${stats.kpis.totalCost.toFixed(4)}</div>
             </div>
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Latência Média</span>
-              <div className="text-lg font-bold text-[#1a1a1a]">{stats.avgLatencyMs.toFixed(0)}ms</div>
+              <div className="text-lg font-bold text-[#1a1a1a]">{stats.kpis.avgLatency.toFixed(0)}ms</div>
             </div>
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Erros</span>
-              <div className="text-lg font-bold text-red-600">{stats.totalErrors}</div>
+              <div className="text-lg font-bold text-red-600">{stats.kpis.totalErrors}</div>
             </div>
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Bloqueios</span>
-              <div className="text-lg font-bold text-rose-600">{stats.totalBlocked}</div>
+              <div className="text-lg font-bold text-rose-600">{stats.kpis.blocksCount}</div>
             </div>
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Flagged</span>
-              <div className="text-lg font-bold text-amber-600">{stats.totalFlagged}</div>
+              <div className="text-lg font-bold text-amber-600">{stats.kpis.flagsCount}</div>
             </div>
           </div>
 
@@ -298,7 +324,7 @@ export default function DashboardView({
                         <div className="flex items-center gap-1.5">
                           <span className="font-semibold text-[#1a1a1a]">{run.name}</span>
                           <span className="px-1.5 bg-[#f5f4f0] text-[#575652] text-[9px] font-mono rounded border border-[#e6e4df]">
-                            {run.type}
+                            {run.source}
                           </span>
                         </div>
                         <div className="flex items-center gap-1 text-[10px] text-[#6e6d68] font-mono">
@@ -325,10 +351,10 @@ export default function DashboardView({
                       </td>
                       <td className="py-3 px-5 font-mono text-[#575652]">{run.latency_ms}ms</td>
                       <td className="py-3 px-5 font-mono text-[#575652]">
-                        {run.prompt_tokens}/{run.completion_tokens}
+                        {run.tokens_in}/{run.tokens_out}
                       </td>
                       <td className="py-3 px-5 text-right font-mono text-[#6e6d68] text-[10px]">
-                        {new Date(run.created_at).toLocaleTimeString("pt-BR")}
+                        {new Date(run.timestamp).toLocaleTimeString("pt-BR")}
                       </td>
                     </tr>
                   ))}
@@ -363,7 +389,7 @@ export default function DashboardView({
               <p className="text-[10px] text-[#6e6d68] leading-relaxed">Filtra CPFs, Cartões de Crédito e e-mails confidenciais em todas as respostas geradas.</p>
               <div className="flex items-center justify-between text-[10px] text-[#6e6d68]">
                 <span>Disparos (24h)</span>
-                <span className="font-semibold text-red-700 font-mono">14 vezes</span>
+                <span className="font-semibold text-red-700 font-mono">{stats?.kpis.blocksCount ?? '—'} eventos</span>
               </div>
             </div>
 
@@ -375,7 +401,7 @@ export default function DashboardView({
               <p className="text-[10px] text-[#6e6d68] leading-relaxed">Identifica comandos suspeitos e tentativas de bypass nas diretrizes primárias de prompt.</p>
               <div className="flex items-center justify-between text-[10px] text-[#6e6d68]">
                 <span>Disparos (24h)</span>
-                <span className="font-semibold text-red-700 font-mono">8 vezes</span>
+                <span className="font-semibold text-red-700 font-mono">{stats?.kpis.violationsCount ?? '—'} eventos</span>
               </div>
             </div>
 
@@ -387,7 +413,7 @@ export default function DashboardView({
               <p className="text-[10px] text-[#6e6d68] leading-relaxed">Monitora linguagem ofensiva, agressiva ou inadequada tanto em inputs quanto em outputs.</p>
               <div className="flex items-center justify-between text-[10px] text-[#6e6d68]">
                 <span>Disparos (24h)</span>
-                <span className="font-semibold text-amber-700 font-mono">3 vezes</span>
+                <span className="font-semibold text-amber-700 font-mono">{stats?.kpis.flagsCount ?? '—'} eventos</span>
               </div>
             </div>
           </div>
@@ -413,7 +439,7 @@ export default function DashboardView({
                   <tr className="border-b border-[#e6e4df] bg-[#f5f4f0] text-[#6e6d68] font-mono text-[10px] uppercase tracking-wider">
                     <th className="py-3 px-5">Regra Violada</th>
                     <th className="py-3 px-5">Ação Aplicada</th>
-                    <th className="py-3 px-5">Score da Métrica</th>
+                    <th className="py-3 px-5">Etapa</th>
                     <th className="py-3 px-5 text-right">Data/Hora</th>
                   </tr>
                 </thead>
@@ -426,25 +452,25 @@ export default function DashboardView({
                     >
                       <td className="py-3 px-5">
                         <div className="font-semibold text-[#1a1a1a]">{event.rule_name}</div>
-                        <div className="text-[10px] text-[#6e6d68] font-mono">{event.rule_type}</div>
+                        <div className="text-[10px] text-[#6e6d68] font-mono">{event.stage}</div>
                       </td>
                       <td className="py-3 px-5">
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold font-mono ${
-                            event.action === "BLOCK"
+                            event.verdict === "BLOCK"
                               ? "bg-red-50 text-red-800 border border-red-200"
                               : "bg-amber-50 text-amber-800 border border-amber-200"
                           }`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full ${event.action === "BLOCK" ? "bg-red-600" : "bg-amber-600"}`} />
-                          {event.action}
+                          <span className={`w-1.5 h-1.5 rounded-full ${event.verdict === "BLOCK" ? "bg-red-600" : "bg-amber-600"}`} />
+                          {event.verdict}
                         </span>
                       </td>
                       <td className="py-3 px-5 font-mono text-[#575652]">
-                        {event.score?.toFixed(2) ?? "1.00"} (Limiar: {event.threshold?.toFixed(2) ?? "0.80"})
+                        {event.stage}
                       </td>
                       <td className="py-3 px-5 text-right font-mono text-[#6e6d68] text-[10px]">
-                        {new Date(event.created_at).toLocaleTimeString("pt-BR")}
+                        {new Date(event.timestamp).toLocaleTimeString("pt-BR")}
                       </td>
                     </tr>
                   ))}
