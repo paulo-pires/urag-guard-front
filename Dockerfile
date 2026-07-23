@@ -19,7 +19,7 @@ RUN bun x esbuild server.ts \
       --outfile=dist/server.cjs
 
 # ── runner ────────────────────────────────────────────────────────────────────
-FROM node:20-alpine
+FROM node:20-slim
 WORKDIR /app
 ENV NODE_ENV=production \
     PORT=3001
