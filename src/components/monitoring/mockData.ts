@@ -1,8 +1,20 @@
+const MONITORING_STORAGE_KEY = 'urag_guard_monitoring_db_v1';
+
 export function generateMonitoringData(period: string, selectedSources: string[]) {
+  const cacheKey = `${MONITORING_STORAGE_KEY}_${period}_${selectedSources.join('_')}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (e) {
+    console.warn("localStorage inacessível:", e);
+  }
+
   const dataPoints = period === "24h" ? 24 : period === "30d" ? 30 : 7;
   const today = new Date();
 
-  return Array.from({ length: dataPoints }).map((_, idx) => {
+  const generated = Array.from({ length: dataPoints }).map((_, idx) => {
     const d = new Date();
     if (period === "24h") {
       d.setHours(today.getHours() - (dataPoints - 1 - idx));
@@ -128,4 +140,10 @@ export function generateMonitoringData(period: string, selectedSources: string[]
       run_llm_error,
     };
   });
+
+  try {
+    localStorage.setItem(cacheKey, JSON.stringify(generated));
+  } catch (e) {}
+
+  return generated;
 }
