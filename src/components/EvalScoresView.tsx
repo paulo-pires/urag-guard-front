@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Sparkles,
   Search,
@@ -103,42 +103,54 @@ export default function EvalScoresView({
 
   const isFilterActive = metric !== "all" || verdict !== "all" || runId !== "" || sessionId !== "";
 
-  // Mock aggregates for Histogram & Line Chart depending on active filters
-  const generateChartData = () => {
-    // 1. Histogram distribution (0.0 to 1.0)
-    // Distribution bins: 0.0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, 0.8-1.0
-    // Faithfulness usually leans higher, conciseness lower, etc.
-    const isFaithfulness = metric === "faithfulness";
-    const bin1Count = isFaithfulness ? 1 : 2 + Math.floor(Math.random() * 3);
-    const bin2Count = isFaithfulness ? 2 : 4 + Math.floor(Math.random() * 4);
-    const bin3Count = isFaithfulness ? 5 : 8 + Math.floor(Math.random() * 6);
-    const bin4Count = isFaithfulness ? 18 : 12 + Math.floor(Math.random() * 8);
-    const bin5Count = isFaithfulness ? 32 : 24 + Math.floor(Math.random() * 12);
+  const { histogram, trend } = useMemo(() => {
+    if (scores.length === 0) {
+      return {
+        histogram: [
+          { range: "0.0 - 0.2", count: 0, fill: "#ef4444" },
+          { range: "0.2 - 0.4", count: 0, fill: "#ef4444" },
+          { range: "0.4 - 0.6", count: 0, fill: "#f59e0b" },
+          { range: "0.6 - 0.8", count: 0, fill: "#f59e0b" },
+          { range: "0.8 - 1.0", count: 0, fill: "#10b981" },
+        ],
+        trend: [],
+      };
+    }
+
+    const bins = [0, 0, 0, 0, 0];
+    const dayBuckets: Record<string, number[]> = {};
+
+    for (const s of scores) {
+      const idx = s.value >= 0.8 ? 4 : s.value >= 0.6 ? 3 : s.value >= 0.4 ? 2 : s.value >= 0.2 ? 1 : 0;
+      bins[idx]++;
+
+      const day = s.timestamp ? s.timestamp.slice(0, 10) : "unknown";
+      if (!dayBuckets[day]) dayBuckets[day] = [];
+      dayBuckets[day].push(s.value);
+    }
 
     const histogram = [
-      { range: "0.0 - 0.2", count: bin1Count, fill: "#ef4444" },
-      { range: "0.2 - 0.4", count: bin2Count, fill: "#ef4444" },
-      { range: "0.4 - 0.6", count: bin3Count, fill: "#ef4444" },
-      { range: "0.6 - 0.8", count: bin4Count, fill: "#f59e0b" },
-      { range: "0.8 - 1.0", count: bin5Count, fill: "#10b981" },
+      { range: "0.0 - 0.2", count: bins[0], fill: "#ef4444" },
+      { range: "0.2 - 0.4", count: bins[1], fill: "#ef4444" },
+      { range: "0.4 - 0.6", count: bins[2], fill: "#f59e0b" },
+      { range: "0.6 - 0.8", count: bins[3], fill: "#f59e0b" },
+      { range: "0.8 - 1.0", count: bins[4], fill: "#10b981" },
     ];
 
-    // 2. Trendline (Score over time)
-    const trend = Array.from({ length: 7 }).map((_, idx) => {
-      const baseScore = isFaithfulness ? 0.85 : 0.78;
-      const variation = (Math.random() * 0.15) - 0.07;
+    const sortedDays = Object.keys(dayBuckets).sort();
+    const trend = sortedDays.map((day) => {
+      const vals = dayBuckets[day];
+      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
       return {
-        day: `D${idx + 1}`,
-        score: Number((baseScore + variation).toFixed(2)),
+        day: day.slice(5),
+        score: Number(avg.toFixed(2)),
         warn_limit: 0.80,
         fail_limit: 0.60,
       };
     });
 
     return { histogram, trend };
-  };
-
-  const { histogram, trend } = generateChartData();
+  }, [scores]);
 
   const formatDate = (isoStr: string) => {
     try {

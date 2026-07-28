@@ -12,6 +12,10 @@ import {
   ChevronRight,
   ShieldCheck,
   KeyRound,
+  Box,
+  Activity,
+  PlaySquare,
+  Scale,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -42,6 +46,11 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
     { id: "divider-2", isDivider: true },
     { id: "evals-configs", label: "Configs Evals", icon: Settings },
     { id: "evals-scores", label: "Scores Evals", icon: BarChart3 },
+    { id: "divider-modelops", isDivider: true },
+    { id: "models", label: "Modelos", icon: Box },
+    { id: "drift", label: "Drift", icon: Activity },
+    { id: "simulation", label: "Simulação", icon: PlaySquare },
+    { id: "assurance", label: "Avaliação", icon: Scale },
     { id: "divider-3", isDivider: true },
     { id: "usage", label: "Consumo", icon: Cpu },
     { id: "divider-admin", isDivider: true },

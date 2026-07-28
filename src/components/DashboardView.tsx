@@ -22,8 +22,7 @@ import {
 import { api } from "../lib/api";
 import { DashboardStats, Run, GuardrailEvent } from "../types";
 
-// Import Monitoring Sub-tabs & Mock Data Generator
-import { generateMonitoringData } from "./monitoring/mockData";
+// Import Monitoring Sub-tabs
 import TracesTab from "./monitoring/TracesTab";
 import LLMCallsTab from "./monitoring/LLMCallsTab";
 import CostTokensTab from "./monitoring/CostTokensTab";
@@ -60,7 +59,7 @@ export default function DashboardView({
   const [recentEvents, setRecentEvents] = useState<GuardrailEvent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [monitoringData, setMonitoringData] = useState(() => generateMonitoringData(period, selectedSources));
+  const [monitoringData, setMonitoringData] = useState<any[]>([]);
 
   useEffect(() => {
     setLoading(true);
@@ -76,30 +75,21 @@ export default function DashboardView({
         setRecentEvents(eventsResponse.events);
         setLoading(false);
 
-        const base = generateMonitoringData(period, selectedSources);
+        const base: any[] = [];
         if (period !== "24h") {
           const raw = statsData as any;
           const runsTs: { date: string; ok: number; error: number }[] = raw.runs_over_time || [];
-          const costTs: { date: string; cost_usd: number }[] = raw.cost_over_time || [];
-          const vioTs: { date: string; flag: number; block: number }[] = raw.violations_over_time || [];
-          setMonitoringData(base.map((point, i) => {
-            const r = runsTs[runsTs.length - base.length + i];
-            const c = costTs[costTs.length - base.length + i];
-            const v = vioTs[vioTs.length - base.length + i];
-            return {
-              ...point,
-              ...(r ? { ok: r.ok, erro: r.error, traces_success: r.ok, traces_error: r.error, error_rate: Number(((r.error / (r.ok + r.error || 1)) * 100).toFixed(1)) } : {}),
-              ...(c ? { custo: c.cost_usd } : {}),
-              ...(v ? { flag: v.flag, block: v.block } : {}),
-            };
-          }));
+          setMonitoringData(runsTs.map(r => ({
+            date: r.date, ok: r.ok, erro: r.error, traces_success: r.ok, traces_error: r.error,
+            error_rate: Number(((r.error / (r.ok + r.error || 1)) * 100).toFixed(1))
+          })));
         } else {
           setMonitoringData(base);
         }
       })
       .catch((err) => {
         console.error("Erro ao carregar dados do dashboard:", err);
-        setMonitoringData(generateMonitoringData(period, selectedSources));
+        setMonitoringData([]);
         setLoading(false);
       });
   }, [period, selectedSources, selectedEnv]);

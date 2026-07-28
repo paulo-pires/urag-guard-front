@@ -170,3 +170,108 @@ export interface APIKey {
   last_used_at?: string;
 }
 
+// ── Simulation / ModelOps types (from urag-simulation-front) ──────────────────
+
+export type ModelProvider = string;
+
+export interface ModelRegistry {
+  id: string;
+  name: string;
+  provider: ModelProvider;
+  modelName: string;
+  endpointUrl: string;
+  costPerMillionTokens: number;
+  status: "UP" | "DOWN";
+  updatedAt: string;
+}
+
+export interface MetricTimePoint {
+  timestamp: string;
+  latencyMs: number;
+  tokensPerSecond: number;
+  accuracyScore: number;
+  driftScore: number;
+}
+
+export interface DriftMetrics {
+  modelId: string;
+  timestamp: string;
+  latencyMs: number;
+  tokensPerSecond: number;
+  accuracyScore: number;
+  driftScore: number;
+  violationCount: number;
+  status: "stable" | "warning" | "critical";
+  metrics: Array<{
+    timestamp: string;
+    latency: number;
+    accuracy: number;
+    drift?: number;
+    tokensPerSecond?: number;
+  }>;
+}
+
+export interface SimulationVariant {
+  name: string;
+  modelId: string;
+  temperature: number;
+  systemPrompt: string;
+}
+
+export interface SimulationScenario {
+  id: string;
+  name: string;
+  datasetName: string;
+  variants: SimulationVariant[];
+  status: "PENDING" | "RUNNING" | "COMPLETED" | "FAILED";
+  progress?: number;
+  results?: {
+    accuracyA: number;
+    accuracyB: number;
+    costA: number;
+    costB: number;
+    latencyAMs?: number;
+    latencyBMs?: number;
+    completedAt: string;
+    winner?: string;
+    summaryNotes?: string;
+  };
+}
+
+export interface AuditViolationLog {
+  id: string;
+  modelId: string;
+  modelName: string;
+  timestamp: string;
+  type: "Hallucination" | "High Latency" | "Drift Alert" | "Safety Policy" | "Token Overflow";
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  details: string;
+  promptSample: string;
+  responseSample: string;
+}
+
+export interface EvaluateRequest {
+  modelId: string;
+  prompt: string;
+  response: string;
+  groundTruth?: string;
+}
+
+export interface EvaluateResponse {
+  score: number;
+  relevance: number;
+  factualAccuracy: number;
+  hallucinationDetected: boolean;
+  explanation: string;
+}
+
+export interface McpServerConfig {
+  modelOpsPort: number;
+  simulationPort: number;
+  assurancePort: number;
+  auditPort: number;
+  host: string;
+  token: string;
+  forceDemoMode: boolean;
+}
+

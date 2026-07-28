@@ -12,6 +12,11 @@ import EvalConfigsView from "./components/EvalConfigsView";
 import EvalScoresView from "./components/EvalScoresView";
 import UsageView from "./components/UsageView";
 import ProjectsView from "./components/ProjectsView";
+import { ModelsView } from "./components/ModelsView";
+import { DriftView } from "./components/DriftView";
+import { SimulationView } from "./components/SimulationView";
+import { AssuranceView } from "./components/AssuranceView";
+import { ModelRegistry, McpServerConfig } from "./types";
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState("dashboard");
@@ -35,6 +40,36 @@ export default function App() {
   const [customFrom, setCustomFrom] = useState(formatDate(sevenDaysAgo));
   const [customTo, setCustomTo] = useState(formatDate(today));
   const [selectedSources, setSelectedSources] = useState<string[]>([]); // empty represents "All"
+
+  // Simulation / ModelOps state
+  const [models, setModels] = useState<ModelRegistry[]>([]);
+  const [loadingModels, setLoadingModels] = useState(false);
+  const mcpConfig: McpServerConfig = {
+    modelOpsPort: 8091,
+    simulationPort: 8091,
+    assurancePort: 8091,
+    auditPort: 8091,
+    host: "localhost",
+    token: "",
+    forceDemoMode: false,
+  };
+
+  const fetchModels = async () => {
+    setLoadingModels(true);
+    try {
+      const { callMCPTool } = await import("./lib/api");
+      const res = await callMCPTool<{ models: ModelRegistry[] }>("list_models", {});
+      setModels(res.models || []);
+    } catch {
+      // keep current
+    } finally {
+      setLoadingModels(false);
+    }
+  };
+
+  const onSelectModelForDrift = (modelId: string) => {
+    setCurrentTab(`drift-${modelId}`);
+  };
 
   // Navigation with history tracking for precise backtrack
   const handleNavigateToTab = (nextTab: string) => {
@@ -141,6 +176,41 @@ export default function App() {
         );
       case "projects":
         return <ProjectsView />;
+      case "models":
+        return (
+          <ModelsView
+            models={models}
+            config={mcpConfig}
+            onRefresh={fetchModels}
+            onSelectModelForDrift={onSelectModelForDrift}
+            isLoading={loadingModels}
+          />
+        );
+      case "drift":
+        return (
+          <DriftView
+            models={models}
+            config={mcpConfig}
+            onRefresh={fetchModels}
+            auditLogs={[]}
+          />
+        );
+      case "simulation":
+        return (
+          <SimulationView
+            models={models}
+            config={mcpConfig}
+            simulations={[]}
+            onRefresh={() => {}}
+          />
+        );
+      case "assurance":
+        return (
+          <AssuranceView
+            models={models}
+            config={mcpConfig}
+          />
+        );
       default:
         return (
           <DashboardView

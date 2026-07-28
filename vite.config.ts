@@ -17,6 +17,11 @@ export default defineConfig(() => {
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
       proxy: {
         '/v1': 'http://localhost:8091',
+        '/mcp-proxy/8091': {
+          target: 'http://localhost:8091',
+          changeOrigin: true,
+          rewrite: (path) => path.replace('/mcp-proxy/8091', ''),
+        },
       },
     },
   };

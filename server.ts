@@ -5,6 +5,7 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 const app = express();
 const PORT = parseInt(process.env.PORT || "3001", 10);
 const GUARD_API_URL = process.env.GUARD_API_URL || "http://urag-guard:8091";
+const OBSERVABILITY_URL = process.env.OBSERVABILITY_URL || "http://urag-observability:8091";
 const GUARD_API_KEY = process.env.GUARD_API_KEY || "";
 
 app.use(express.json());
@@ -30,6 +31,16 @@ app.use(
   })
 );
 
+// Proxy MCP calls to urag-observability-go (unified)
+app.use(
+  "/mcp-proxy",
+  createProxyMiddleware({
+    target: OBSERVABILITY_URL,
+    changeOrigin: true,
+    pathRewrite: { "^/mcp-proxy": "" },
+  })
+);
+
 // Serve static frontend assets
 const distPath = path.join(process.cwd(), "dist");
 app.use(express.static(distPath));
@@ -39,5 +50,6 @@ app.get("*", (_req, res) => {
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`uRag Guard Front ouvindo em http://localhost:${PORT}`);
-  console.log(`Proxy API -> ${GUARD_API_URL}`);
+  console.log(`Proxy REST -> ${GUARD_API_URL}`);
+  console.log(`Proxy MCP -> ${OBSERVABILITY_URL}`);
 });
