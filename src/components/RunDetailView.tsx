@@ -71,23 +71,23 @@ export default function RunDetailView({ runId, onNavigateToTab, onBack }: RunDet
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-6 w-32 bg-zinc-800 rounded" />
-        <div className="h-40 rounded-xl bg-zinc-900 border border-zinc-800" />
-        <div className="h-10 bg-zinc-900 border border-zinc-800 rounded-lg w-full" />
-        <div className="h-96 rounded-xl bg-zinc-900 border border-zinc-800" />
+        <div className="h-6 w-32 bg-[#e6e4df] rounded" />
+        <div className="h-40 rounded-xl bg-white border border-[#e6e4df]" />
+        <div className="h-10 bg-white border border-[#e6e4df] rounded-lg w-full" />
+        <div className="h-96 rounded-xl bg-white border border-[#e6e4df]" />
       </div>
     );
   }
 
   if (error || !run) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 border border-zinc-800 rounded-xl bg-zinc-900/50">
+      <div className="flex flex-col items-center justify-center py-20 border border-[#e6e4df] rounded-xl bg-[#f5f4f0]">
         <AlertTriangle size={48} className="text-rose-500 mb-4" />
-        <h3 className="text-lg font-medium text-zinc-100">Execução não encontrada</h3>
-        <p className="text-sm text-zinc-400 mt-1">O ID do run {runId} pode estar incorreto ou indisponível.</p>
+        <h3 className="text-lg font-medium text-[#1a1a1a]">Execução não encontrada</h3>
+        <p className="text-sm text-[#6e6d68] mt-1">O ID do run {runId} pode estar incorreto ou indisponível.</p>
         <button
           onClick={onBack}
-          className="mt-5 px-4 py-2 text-xs font-medium bg-zinc-800 text-zinc-100 border border-zinc-700 rounded-lg hover:bg-zinc-700 transition-colors"
+          className="mt-5 px-4 py-2 text-xs font-medium bg-[#e6e4df] text-[#1a1a1a] border border-[#e6e4df] rounded-lg hover:bg-[#d6d4cf] transition-colors"
         >
           Voltar para a lista
         </button>
@@ -102,26 +102,26 @@ export default function RunDetailView({ runId, onNavigateToTab, onBack }: RunDet
   const getSpanTypeColor = (type: Span["type"]) => {
     switch (type) {
       case "llm_call":
-        return "bg-blue-500 border-blue-600 text-blue-400";
+        return "bg-blue-600 border-blue-700 text-blue-800";
       case "tool_call":
-        return "bg-purple-500 border-purple-600 text-purple-400";
+        return "bg-purple-600 border-purple-700 text-purple-800";
       case "retrieval":
-        return "bg-emerald-500 border-emerald-600 text-emerald-400";
+        return "bg-emerald-600 border-emerald-700 text-emerald-800";
       default:
-        return "bg-zinc-500 border-zinc-600 text-zinc-400";
+        return "bg-[#e6e4df] border-[#d6d4cf] text-[#6e6d68]";
     }
   };
 
   const getSpanTypeBadge = (type: Span["type"]) => {
     switch (type) {
       case "llm_call":
-        return "bg-blue-500/10 text-blue-400 border border-blue-500/20";
+        return "bg-blue-100 text-blue-800 border border-blue-200";
       case "tool_call":
-        return "bg-purple-500/10 text-purple-400 border border-purple-500/20";
+        return "bg-purple-100 text-purple-800 border border-purple-200";
       case "retrieval":
-        return "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+        return "bg-emerald-100 text-emerald-800 border border-emerald-200";
       default:
-        return "bg-zinc-500/10 text-zinc-400 border border-zinc-500/20";
+        return "bg-[#f5f4f0] text-[#6e6d68] border border-[#e6e4df]";
     }
   };
 

@@ -88,19 +88,19 @@ export default function Topbar({
   ];
 
   return (
-    <header className="flex flex-col bg-[#faf9f6] border-b border-[#e6e4df] shrink-0 select-none">
+    <header className="flex flex-col bg-[#F4F1EE] border-b border-[#D3D1CE] shrink-0 select-none">
       {/* Top Row: Breadcrumb, Project Name & Filters */}
-      <div className="flex flex-row items-center justify-between px-6 pt-3 pb-2">
+      <div className="flex flex-row items-center justify-between px-6 pt-1 pb-0.5">
         {/* Breadcrumb & Project Label */}
         <div className="flex flex-col">
-          <div className="text-[10px] text-[#6e6d68] font-mono tracking-wider uppercase">
+          <div className="text-[10px] text-[#71706F] font-mono tracking-wider uppercase">
             {currentTab === "dashboard" ? "Personal / Monitoring" : "Personal / Tracing / uRag"}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="font-serif italic text-base font-semibold text-[#1a1a1a] tracking-tight">
+            <span className="font-serif italic text-base font-semibold text-[#1A1A1A] tracking-tight">
               uRag Guard
             </span>
-            <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#f5f4f0] text-[#575652] border border-[#e6e4df] font-mono">
+            <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#EBE7E2] text-[#575652] border border-[#D3D1CE] font-mono">
               prod-us-east
             </span>
           </div>
@@ -109,35 +109,35 @@ export default function Topbar({
         {/* Right Aligned Global Filters with High Density */}
         <div className="flex items-center gap-2">
           {/* Period Filter */}
-          <div className="flex items-center gap-1.5 bg-[#ffffff] border border-[#e6e4df] rounded px-2 py-1 text-xs text-[#1a1a1a] shadow-xs">
-            <Calendar size={12} className="text-[#6e6d68]" />
+          <div className="flex items-center gap-1.5 bg-[#FAF8F5] border border-[#D3D1CE] rounded px-2 py-1 text-xs text-[#1A1A1A] shadow-xs">
+            <Calendar size={12} className="text-[#71706F]" />
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
-              className="bg-transparent focus:outline-none text-[#1a1a1a] cursor-pointer pr-1 text-[11px] font-medium"
+              className="bg-transparent focus:outline-none text-[#1A1A1A] cursor-pointer pr-1 text-[11px] font-medium"
             >
-              <option value="24h" className="bg-[#ffffff] text-[#1a1a1a]">Últimas 24h</option>
-              <option value="7d" className="bg-[#ffffff] text-[#1a1a1a]">Últimos 7 dias</option>
-              <option value="30d" className="bg-[#ffffff] text-[#1a1a1a]">Últimos 30 dias</option>
-              <option value="custom" className="bg-[#ffffff] text-[#1a1a1a]">Personalizado</option>
+              <option value="24h" className="bg-[#FAF8F5] text-[#1A1A1A]">Últimas 24h</option>
+              <option value="7d" className="bg-[#FAF8F5] text-[#1A1A1A]">Últimos 7 dias</option>
+              <option value="30d" className="bg-[#FAF8F5] text-[#1A1A1A]">Últimos 30 dias</option>
+              <option value="custom" className="bg-[#FAF8F5] text-[#1A1A1A]">Personalizado</option>
             </select>
           </div>
 
           {/* Custom Date Picker */}
           {period === "custom" && (
-            <div className="flex items-center gap-1 bg-[#ffffff] border border-[#e6e4df] rounded px-1.5 py-0.5 text-[10px] shadow-xs">
+            <div className="flex items-center gap-1 bg-[#FAF8F5] border border-[#D3D1CE] rounded px-1.5 py-0.5 text-[10px] shadow-xs">
               <input
                 type="date"
                 value={customFrom}
                 onChange={(e) => setCustomFrom(e.target.value)}
-                className="bg-transparent text-[#1a1a1a] focus:outline-none border-none py-0.5 font-mono"
+                className="bg-transparent text-[#1A1A1A] focus:outline-none border-none py-0.5 font-mono"
               />
-              <span className="text-[#6e6d68] text-[9px]">até</span>
+              <span className="text-[#71706F] text-[9px]">até</span>
               <input
                 type="date"
                 value={customTo}
                 onChange={(e) => setCustomTo(e.target.value)}
-                className="bg-transparent text-[#1a1a1a] focus:outline-none border-none py-0.5 font-mono"
+                className="bg-transparent text-[#1A1A1A] focus:outline-none border-none py-0.5 font-mono"
               />
             </div>
           )}
@@ -146,20 +146,20 @@ export default function Topbar({
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsSourceDropdownOpen(!isSourceDropdownOpen)}
-              className="flex items-center gap-1.5 bg-[#ffffff] hover:bg-[#f5f4f0] border border-[#e6e4df] rounded px-2.5 py-1 text-xs text-[#1a1a1a] transition-colors shadow-xs"
+              className="flex items-center gap-1.5 bg-[#FAF8F5] hover:bg-[#EBE7E2] border border-[#D3D1CE] rounded px-2.5 py-1 text-xs text-[#1A1A1A] transition-colors shadow-xs"
             >
-              <Layers size={12} className="text-[#6e6d68]" />
-              <span className="text-[#1a1a1a] text-[11px] font-medium truncate max-w-[120px]">
+              <Layers size={12} className="text-[#71706F]" />
+              <span className="text-[#1A1A1A] text-[11px] font-medium truncate max-w-[120px]">
                 Fonte: {isAllSourcesSelected ? "Todas" : selectedSources.join(", ")}
               </span>
-              <ChevronDown size={10} className="text-[#6e6d68] shrink-0" />
+              <ChevronDown size={10} className="text-[#71706F] shrink-0" />
             </button>
 
             {isSourceDropdownOpen && (
-              <div className="absolute right-0 mt-1 w-52 rounded border border-[#e6e4df] bg-[#ffffff] shadow-lg z-50 p-1 space-y-0.5">
+              <div className="absolute right-0 mt-1 w-52 rounded border border-[#D3D1CE] bg-[#FAF8F5] shadow-lg z-50 p-1 space-y-0.5">
                 <button
                   onClick={handleAllSourcesToggle}
-                  className="flex items-center justify-between w-full px-2 py-1.5 rounded text-[11px] hover:bg-[#f5f4f0] text-left text-[#1a1a1a] font-medium"
+                  className="flex items-center justify-between w-full px-2 py-1.5 rounded text-[11px] hover:bg-[#EBE7E2] text-left text-[#1A1A1A] font-medium"
                 >
                   <span>Todas as fontes</span>
                   {isAllSourcesSelected && <Check size={10} className="text-emerald-700 shrink-0" />}
@@ -171,9 +171,9 @@ export default function Topbar({
                     <button
                       key={opt.id}
                       onClick={() => handleSourceToggle(opt.id)}
-                      className="flex items-center justify-between w-full px-2 py-1 rounded text-[11px] hover:bg-[#f5f4f0] text-left text-[#1a1a1a] transition-colors"
+                      className="flex items-center justify-between w-full px-2 py-1 rounded text-[11px] hover:bg-[#EBE7E2] text-left text-[#1A1A1A] transition-colors"
                     >
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-[#f5f4f0] text-[#1a1a1a] border border-[#e6e4df]">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-[#EBE7E2] text-[#1A1A1A] border border-[#D3D1CE]">
                         {opt.label}
                       </span>
                       {checked && !isAllSourcesSelected && (
@@ -189,7 +189,7 @@ export default function Topbar({
       </div>
 
       {/* Bottom Row: Project Navigation Tabs */}
-      <div className="flex items-center px-6 border-t border-[#e6e4df]">
+      <div className="flex items-center px-6 border-t border-[#D3D1CE] min-h-[28px]">
         <div className="flex gap-4 overflow-x-auto scrollbar-none">
           {tabs.map((tab) => {
             const active = activeBaseTab === tab.id;
@@ -197,10 +197,10 @@ export default function Topbar({
               <button
                 key={tab.id}
                 onClick={() => setCurrentTab(tab.id)}
-                className={`py-2 text-[11px] uppercase tracking-wider font-mono border-b-2 transition-all duration-150 ${
+                className={`py-1 text-[11px] uppercase tracking-wider font-mono border-b-2 transition-all duration-150 ${
                   active
-                    ? "border-[#1a1a1a] text-[#1a1a1a] font-semibold"
-                    : "border-transparent text-[#6e6d68] hover:text-[#1a1a1a]"
+                    ? "border-[#1A1A1A] text-[#1A1A1A] font-semibold"
+                    : "border-transparent text-[#71706F] hover:text-[#1A1A1A]"
                 }`}
               >
                 {tab.label}

@@ -76,22 +76,22 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-6 w-32 bg-zinc-800 rounded" />
-        <div className="h-40 rounded-xl bg-zinc-900 border border-zinc-800" />
-        <div className="h-96 rounded-xl bg-zinc-900 border border-zinc-800" />
+        <div className="h-6 w-32 bg-[#e6e4df] rounded" />
+        <div className="h-40 rounded-xl bg-white border border-[#e6e4df]" />
+        <div className="h-96 rounded-xl bg-white border border-[#e6e4df]" />
       </div>
     );
   }
 
   if (error || !session) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 border border-zinc-800 rounded-xl bg-zinc-900/50">
+      <div className="flex flex-col items-center justify-center py-20 border border-[#e6e4df] rounded-xl bg-[#f5f4f0]">
         <AlertOctagon size={48} className="text-rose-500 mb-4" />
-        <h3 className="text-lg font-medium text-zinc-100">Sessão não encontrada</h3>
-        <p className="text-sm text-zinc-400 mt-1">O ID de sessão {sessionId} pode estar inválido.</p>
+        <h3 className="text-lg font-medium text-[#1a1a1a]">Sessão não encontrada</h3>
+        <p className="text-sm text-[#6e6d68] mt-1">O ID de sessão {sessionId} pode estar inválido.</p>
         <button
           onClick={onBack}
-          className="mt-5 px-4 py-2 text-xs font-medium bg-zinc-800 text-zinc-100 border border-zinc-700 rounded-lg hover:bg-zinc-700 transition-colors"
+          className="mt-5 px-4 py-2 text-xs font-medium bg-[#e6e4df] text-[#1a1a1a] border border-[#e6e4df] rounded-lg hover:bg-[#d6d4cf] transition-colors"
         >
           Voltar para a lista
         </button>

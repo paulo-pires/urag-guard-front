@@ -225,7 +225,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex w-full h-screen bg-[#faf9f6] text-[#1a1a1a] overflow-hidden font-sans">
+    <div className="flex w-full h-screen bg-[#F4F1EE] text-[#1A1A1A] overflow-hidden font-sans">
       {/* Sidebar navigation */}
       <Sidebar currentTab={currentTab} setCurrentTab={setCurrentTab} />
 
@@ -246,7 +246,7 @@ export default function App() {
         />
 
         {/* Content container */}
-        <main className="flex-1 overflow-y-auto px-6 py-6 bg-[#faf9f6]">
+        <main className="flex-1 overflow-y-auto px-6 py-6 bg-[#F4F1EE]">
           <div className="max-w-7xl mx-auto space-y-6">
             {renderActiveTab()}
           </div>
