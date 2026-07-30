@@ -15,8 +15,8 @@ import {
   Server,
   Edit
 } from "lucide-react";
-import { ModelRegistry, McpServerConfig } from "../types";
-import { callMCPTool } from "../lib/api";
+import { ModelRegistry, McpServerConfig, ModelProvider } from "../types";
+import { callMCPTool, fetchModelsFromProxy } from "../lib/api";
 
 interface ModelsViewProps {
   models: ModelRegistry[];

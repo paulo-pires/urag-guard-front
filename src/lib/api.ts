@@ -142,3 +142,46 @@ export const api = {
   async createProjectAPIKey(projectId: string, kind: "ingest" | "dashboard"): Promise<{ key: string }> { return restPost(`/v1/projects/${projectId}/api-keys`, { kind }); },
   async deleteProjectAPIKey(projectId: string, keyId: string): Promise<{ status: string }> { return restDelete(`/v1/projects/${projectId}/api-keys/${keyId}`); },
 };
+
+// ── Proxy Models ──────────────────────────────────────────────────────────────
+
+interface ProxyModel {
+  id: string;
+  name?: string;
+  provider: string;
+  context_length?: number;
+  tool_calling?: boolean;
+  supports_vision?: boolean;
+}
+
+/**
+ * Fetch list of available models from the proxy service (/v1/models).
+ * Requires a valid authentication token in localStorage.
+ */
+export async function fetchModelsFromProxy(): Promise<ProxyModel[]> {
+  const token = localStorage.getItem('auth_token');
+  if (!token) throw new Error('No authentication token found');
+
+  const baseURL = import.meta.env.DEV
+    ? 'http://localhost:8090'
+    : window.location.origin;
+
+  const res = await fetch(`${baseURL}/v1/models`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!res.ok) {
+    if (res.status === 401) throw new Error('Unauthorized: Invalid or expired token');
+    if (res.status === 402) throw new Error('Insufficient credits');
+    throw new Error(`Failed to fetch models: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+
+  // Handle both direct model list and nested response format
+  return (data.models || data || []) as ProxyModel[];
+}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -48,6 +48,8 @@ export const DriftView: React.FC<DriftViewProps> = ({
   const [isUpdatingMetrics, setIsUpdatingMetrics] = useState(false);
   const [selectedLogModal, setSelectedLogModal] = useState<AuditViolationLog | null>(null);
   const [severityFilter, setSeverityFilter] = useState<string>("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
 
   const currentModel = models.find((m) => m.id === selectedModelId) || models[0];
   const currentDrift: DriftMetrics = driftData[selectedModelId] || {
@@ -106,7 +108,7 @@ export const DriftView: React.FC<DriftViewProps> = ({
 
   const statusInfo = getDriftStatusInfo(currentDrift.driftScore);
 
-  console.log("[DriftView Debug] auditLogs:", JSON.stringify(auditLogs), "selectedModelId:", selectedModelId, "models:", JSON.stringify(models));
+  // @debug-removed: console.log auditLogs — left during development
 
   const filteredLogs = auditLogs.filter((log) => {
     if (!selectedModelId) return true;
@@ -137,6 +139,20 @@ export const DriftView: React.FC<DriftViewProps> = ({
     return isMatch && (severityFilter === "ALL" || log.severity === severityFilter);
   });
 
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedLogs = useMemo(() => {
+    const start = (safePage - 1) * pageSize;
+    return filteredLogs.slice(start, start + pageSize);
+  }, [filteredLogs, safePage, pageSize]);
+
+  // Reset to page 1 when filter changes
+  const handleSeverityChange = (val: string) => {
+    setSeverityFilter(val);
+    setCurrentPage(1);
+  };
+
   const chartMetrics = [...(currentDrift.metrics || [])].sort((a, b) => {
     return a.timestamp.localeCompare(b.timestamp);
   });
@@ -163,6 +179,7 @@ export const DriftView: React.FC<DriftViewProps> = ({
               value={selectedModelId}
               onChange={(e) => onSelectModel(e.target.value)}
               className="bg-[#faf9f6] border border-[#e6e4df] text-[#1a1a1a] text-xs rounded-xl px-3 py-2 font-mono focus:outline-none focus:border-[#1a1a1a]"
+              aria-label="Selecionar modelo"
             >
               {models.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -274,7 +291,14 @@ export const DriftView: React.FC<DriftViewProps> = ({
           </div>
         </div>
 
-        <div className="h-72 w-full pt-2">
+        {chartMetrics.length === 0 ? (
+          <div className="h-72 flex flex-col items-center justify-center text-[#7a766c] border-2 border-dashed border-[#e6e4df] rounded-xl">
+            <Activity className="w-8 h-8 mb-2 opacity-40" />
+            <p className="text-sm font-semibold">Nenhuma métrica disponível</p>
+            <p className="text-xs mt-1">Selecione um modelo ou atualize as métricas para gerar o gráfico</p>
+          </div>
+        ) : (
+          <div className="h-72 w-full pt-2">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartMetrics} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e6e4df" vertical={false} />
@@ -322,6 +346,7 @@ export const DriftView: React.FC<DriftViewProps> = ({
             </LineChart>
           </ResponsiveContainer>
         </div>
+        )}
       </div>
 
       {/* Audit Violations Table */}
@@ -341,8 +366,9 @@ export const DriftView: React.FC<DriftViewProps> = ({
             <span className="text-xs text-[#555249] font-medium">Gravidade:</span>
             <select
               value={severityFilter}
-              onChange={(e) => setSeverityFilter(e.target.value)}
+              onChange={(e) => handleSeverityChange(e.target.value)}
               className="bg-[#faf9f6] border border-[#e6e4df] text-[#1a1a1a] text-xs rounded-xl px-3 py-1.5 focus:outline-none"
+              aria-label="Filtrar por gravidade"
             >
               <option value="ALL">Todas</option>
               <option value="LOW">LOW</option>
@@ -353,59 +379,123 @@ export const DriftView: React.FC<DriftViewProps> = ({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-[#1a1a1a]">
-            <thead className="bg-[#f5f4f0] text-[#7a766c] uppercase font-mono text-[10px] tracking-wider">
-              <tr>
-                <th className="p-3 rounded-l-lg">ID / Data</th>
-                <th className="p-3">Modelo</th>
-                <th className="p-3">Tipo de Evento</th>
-                <th className="p-3">Gravidade</th>
-                <th className="p-3">Detalhes do Incidente</th>
-                <th className="p-3 text-right rounded-r-lg">Ação</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#e6e4df]">
-              {filteredLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-[#f5f4f0]/80 transition-colors">
-                  <td className="p-3 font-mono">
-                    <p className="text-[#1a1a1a] font-semibold">{log.id}</p>
-                    <p className="text-[10px] text-[#666257]">
-                      {new Date(log.timestamp).toLocaleTimeString()}
-                    </p>
-                  </td>
-                  <td className="p-3 font-medium text-[#1a1a1a]">{log.modelName}</td>
-                  <td className="p-3 font-semibold text-[#1a1a1a]">{log.type}</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-0.5 text-[10px] font-bold font-mono rounded ${
-                        log.severity === "CRITICAL"
-                          ? "bg-rose-100 text-rose-800 border border-rose-200"
-                          : log.severity === "HIGH"
-                          ? "bg-amber-100 text-amber-800 border border-amber-200"
-                          : "bg-sky-100 text-sky-800 border border-sky-200"
+        {filteredLogs.length === 0 ? (
+          <div className="py-12 flex flex-col items-center justify-center text-[#7a766c]">
+            <ShieldAlert className="w-10 h-10 mb-3 opacity-30" />
+            <p className="text-sm font-semibold">Nenhum evento encontrado</p>
+            <p className="text-xs mt-1">
+              {severityFilter !== "ALL"
+                ? "Nenhum registro com a gravidade selecionada. Tente um filtro diferente."
+                : "Nenhuma violação ou alerta registrado para este modelo."}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Record count */}
+            <div className="flex items-center justify-between text-xs text-[#666257]">
+              <span>
+                Exibindo {(safePage - 1) * pageSize + 1}&ndash;{Math.min(safePage * pageSize, filteredLogs.length)} de{' '}
+                <strong className="text-[#1a1a1a]">{filteredLogs.length}</strong> registro{filteredLogs.length !== 1 ? 's' : ''}
+              </span>
+              {totalPages > 1 && (
+                <span className="text-[10px] font-mono text-[#7a766c]">
+                  Página {safePage} de {totalPages}
+                </span>
+              )}
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs text-[#1a1a1a]">
+                <thead className="bg-[#f5f4f0] text-[#7a766c] uppercase font-mono text-[10px] tracking-wider">
+                  <tr>
+                    <th className="p-3 rounded-l-lg">ID / Data</th>
+                    <th className="p-3">Modelo</th>
+                    <th className="p-3">Tipo de Evento</th>
+                    <th className="p-3">Gravidade</th>
+                    <th className="p-3">Detalhes do Incidente</th>
+                    <th className="p-3 text-right rounded-r-lg">Ação</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#e6e4df]">
+                  {paginatedLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-[#f5f4f0]/80 transition-colors">
+                      <td className="p-3 font-mono">
+                        <p className="text-[#1a1a1a] font-semibold">{log.id}</p>
+                        <p className="text-[10px] text-[#666257]">
+                          {new Date(log.timestamp).toLocaleTimeString()}
+                        </p>
+                      </td>
+                      <td className="p-3 font-medium text-[#1a1a1a]">{log.modelName}</td>
+                      <td className="p-3 font-semibold text-[#1a1a1a]">{log.type}</td>
+                      <td className="p-3">
+                        <span
+                          className={`px-2 py-0.5 text-[10px] font-bold font-mono rounded ${
+                            log.severity === "CRITICAL"
+                              ? "bg-rose-100 text-rose-800 border border-rose-200"
+                              : log.severity === "HIGH"
+                              ? "bg-amber-100 text-amber-800 border border-amber-200"
+                              : "bg-sky-100 text-sky-800 border border-sky-200"
+                          }`}
+                        >
+                          {log.severity}
+                        </span>
+                      </td>
+                      <td className="p-3 max-w-xs truncate text-[#555249]" title={log.details}>
+                        {log.details}
+                      </td>
+                      <td className="p-3 text-right">
+                        <button
+                          onClick={() => setSelectedLogModal(log)}
+                          className="px-2.5 py-1 bg-[#1a1a1a] hover:bg-[#333333] text-white rounded-lg font-medium inline-flex items-center gap-1 transition-colors shadow-2xs"
+                        >
+                          <Eye className="w-3 h-3" />
+                          Inspecionar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-2 border-t border-[#e6e4df]">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={safePage <= 1}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[#e6e4df] bg-[#faf9f6] text-[#1a1a1a] hover:bg-[#f0eee9] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  &larr; Anterior
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`min-w-[28px] h-7 text-xs font-semibold rounded-lg transition-colors ${
+                        page === safePage
+                          ? "bg-[#1a1a1a] text-white shadow-sm"
+                          : "bg-[#faf9f6] text-[#555249] hover:bg-[#f0eee9] border border-[#e6e4df]"
                       }`}
                     >
-                      {log.severity}
-                    </span>
-                  </td>
-                  <td className="p-3 max-w-xs truncate text-[#555249]" title={log.details}>
-                    {log.details}
-                  </td>
-                  <td className="p-3 text-right">
-                    <button
-                      onClick={() => setSelectedLogModal(log)}
-                      className="px-2.5 py-1 bg-[#1a1a1a] hover:bg-[#333333] text-white rounded-lg font-medium inline-flex items-center gap-1 transition-colors shadow-2xs"
-                    >
-                      <Eye className="w-3 h-3" />
-                      Inspecionar
+                      {page}
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safePage >= totalPages}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-[#e6e4df] bg-[#faf9f6] text-[#1a1a1a] hover:bg-[#f0eee9] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Próximo &rarr;
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Log Detail Modal */}
@@ -422,6 +512,7 @@ export const DriftView: React.FC<DriftViewProps> = ({
               <button
                 onClick={() => setSelectedLogModal(null)}
                 className="text-[#666257] hover:text-[#1a1a1a] p-1 rounded-lg"
+                aria-label="Fechar inspeção"
               >
                 <X className="w-5 h-5" />
               </button>

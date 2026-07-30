@@ -2,7 +2,7 @@ import express from "express";
 import path from "path";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
-const app = express();
+export const app = express();
 const PORT = parseInt(process.env.PORT || "3001", 10);
 const GUARD_API_URL = process.env.GUARD_API_URL || "http://urag-guard:8091";
 const OBSERVABILITY_URL = process.env.OBSERVABILITY_URL || "http://urag-observability:8091";
