@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import http from "http";
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 export const app = express();
@@ -32,14 +33,26 @@ app.use(
 );
 
 // Proxy MCP calls to urag-observability-go (unified)
-app.use(
-  "/mcp-proxy",
-  createProxyMiddleware({
-    target: OBSERVABILITY_URL,
-    changeOrigin: true,
-    pathRewrite: { "^/": "/mcp" },
-  })
-);
+// Proxy manual: http-proxy-middleware não repassa SSE (event-stream) corretamente.
+app.use("/mcp-proxy", (req, res) => {
+  const target = new URL(OBSERVABILITY_URL);
+  const proxyReq = http.request({
+    host: target.hostname,
+    port: target.port || "80",
+    path: "/mcp",
+    method: req.method,
+    headers: { ...req.headers, host: target.host },
+  }, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode || 502, proxyRes.headers);
+    proxyRes.pipe(res);
+  });
+  proxyReq.on("error", (err) => {
+    console.error("MCP proxy error:", err.message);
+    if (!res.headersSent) res.writeHead(502, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ jsonrpc: "2.0", id: "proxy", error: { code: -32000, message: err.message } }));
+  });
+  req.pipe(proxyReq);
+});
 
 // Serve static frontend assets
 const distPath = path.join(process.cwd(), "dist");
