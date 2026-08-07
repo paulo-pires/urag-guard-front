@@ -30,6 +30,7 @@ export default function GuardrailEventsView({
   const [rules, setRules] = useState<GuardrailRule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [rulesError, setRulesError] = useState(false);
 
   // Filters
   const [selectedRule, setSelectedRule] = useState("all");
@@ -46,7 +47,10 @@ export default function GuardrailEventsView({
     api
       .getGuardrailRules()
       .then((data) => setRules(data))
-      .catch((err) => console.error("Error loading rules list:", err));
+      .catch((err) => {
+        console.error("Error loading rules list:", err);
+        setRulesError(true);
+      });
   }, []);
 
   const fetchEvents = () => {
@@ -160,6 +164,11 @@ export default function GuardrailEventsView({
           </button>
         )}
       </div>
+
+      {/* Inline error: não bloqueia a renderização do restante da view */}
+      {rulesError && (
+        <p className="text-sm text-red-600">Não foi possível carregar as regras.</p>
+      )}
 
       {/* Events Table card */}
       <div className="border border-[#e6e4df] rounded-lg bg-[#ffffff] overflow-hidden shadow-xs">

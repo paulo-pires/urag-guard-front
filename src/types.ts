@@ -6,12 +6,12 @@ export interface Span {
   end_time: string;
   latency_ms: number;
   parent_span_id?: string;
-  input?: any;
-  output?: any;
+  input?: unknown;
+  output?: unknown;
   tokens_in?: number;
   tokens_out?: number;
   cost?: number;
-  metadata?: any;
+  metadata?: unknown;
 }
 
 export interface GuardrailEvent {
@@ -54,8 +54,8 @@ export interface Run {
   tokens_out: number;
   cost: number;
   session_id?: string;
-  input: any;
-  output: any;
+  input: unknown;
+  output: unknown;
   has_violation: boolean;
   max_violation_verdict?: "flag" | "block" | "log";
   average_eval_score?: number;
@@ -273,5 +273,65 @@ export interface McpServerConfig {
   host: string;
   token: string;
   forceDemoMode: boolean;
+}
+
+// ── MCP Streamable HTTP (JSON-RPC 2.0) ───────────────────────────────────────
+
+/** Requisição JSON-RPC enviada ao servidor MCP. */
+export interface McpRequest {
+  jsonrpc: "2.0";
+  id: string;
+  method: string;
+  params?: Record<string, unknown>;
+}
+
+/** Parte de conteúdo da resposta MCP (content[].text carrega o JSON da tool). */
+export interface McpContentPart {
+  type?: string;
+  text?: string;
+}
+
+/** Resposta JSON-RPC do servidor MCP (inicialização ou tools/call). */
+export interface McpResponse {
+  jsonrpc?: string;
+  id?: string;
+  result?: {
+    content?: McpContentPart[];
+  };
+  error?: {
+    code?: number;
+    message?: string;
+    data?: unknown;
+  };
+}
+
+/** Filtros comuns de query (runs, sessions, scores, events, usage, stats). */
+export interface QueryFilters {
+  // Index signature: permite passar o objeto direto para payloads MCP/REST
+  // (Record<string, unknown>) sem cast. Todos os campos explícitos abaixo
+  // obedecem a esse domínio de valores.
+  [key: string]: string | number | boolean | undefined;
+  from?: string;
+  to?: string;
+  source?: string;
+  env?: string;
+  rule?: string;
+  metric?: string;
+  verdict?: string;
+  run_id?: string;
+  session_id?: string;
+  groupBy?: string;
+  page?: number;
+  page_size?: number;
+  limit?: number;
+  offset?: number;
+  tenant_id?: string;
+  // Filtros usados por RunsView (list_runs no guard/observability)
+  status?: string;
+  model?: string;
+  query?: string;
+  only_violations?: boolean;
+  score_min?: number;
+  score_max?: number;
 }
 

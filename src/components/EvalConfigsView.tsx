@@ -140,6 +140,7 @@ export default function EvalConfigsView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [copiedConfigId, setCopiedConfigId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Modal / Form States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -298,7 +299,12 @@ export default function EvalConfigsView() {
         setConfigs(configs.filter((c) => c.id !== id));
         setConfigToDelete(null);
       })
-      .catch((err) => console.error("Error deleting eval config:", err));
+      .catch((err) => {
+        console.error("Error deleting eval config:", err);
+        setConfigToDelete(null);
+        setDeleteError("Erro ao excluir a configuração de avaliação. Tente novamente.");
+        window.setTimeout(() => setDeleteError(null), 6000);
+      });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -307,7 +313,7 @@ export default function EvalConfigsView() {
 
     setIsSubmitting(true);
 
-    const configPayload: any = {
+    const configPayload: EvalConfig["config"] = {
       scoring_model: selectedModel,
       prompt: promptText,
       include_reasoning: includeReasoning,
@@ -389,6 +395,21 @@ export default function EvalConfigsView() {
           <span>Nova Config</span>
         </button>
       </div>
+
+      {/* Delete error banner */}
+      {deleteError && (
+        <div className="flex items-center gap-2 px-4 py-3 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs animate-fadeIn">
+          <AlertTriangle size={14} className="shrink-0 text-red-600" />
+          <span>{deleteError}</span>
+          <button
+            onClick={() => setDeleteError(null)}
+            className="ml-auto text-red-500 hover:text-red-800 transition-colors"
+            title="Fechar"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
       {/* Grid of evaluations */}
       <div className="border border-[#e6e4df] rounded-lg bg-[#ffffff] overflow-hidden shadow-xs">
@@ -594,7 +615,7 @@ export default function EvalConfigsView() {
                   <label className="text-[10px] font-bold text-[#6e6d68] uppercase tracking-wider">Métrica Estatística</label>
                   <select
                     value={metric}
-                    onChange={(e) => setMetric(e.target.value as any)}
+                    onChange={(e) => setMetric(e.target.value as EvalConfig["metric"])}
                     className="w-full bg-[#ffffff] border border-[#e6e4df] focus:border-[#1a1a1a] rounded px-2.5 py-1.5 text-[#1a1a1a] focus:outline-none cursor-pointer transition-colors"
                   >
                     <option value="faithfulness">Fidelidade RAG (Faithfulness)</option>

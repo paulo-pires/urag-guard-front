@@ -156,6 +156,7 @@ export default function GuardrailRulesView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [copiedRuleId, setCopiedRuleId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Modal / Form States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -331,7 +332,12 @@ export default function GuardrailRulesView() {
         setRules(rules.filter((r) => r.id !== id));
         setRuleToDelete(null);
       })
-      .catch((err) => console.error("Error deleting rule:", err));
+      .catch((err) => {
+        console.error("Error deleting rule:", err);
+        setRuleToDelete(null);
+        setDeleteError("Erro ao excluir a regra. Tente novamente.");
+        window.setTimeout(() => setDeleteError(null), 6000);
+      });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -341,7 +347,7 @@ export default function GuardrailRulesView() {
     setIsSubmitting(true);
 
     // Build the dynamic config payload
-    const config: any = {};
+    const config: GuardrailRule["config"] = {};
     if (type === "custom_regex") {
       config.regex = regexPattern;
       config.case_insensitive = regexCaseInsensitive;
@@ -437,6 +443,21 @@ export default function GuardrailRulesView() {
           <span>Nova Regra</span>
         </button>
       </div>
+
+      {/* Delete error banner */}
+      {deleteError && (
+        <div className="flex items-center gap-2 px-4 py-3 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs animate-fadeIn">
+          <AlertTriangle size={14} className="shrink-0 text-red-600" />
+          <span>{deleteError}</span>
+          <button
+            onClick={() => setDeleteError(null)}
+            className="ml-auto text-red-500 hover:text-red-800 transition-colors"
+            title="Fechar"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
       {/* Rules Table / Cards */}
       <div className="border border-[#e6e4df] rounded-lg bg-[#ffffff] overflow-hidden shadow-xs">
@@ -648,7 +669,7 @@ export default function GuardrailRulesView() {
                   <label className="text-[10px] font-bold text-[#6e6d68] uppercase tracking-wider">Tipo de Moderação</label>
                   <select
                     value={type}
-                    onChange={(e) => setType(e.target.value as any)}
+                    onChange={(e) => setType(e.target.value as GuardrailRule["type"])}
                     className="w-full bg-[#ffffff] border border-[#e6e4df] focus:border-[#1a1a1a] rounded px-2.5 py-1.5 text-[#1a1a1a] focus:outline-none cursor-pointer transition-colors"
                   >
                     <option value="prompt_injection">Injeção de Prompt (Prompt Injection)</option>
@@ -664,7 +685,7 @@ export default function GuardrailRulesView() {
                   <label className="text-[10px] font-bold text-[#6e6d68] uppercase tracking-wider">Fase de Atuação</label>
                   <select
                     value={stage}
-                    onChange={(e) => setStage(e.target.value as any)}
+                    onChange={(e) => setStage(e.target.value as GuardrailRule["stage"])}
                     className="w-full bg-[#ffffff] border border-[#e6e4df] focus:border-[#1a1a1a] rounded px-2.5 py-1.5 text-[#1a1a1a] focus:outline-none cursor-pointer transition-colors"
                   >
                     <option value="input">Somente Entrada (Input)</option>
@@ -977,7 +998,7 @@ export default function GuardrailRulesView() {
                   <label className="text-[10px] font-bold text-[#6e6d68] uppercase tracking-wider">Ação em caso de violação</label>
                   <select
                     value={action}
-                    onChange={(e) => setAction(e.target.value as any)}
+                    onChange={(e) => setAction(e.target.value as GuardrailRule["action"])}
                     className="w-full bg-[#ffffff] border border-[#e6e4df] focus:border-[#1a1a1a] rounded px-3 py-1.5 text-[#1a1a1a] focus:outline-none cursor-pointer"
                   >
                     <option value="block">Bloquear Requisição (Block)</option>

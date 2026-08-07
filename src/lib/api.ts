@@ -1,23 +1,23 @@
-import { DashboardStats, Run, Session, GuardrailRule, GuardrailEvent, EvalConfig, EvalScore, UsageGroup, Project, APIKey } from "../types";
+import { DashboardStats, Run, Session, GuardrailRule, GuardrailEvent, EvalConfig, EvalScore, UsageGroup, Project, APIKey, QueryFilters, McpResponse } from "../types";
 
-// ── MCP-only client for urag-observability-go (:8091) ────────────────────────
+// ── MCP-only client for urag-observability-go (:8088) ────────────────────────
 
-const OBSERVABILITY_PORT = 8091;
+const OBSERVABILITY_PORT = 8088;
 
 interface McpSession { sessionId: string; expiry: number; }
 let mcpSession: McpSession | null = null;
 
 function endpoint(): string {
   if (import.meta.env.DEV) return `/mcp-proxy/${OBSERVABILITY_PORT}/`;
-  return `${window.location.origin}:${OBSERVABILITY_PORT}/`;
+  return `${window.location.protocol}//${window.location.hostname}:${OBSERVABILITY_PORT}/`;
 }
 
-function parseMcpResponse(body: string): any {
+function parseMcpResponse(body: string): McpResponse {
   for (const line of body.split('\n')) {
     const t = line.trim();
-    if (t.startsWith('data: ')) { try { return JSON.parse(t.slice(6)); } catch { continue; } }
+    if (t.startsWith('data: ')) { try { return JSON.parse(t.slice(6)) as McpResponse; } catch { continue; } }
   }
-  return JSON.parse(body);
+  return JSON.parse(body) as McpResponse;
 }
 
 async function ensureSession(): Promise<string | null> {
@@ -45,15 +45,15 @@ async function ensureSession(): Promise<string | null> {
 }
 
 /** Call MCP tool. Assinatura compatível: (tool, args) ou (port, tool, args, ...). */
-export async function callMCPTool<T = any>(
+export async function callMCPTool<T = unknown>(
   a1: string | number,
-  a2?: string | Record<string, any>,
-  a3?: Record<string, any>,
+  a2?: string | Record<string, unknown>,
+  a3?: Record<string, unknown>,
   _token?: string,
-  _config?: any
+  _config?: unknown
 ): Promise<T> {
   const tool = typeof a1 === 'number' ? (a2 as string) : (a1 as string);
-  const args = (typeof a1 === 'number' ? (a3 || {}) : (a2 || {})) as Record<string, any>;
+  const args = (typeof a1 === 'number' ? (a3 || {}) : (a2 || {})) as Record<string, unknown>;
 
   const sid = await ensureSession();
   const h: Record<string, string> = { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' };
@@ -73,27 +73,27 @@ export async function callMCPTool<T = any>(
 }
 
 /** REST fallback para features admin que o guard-go expõe mas não têm MCP. */
-function apiUrl(path: string, params?: Record<string, any>): string {
-  const base = import.meta.env.DEV ? `http://localhost:${OBSERVABILITY_PORT}` : `${window.location.origin}:${OBSERVABILITY_PORT}`;
+function apiUrl(path: string, params?: Record<string, unknown>): string {
+  const base = import.meta.env.DEV ? `http://localhost:${OBSERVABILITY_PORT}` : `${window.location.protocol}//${window.location.hostname}:${OBSERVABILITY_PORT}`;
   const url = new URL(path, base);
   if (params) Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') url.searchParams.append(k, String(v)); });
   return url.toString();
 }
-async function restGet<T>(path: string, p?: any): Promise<T> { const r = await fetch(apiUrl(path, p)); if (!r.ok) throw new Error(`REST ${r.status}`); return r.json(); }
-async function restPost<T>(path: string, b?: any): Promise<T> { const r = await fetch(apiUrl(path), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: b ? JSON.stringify(b) : undefined }); if (!r.ok) throw new Error(`REST POST ${r.status}`); return r.json(); }
-async function restPut<T>(path: string, b: any): Promise<T> { const r = await fetch(apiUrl(path), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) }); if (!r.ok) throw new Error(`REST PUT ${r.status}`); return r.json(); }
+async function restGet<T>(path: string, p?: Record<string, unknown>): Promise<T> { const r = await fetch(apiUrl(path, p)); if (!r.ok) throw new Error(`REST ${r.status}`); return r.json(); }
+async function restPost<T>(path: string, b?: unknown): Promise<T> { const r = await fetch(apiUrl(path), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: b ? JSON.stringify(b) : undefined }); if (!r.ok) throw new Error(`REST POST ${r.status}`); return r.json(); }
+async function restPut<T>(path: string, b: unknown): Promise<T> { const r = await fetch(apiUrl(path), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) }); if (!r.ok) throw new Error(`REST PUT ${r.status}`); return r.json(); }
 async function restDelete<T>(path: string): Promise<T> { const r = await fetch(apiUrl(path), { method: 'DELETE' }); if (!r.ok) throw new Error(`REST DELETE ${r.status}`); return r.json(); }
 
 // ── API ───────────────────────────────────────────────────────────────────────
 
 export const api = {
   // Dashboard Stats — MCP
-  async getDashboardStats(filters: any = {}): Promise<DashboardStats> {
+  async getDashboardStats(filters: QueryFilters = {}): Promise<DashboardStats> {
     return callMCPTool('get_dashboard_stats', filters);
   },
 
   // Runs — MCP
-  async getRuns(params: any = {}): Promise<{ runs: Run[]; total: number; page: number; page_size: number; total_pages: number }> {
+  async getRuns(params: QueryFilters = {}): Promise<{ runs: Run[]; total: number; page: number; page_size: number; total_pages: number }> {
     return callMCPTool('list_runs', params);
   },
   async getRun(id: string): Promise<Run & { guardrail_events: GuardrailEvent[]; eval_scores: EvalScore[] }> {
@@ -101,7 +101,7 @@ export const api = {
   },
 
   // Sessions — MCP
-  async getSessions(params: any = {}): Promise<{ sessions: Session[]; total: number; page: number; page_size: number; total_pages: number }> {
+  async getSessions(params: QueryFilters = {}): Promise<{ sessions: Session[]; total: number; page: number; page_size: number; total_pages: number }> {
     return callMCPTool('list_sessions', params);
   },
   async getSession(id: string): Promise<Session & { runs: Run[]; total_violations: number; average_eval_score?: number }> {
@@ -115,7 +115,7 @@ export const api = {
   async deleteGuardrailRule(id: string): Promise<{ success: boolean }> { return restDelete(`/v1/guardrail-rules/${id}`); },
 
   // Guardrail Events — MCP
-  async getGuardrailEvents(params: any = {}): Promise<{ events: GuardrailEvent[]; total: number; page: number; page_size: number; total_pages: number }> {
+  async getGuardrailEvents(params: QueryFilters = {}): Promise<{ events: GuardrailEvent[]; total: number; page: number; page_size: number; total_pages: number }> {
     return callMCPTool('list_guardrail_events', params);
   },
 
@@ -126,12 +126,12 @@ export const api = {
   async deleteEvalConfig(id: string): Promise<{ success: boolean }> { return restDelete(`/v1/eval-configs/${id}`); },
 
   // Scores — MCP
-  async getScores(params: any = {}): Promise<{ scores: EvalScore[]; total: number; page: number; page_size: number; total_pages: number }> {
+  async getScores(params: QueryFilters = {}): Promise<{ scores: EvalScore[]; total: number; page: number; page_size: number; total_pages: number }> {
     return callMCPTool('list_scores', params);
   },
 
   // Usage — MCP
-  async getUsage(params: any = {}): Promise<UsageGroup[]> {
+  async getUsage(params: QueryFilters = {}): Promise<UsageGroup[]> {
     return callMCPTool('get_usage_stats', params);
   },
 
@@ -180,8 +180,8 @@ export async function fetchModelsFromProxy(): Promise<ProxyModel[]> {
     throw new Error(`Failed to fetch models: ${res.statusText}`);
   }
 
-  const data = await res.json();
-
   // Handle both direct model list and nested response format
-  return (data.models || data || []) as ProxyModel[];
+  const data = (await res.json()) as { models?: ProxyModel[] } | ProxyModel[];
+  if (Array.isArray(data)) return data;
+  return data.models ?? [];
 }

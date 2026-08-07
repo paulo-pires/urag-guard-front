@@ -1,4 +1,4 @@
-import { DashboardStats, Run, Session, GuardrailRule, GuardrailEvent, EvalConfig, EvalScore, UsageGroup } from "../types";
+import { DashboardStats, Run, Session, GuardrailRule, GuardrailEvent, EvalConfig, EvalScore, UsageGroup, QueryFilters, McpResponse } from "../types";
 
 // ── MCP Streamable HTTP Client ────────────────────────────────────────────────
 
@@ -16,14 +16,14 @@ function getEndpoint(): string {
   return `${base}:${OBSERVABILITY_PORT}/`;
 }
 
-function parseMcpResponse(body: string): any {
+function parseMcpResponse(body: string): McpResponse {
   for (const line of body.split('\n')) {
     const trimmed = line.trim();
     if (trimmed.startsWith('data: ')) {
-      try { return JSON.parse(trimmed.slice(6)); } catch { continue; }
+      try { return JSON.parse(trimmed.slice(6)) as McpResponse; } catch { continue; }
     }
   }
-  return JSON.parse(body);
+  return JSON.parse(body) as McpResponse;
 }
 
 async function ensureSession(): Promise<string | null> {
@@ -60,7 +60,7 @@ async function ensureSession(): Promise<string | null> {
   }
 }
 
-async function callMCPTool<T = any>(toolName: string, args: Record<string, any> = {}): Promise<T> {
+async function callMCPTool<T = unknown>(toolName: string, args: Record<string, unknown> = {}): Promise<T> {
   const sessionId = await ensureSession();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -90,30 +90,30 @@ async function callMCPTool<T = any>(toolName: string, args: Record<string, any> 
 
 export const mcp = {
   // Runs (via guard adapter)
-  async getRuns(params?: any): Promise<{ runs: Run[]; total: number }> {
+  async getRuns(params?: QueryFilters): Promise<{ runs: Run[]; total: number }> {
     return callMCPTool('list_runs', params || {});
   },
 
   // Sessions (via guard adapter)
-  async getSessions(params?: any): Promise<{ sessions: Session[]; total: number }> {
+  async getSessions(params?: QueryFilters): Promise<{ sessions: Session[]; total: number }> {
     return callMCPTool('list_sessions', params || {});
   },
 
   // Scores (via guard adapter)
-  async getScores(params?: any): Promise<{ scores: EvalScore[]; total: number }> {
+  async getScores(params?: QueryFilters): Promise<{ scores: EvalScore[]; total: number }> {
     return callMCPTool('list_scores', params || {});
   },
 
-  // Models (via modelops)
-  async listModels(): Promise<any> {
+  // Models (via modelops) — sem callers no front; shape livre, exige narrowing
+  async listModels(): Promise<unknown> {
     return callMCPTool('list_models', {});
   },
 
-  async detectDrift(params: any): Promise<any> {
+  async detectDrift(params: QueryFilters): Promise<unknown> {
     return callMCPTool('detect_drift', params);
   },
 
-  async runSimulation(params: any): Promise<any> {
+  async runSimulation(params: QueryFilters): Promise<unknown> {
     return callMCPTool('run_simulation', params);
   },
 };
