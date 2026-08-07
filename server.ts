@@ -37,7 +37,7 @@ app.use(
   createProxyMiddleware({
     target: OBSERVABILITY_URL,
     changeOrigin: true,
-    pathRewrite: { "^/mcp-proxy": "/mcp" },
+    pathRewrite: { "^/": "/mcp" },
   })
 );
 
