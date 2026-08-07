@@ -2,7 +2,7 @@ import { DashboardStats, Run, Session, GuardrailRule, GuardrailEvent, EvalConfig
 
 // ── MCP Streamable HTTP Client ────────────────────────────────────────────────
 
-const OBSERVABILITY_PORT = 8091;
+const OBSERVABILITY_PORT = 8088;
 
 interface McpSession {
   sessionId: string;
@@ -12,8 +12,7 @@ interface McpSession {
 let currentSession: McpSession | null = null;
 
 function getEndpoint(): string {
-  const base = window.location.origin;
-  return `${base}:${OBSERVABILITY_PORT}/`;
+  return '/mcp-proxy/';
 }
 
 function parseMcpResponse(body: string): McpResponse {

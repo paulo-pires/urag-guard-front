@@ -89,23 +89,30 @@ async function restDelete<T>(path: string): Promise<T> { const r = await fetch(a
 export const api = {
   // Dashboard Stats — MCP
   async getDashboardStats(filters: QueryFilters = {}): Promise<DashboardStats> {
-    return callMCPTool('get_dashboard_stats', filters);
+    const raw = await callMCPTool('get_dashboard_stats', filters);
+    return (raw as any)?.result ?? raw;
   },
 
   // Runs — MCP
   async getRuns(params: QueryFilters = {}): Promise<{ runs: Run[]; total: number; page: number; page_size: number; total_pages: number }> {
-    return callMCPTool('list_runs', params);
+    const raw = await callMCPTool('list_runs', params);
+    const d = (raw as any)?.result ?? raw;
+    return { runs: d?.runs ?? d?.items ?? [], total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
   },
   async getRun(id: string): Promise<Run & { guardrail_events: GuardrailEvent[]; eval_scores: EvalScore[] }> {
-    return callMCPTool('get_run', { id });
+    const raw = await callMCPTool('get_run', { id });
+    return (raw as any)?.result ?? raw;
   },
 
   // Sessions — MCP
   async getSessions(params: QueryFilters = {}): Promise<{ sessions: Session[]; total: number; page: number; page_size: number; total_pages: number }> {
-    return callMCPTool('list_sessions', params);
+    const raw = await callMCPTool('list_sessions', params);
+    const d = (raw as any)?.result ?? raw;
+    return { sessions: d?.sessions ?? d?.items ?? [], total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
   },
   async getSession(id: string): Promise<Session & { runs: Run[]; total_violations: number; average_eval_score?: number }> {
-    return callMCPTool('get_session', { id });
+    const raw = await callMCPTool('get_session', { id });
+    return (raw as any)?.result ?? raw;
   },
 
   // Guardrail Rules — REST (admin, sem MCP)
@@ -116,7 +123,9 @@ export const api = {
 
   // Guardrail Events — MCP
   async getGuardrailEvents(params: QueryFilters = {}): Promise<{ events: GuardrailEvent[]; total: number; page: number; page_size: number; total_pages: number }> {
-    return callMCPTool('list_guardrail_events', params);
+    const raw = await callMCPTool('list_guardrail_events', params);
+    const d = (raw as any)?.result ?? raw;
+    return { events: d?.events ?? d?.items ?? [], total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
   },
 
   // Eval Configs — REST (admin, sem MCP)
@@ -127,12 +136,15 @@ export const api = {
 
   // Scores — MCP
   async getScores(params: QueryFilters = {}): Promise<{ scores: EvalScore[]; total: number; page: number; page_size: number; total_pages: number }> {
-    return callMCPTool('list_scores', params);
+    const raw = await callMCPTool('list_scores', params);
+    const d = (raw as any)?.result ?? raw;
+    return { scores: d?.scores ?? d?.items ?? [], total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
   },
 
   // Usage — MCP
   async getUsage(params: QueryFilters = {}): Promise<UsageGroup[]> {
-    return callMCPTool('get_usage_stats', params);
+    const raw = await callMCPTool('get_usage_stats', params);
+    return (raw as any)?.result ?? raw;
   },
 
   // Projects & API Keys — REST (admin, sem MCP)

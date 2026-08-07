@@ -232,27 +232,27 @@ export default function DashboardView({
           <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Total Runs</span>
-              <div className="text-lg font-bold text-[#1a1a1a]">{stats.kpis.totalRuns.toLocaleString()}</div>
+              <div className="text-lg font-bold text-[#1a1a1a]">{((stats as any).total_runs ?? 0).toLocaleString()}</div>
             </div>
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Custo Total</span>
-              <div className="text-lg font-bold text-[#1a1a1a]">${stats.kpis.totalCost.toFixed(4)}</div>
+              <div className="text-lg font-bold text-[#1a1a1a]">${((stats as any).total_cost_usd ?? 0).toFixed(4)}</div>
             </div>
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Latência Média</span>
-              <div className="text-lg font-bold text-[#1a1a1a]">{stats.kpis.avgLatency.toFixed(0)}ms</div>
+              <div className="text-lg font-bold text-[#1a1a1a]">{((stats as any).avg_latency_ms ?? 0).toFixed(0)}ms</div>
             </div>
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Erros</span>
-              <div className="text-lg font-bold text-red-600">{stats.kpis.totalErrors}</div>
+              <div className="text-lg font-bold text-red-600">{Math.round(((stats as any).error_rate ?? 0) * ((stats as any).total_runs ?? 0))}</div>
             </div>
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Bloqueios</span>
-              <div className="text-lg font-bold text-rose-600">{stats.kpis.blocksCount}</div>
+              <div className="text-lg font-bold text-rose-600">{(stats as any).guardrail_violations ?? 0}</div>
             </div>
             <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs space-y-1">
               <span className="text-[10px] font-mono text-[#6e6d68] uppercase tracking-wider">Flagged</span>
-              <div className="text-lg font-bold text-amber-600">{stats.kpis.flagsCount}</div>
+              <div className="text-lg font-bold text-amber-600">{(stats as any).guardrail_violations ?? 0}</div>
             </div>
           </div>
 

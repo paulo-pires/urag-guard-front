@@ -142,9 +142,16 @@ export interface Kpis {
 }
 
 export interface DashboardStats {
-  kpis: Kpis;
-  recentRuns: Run[];
-  recentEvents: GuardrailEvent[];
+  total_runs: number;
+  total_tokens: number;
+  total_cost_usd: number;
+  error_rate: number;
+  avg_latency_ms: number;
+  avg_eval_score: number;
+  guardrail_violations: number;
+  runs_over_time: { date: string; ok: number; error: number }[];
+  cost_over_time: { date: string; cost_usd: number }[];
+  violations_over_time: { date: string; block: number; flag: number }[];
 }
 
 export interface UsageGroup {
