@@ -8,8 +8,7 @@ interface McpSession { sessionId: string; expiry: number; }
 let mcpSession: McpSession | null = null;
 
 function endpoint(): string {
-  if (import.meta.env.DEV) return `/mcp-proxy/${OBSERVABILITY_PORT}/`;
-  return `${window.location.protocol}//${window.location.hostname}:${OBSERVABILITY_PORT}/`;
+  return '/mcp-proxy/';
 }
 
 function parseMcpResponse(body: string): McpResponse {
@@ -74,7 +73,7 @@ export async function callMCPTool<T = unknown>(
 
 /** REST fallback para features admin que o guard-go expõe mas não têm MCP. */
 function apiUrl(path: string, params?: Record<string, unknown>): string {
-  const base = import.meta.env.DEV ? `http://localhost:${OBSERVABILITY_PORT}` : `${window.location.protocol}//${window.location.hostname}:${OBSERVABILITY_PORT}`;
+  const base = window.location.origin;
   const url = new URL(path, base);
   if (params) Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') url.searchParams.append(k, String(v)); });
   return url.toString();
