@@ -9,6 +9,28 @@ const GUARD_API_URL = process.env.GUARD_API_URL || "http://urag-guard:8091";
 const OBSERVABILITY_URL = process.env.OBSERVABILITY_URL || "http://urag-observability:8091";
 const GUARD_API_KEY = process.env.GUARD_API_KEY || "";
 
+// Proxy MCP calls to urag-observability-go (unified)
+// ANTES de express.json(): o body precisa passar íntegro (JSON-RPC initialize).
+app.use("/mcp-proxy", (req, res) => {
+  const target = new URL(OBSERVABILITY_URL);
+  const proxyReq = http.request({
+    host: target.hostname,
+    port: target.port || "80",
+    path: "/mcp",
+    method: req.method,
+    headers: { ...req.headers, host: target.host },
+  }, (proxyRes) => {
+    res.writeHead(proxyRes.statusCode || 502, proxyRes.headers);
+    proxyRes.pipe(res);
+  });
+  proxyReq.on("error", (err) => {
+    console.error("MCP proxy error:", err.message);
+    if (!res.headersSent) res.writeHead(502, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ jsonrpc: "2.0", id: "proxy", error: { code: -32000, message: err.message } }));
+  });
+  req.pipe(proxyReq);
+});
+
 app.use(express.json());
 
 // Health check
@@ -31,28 +53,6 @@ app.use(
     },
   })
 );
-
-// Proxy MCP calls to urag-observability-go (unified)
-// Proxy manual: http-proxy-middleware não repassa SSE (event-stream) corretamente.
-app.use("/mcp-proxy", (req, res) => {
-  const target = new URL(OBSERVABILITY_URL);
-  const proxyReq = http.request({
-    host: target.hostname,
-    port: target.port || "80",
-    path: "/mcp",
-    method: req.method,
-    headers: { ...req.headers, host: target.host },
-  }, (proxyRes) => {
-    res.writeHead(proxyRes.statusCode || 502, proxyRes.headers);
-    proxyRes.pipe(res);
-  });
-  proxyReq.on("error", (err) => {
-    console.error("MCP proxy error:", err.message);
-    if (!res.headersSent) res.writeHead(502, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ jsonrpc: "2.0", id: "proxy", error: { code: -32000, message: err.message } }));
-  });
-  req.pipe(proxyReq);
-});
 
 // Serve static frontend assets
 const distPath = path.join(process.cwd(), "dist");
