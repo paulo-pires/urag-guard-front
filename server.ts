@@ -8,6 +8,7 @@ const PORT = parseInt(process.env.PORT || "3001", 10);
 const GUARD_API_URL = process.env.GUARD_API_URL || "http://urag-guard:8091";
 const OBSERVABILITY_URL = process.env.OBSERVABILITY_URL || "http://urag-observability:8091";
 const GUARD_API_KEY = process.env.GUARD_API_KEY || "";
+const GUARD_ADMIN_KEY = process.env.GUARD_ADMIN_KEY || "";
 
 // Proxy MCP calls to urag-observability-go (unified)
 // ANTES de express.json(): o body precisa passar íntegro (JSON-RPC initialize).
@@ -39,15 +40,26 @@ app.get("/v1/health", (_req, res) => {
 });
 
 // Proxy all /v1/* API calls to urag-guard-go backend
+// Nota: com http-proxy-middleware v3 e app.use("/v1", ...) o mount path é
+// REMOVIDO do request upstream (v3 mudou o comportamento da v2). Por isso o
+// pathRewrite re-adiciona o prefixo /v1, senão o guard responde 404.
+// Rotas admin (projects, users, api-keys, saml) exigem X-Api-Key kind=admin;
+// as demais usam a dashboard key.
+const ADMIN_PATHS = [
+  "/v1/projects", "/v1/users", "/v1/saml-providers",
+];
 app.use(
   "/v1",
   createProxyMiddleware({
     target: GUARD_API_URL,
     changeOrigin: true,
+    pathRewrite: (path, _req) => `/v1${path}`,
     on: {
-      proxyReq: (proxyReq, _req, _res) => {
-        if (GUARD_API_KEY) {
-          proxyReq.setHeader("X-Api-Key", GUARD_API_KEY);
+      proxyReq: (proxyReq, req, _res) => {
+        const isAdmin = ADMIN_PATHS.some((p) => (req.url || "").startsWith(p));
+        const key = isAdmin ? GUARD_ADMIN_KEY : GUARD_API_KEY;
+        if (key) {
+          proxyReq.setHeader("X-Api-Key", key);
         }
       },
     },

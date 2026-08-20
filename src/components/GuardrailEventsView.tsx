@@ -234,10 +234,16 @@ export default function GuardrailEventsView({
                     </td>
 
                     {/* Snippet text snippet */}
-                    <td className="px-4 py-2 max-w-[250px] truncate" title={evt.snippet}>
-                      <span className="font-mono text-[10px] text-[#575652] px-1.5 py-0.5 rounded bg-[#f5f4f0] border border-[#e6e4df]">
-                        "{evt.snippet}"
-                      </span>
+                    <td className="px-4 py-2 max-w-[250px] truncate" title={evt.snippet || evt.details}>
+                      {evt.snippet ? (
+                        <span className="font-mono text-[10px] text-[#575652] px-1.5 py-0.5 rounded bg-[#f5f4f0] border border-[#e6e4df]">
+                          "{evt.snippet}"
+                        </span>
+                      ) : evt.details ? (
+                        <span className="text-[10px] text-[#6e6d68] italic">{evt.details}</span>
+                      ) : (
+                        <span className="text-[10px] text-[#8e8d87]">—</span>
+                      )}
                     </td>
 
                     {/* Source */}

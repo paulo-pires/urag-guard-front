@@ -8,6 +8,7 @@ import {
   Layers,
   Sparkles,
 } from "lucide-react";
+import { formatCost } from "../lib/formatCost";
 import {
   ResponsiveContainer,
   BarChart,
@@ -108,10 +109,10 @@ export default function UsageView({
                     {item.tokens_out.toLocaleString()}
                   </td>
                   <td className="px-4 py-2 text-right font-mono text-emerald-800 font-semibold">
-                    ${item.cost.toFixed(4)}
+                    {formatCost(item.cost)}
                   </td>
                   <td className="px-4 py-2 text-right font-mono text-[#6e6d68]">
-                    ${(item.cost / (item.count || 1)).toFixed(5)}
+                    {formatCost(item.cost / (item.count || 1))}
                   </td>
                 </tr>
               ))}
@@ -218,7 +219,7 @@ export default function UsageView({
                     contentStyle={{ backgroundColor: "#ffffff", borderColor: "#e6e4df", borderRadius: "6px", color: "#1a1a1a" }}
                     labelStyle={{ color: "#6e6d68", fontSize: "10px" }}
                     itemStyle={{ fontSize: "10px" }}
-                    formatter={(value) => [`$${Number(value).toFixed(4)}`, "Custo"]}
+                    formatter={(value) => [formatCost(Number(value)), "Custo"]}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -293,7 +294,7 @@ export default function UsageView({
         {/* Total Cost */}
         <div className="p-4 rounded-lg border border-[#e6e4df] bg-[#ffffff] shadow-xs">
           <p className="text-[#6e6d68] text-[10px] uppercase font-bold tracking-wider">Custo Consolidado ($)</p>
-          <p className="text-xl font-bold font-mono text-[#1a1a1a] mt-2">${totalCost.toFixed(4)}</p>
+          <p className="text-xl font-bold font-mono text-[#1a1a1a] mt-2">{formatCost(totalCost)}</p>
           <div className="flex items-center gap-1 mt-1.5 text-[10px] text-[#6e6d68]">
             <TrendingUp size={11} className="text-emerald-700" />
             <span>Cobranças sob taxas normais</span>

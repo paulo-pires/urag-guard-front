@@ -16,7 +16,9 @@ import {
   Activity,
   PlaySquare,
   Scale,
+  Sparkles,
 } from "lucide-react";
+import { useViewMode } from "../context/ViewModeContext";
 
 interface SidebarProps {
   currentTab: string;
@@ -36,7 +38,24 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
       .catch(() => setBackendOnline(false));
   }, []);
 
-  const navItems = [
+  const { viewMode } = useViewMode();
+
+  // ── Gestão mode: simplified, business-friendly grouping ───────────────────
+  const navItemsGestao = [
+    { id: "dashboard", label: "Visão Geral", icon: Sparkles },
+    { id: "usage", label: "Consumo e Custos", icon: Cpu },
+    { id: "runs", label: "Atividade dos Agentes", icon: PlayCircle },
+    { id: "sessions", label: "Conversas", icon: MessageSquare },
+    { id: "divider-1", isDivider: true },
+    { id: "assurance", label: "Qualidade das Respostas", icon: Scale },
+    { id: "guardrails-events", label: "Alertas de Comportamento", icon: AlertTriangle },
+    { id: "divider-admin", isDivider: true },
+    { id: "projects", label: "Equipe e Acessos", icon: KeyRound },
+    { id: "tenant-settings", label: "Configurações", icon: Settings },
+  ];
+
+  // ── Técnico mode: full technical structure (unchanged) ────────────────────
+  const navItemsTecnico = [
     { id: "dashboard", label: "Monitoramento", icon: LayoutDashboard },
     { id: "runs", label: "Runs", icon: PlayCircle },
     { id: "sessions", label: "Sessions", icon: MessageSquare },
@@ -55,7 +74,10 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
     { id: "usage", label: "Consumo", icon: Cpu },
     { id: "divider-admin", isDivider: true },
     { id: "projects", label: "Projetos & Keys", icon: KeyRound },
+    { id: "tenant-settings", label: "Configurações", icon: Settings },
   ];
+
+  const navItems = viewMode === 'gestao' ? navItemsGestao : navItemsTecnico;
 
   const handleTabClick = (tabId: string) => {
     setCurrentTab(tabId);

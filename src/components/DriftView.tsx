@@ -28,20 +28,20 @@ import { callMCPTool } from "../lib/api";
 
 interface DriftViewProps {
   models: ModelRegistry[];
-  driftData: Record<string, DriftMetrics>;
-  auditLogs: AuditViolationLog[];
-  selectedModelId: string;
-  onSelectModel: (id: string) => void;
+  driftData?: Record<string, DriftMetrics>;
+  auditLogs?: AuditViolationLog[];
+  selectedModelId?: string;
+  onSelectModel?: (id: string) => void;
   config: McpServerConfig;
   onRefresh: () => void;
 }
 
 export const DriftView: React.FC<DriftViewProps> = ({
   models,
-  driftData,
-  auditLogs,
-  selectedModelId,
-  onSelectModel,
+  driftData = {},
+  auditLogs = [],
+  selectedModelId = "",
+  onSelectModel = (_id: string) => {},
   config,
   onRefresh
 }) => {

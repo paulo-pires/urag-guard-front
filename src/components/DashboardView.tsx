@@ -75,16 +75,66 @@ export default function DashboardView({
         setRecentEvents(eventsResponse.events);
         setLoading(false);
 
-        const base: any[] = [];
         if (period !== "24h") {
           const raw = statsData as any;
-          const runsTs: { date: string; ok: number; error: number }[] = raw.runs_over_time || [];
+          const runsTs: any[] = raw.runs_over_time || [];
           setMonitoringData(runsTs.map(r => ({
-            date: r.date, ok: r.ok, erro: r.error, traces_success: r.ok, traces_error: r.error,
-            error_rate: Number(((r.error / (r.ok + r.error || 1)) * 100).toFixed(1))
+            name: r.date?.slice(0, 10) ?? r.date,
+            date: r.date,
+            ok: r.ok,
+            erro: r.error,
+            error: r.error,
+            traces_success: r.ok,
+            traces_error: r.error,
+            error_rate: Number(((r.error / (r.ok + r.error || 1)) * 100).toFixed(1)),
+            llm_calls: r.llm_calls ?? r.ok,
+            input_tokens: r.input_tokens ?? 0,
+            output_tokens: r.output_tokens ?? 0,
+            input_tokens_per_trace: r.ok > 0 ? Math.round((r.input_tokens ?? 0) / r.ok) : 0,
+            output_tokens_per_trace: r.ok > 0 ? Math.round((r.output_tokens ?? 0) / r.ok) : 0,
+            latency_p50: r.latency_p50 ?? 0,
+            latency_p95: r.latency_p95 ?? 0,
+            latency_p99: r.latency_p99 ?? 0,
+            llm_latency: r.latency_p50 ?? 0,
+            llm_success_rate: r.ok + r.error > 0 ? Number(((r.ok / (r.ok + r.error)) * 100).toFixed(1)) : 0,
+            tool_search_runs: 0, tool_retrieve_runs: 0, tool_db_runs: 0,
+            tool_search_latency: 0, tool_retrieve_latency: 0, tool_db_latency: 0,
+            tool_search_error: 0, tool_retrieve_error: 0, tool_db_error: 0,
+            run_agent_count: 0, run_agent_error: 0, run_agent_latency: 0,
+            run_chain_count: 0, run_chain_error: 0, run_chain_latency: 0,
+            run_llm_count: r.llm_calls ?? r.ok, run_llm_error: r.error, run_llm_latency: r.latency_p50 ?? 0,
+            run_tool_count: 0, run_tool_error: 0, run_tool_latency: 0,
           })));
         } else {
-          setMonitoringData(base);
+          // Período 24h: o guard agrega por dia (1 ponto). Preenche o mesmo
+          // shape para os tabs de monitoramento continuarem funcionando.
+          const raw = statsData as any;
+          const runsTs: any[] = raw.runs_over_time || [];
+          setMonitoringData(runsTs.map(r => ({
+            name: r.date?.slice(0, 10) ?? r.date,
+            date: r.date,
+            ok: r.ok,
+            erro: r.error,
+            error: r.error,
+            traces_success: r.ok,
+            traces_error: r.error,
+            error_rate: Number(((r.error / (r.ok + r.error || 1)) * 100).toFixed(1)),
+            llm_calls: r.llm_calls ?? r.ok,
+            input_tokens: r.input_tokens ?? 0,
+            output_tokens: r.output_tokens ?? 0,
+            latency_p50: r.latency_p50 ?? 0,
+            latency_p95: r.latency_p95 ?? 0,
+            latency_p99: r.latency_p99 ?? 0,
+            llm_latency: r.latency_p50 ?? 0,
+            llm_success_rate: r.ok + r.error > 0 ? Number(((r.ok / (r.ok + r.error)) * 100).toFixed(1)) : 0,
+            tool_search_runs: 0, tool_retrieve_runs: 0, tool_db_runs: 0,
+            tool_search_latency: 0, tool_retrieve_latency: 0, tool_db_latency: 0,
+            tool_search_error: 0, tool_retrieve_error: 0, tool_db_error: 0,
+            run_agent_count: 0, run_agent_error: 0, run_agent_latency: 0,
+            run_chain_count: 0, run_chain_error: 0, run_chain_latency: 0,
+            run_llm_count: r.llm_calls ?? r.ok, run_llm_error: r.error, run_llm_latency: r.latency_p50 ?? 0,
+            run_tool_count: 0, run_tool_error: 0, run_tool_latency: 0,
+          })));
         }
       })
       .catch((err) => {
@@ -93,6 +143,14 @@ export default function DashboardView({
         setLoading(false);
       });
   }, [period, selectedSources, selectedEnv]);
+
+  // Contagens de alerta derivadas dos eventos de guardrail carregados.
+  // O backend não expõe um objeto `kpis`; derivamos dos recentEvents reais.
+  const alertCounts = {
+    blocks: recentEvents.filter((e) => e.verdict === "block").length,
+    flags: recentEvents.filter((e) => e.verdict === "flag").length,
+    violations: recentEvents.length,
+  };
 
   const handleCopyId = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -330,12 +388,12 @@ export default function DashboardView({
                       <td className="py-3 px-5">
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold font-mono ${
-                            run.status === "SUCCESS"
+                            run.status === "SUCCESS" || run.status === "ok"
                               ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
                               : "bg-red-50 text-red-800 border border-red-200"
                           }`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full ${run.status === "SUCCESS" ? "bg-emerald-600" : "bg-red-600"}`} />
+                          <span className={`w-1.5 h-1.5 rounded-full ${run.status === "SUCCESS" || run.status === "ok" ? "bg-emerald-600" : "bg-red-600"}`} />
                           {run.status}
                         </span>
                       </td>
@@ -379,7 +437,7 @@ export default function DashboardView({
               <p className="text-[10px] text-[#6e6d68] leading-relaxed">Filtra CPFs, Cartões de Crédito e e-mails confidenciais em todas as respostas geradas.</p>
               <div className="flex items-center justify-between text-[10px] text-[#6e6d68]">
                 <span>Disparos (24h)</span>
-                <span className="font-semibold text-red-700 font-mono">{stats?.kpis.blocksCount ?? '—'} eventos</span>
+                <span className="font-semibold text-red-700 font-mono">{alertCounts.blocks || '—'} eventos</span>
               </div>
             </div>
 
@@ -391,7 +449,7 @@ export default function DashboardView({
               <p className="text-[10px] text-[#6e6d68] leading-relaxed">Identifica comandos suspeitos e tentativas de bypass nas diretrizes primárias de prompt.</p>
               <div className="flex items-center justify-between text-[10px] text-[#6e6d68]">
                 <span>Disparos (24h)</span>
-                <span className="font-semibold text-red-700 font-mono">{stats?.kpis.violationsCount ?? '—'} eventos</span>
+                <span className="font-semibold text-red-700 font-mono">{alertCounts.blocks || '—'} eventos</span>
               </div>
             </div>
 
@@ -403,7 +461,7 @@ export default function DashboardView({
               <p className="text-[10px] text-[#6e6d68] leading-relaxed">Monitora linguagem ofensiva, agressiva ou inadequada tanto em inputs quanto em outputs.</p>
               <div className="flex items-center justify-between text-[10px] text-[#6e6d68]">
                 <span>Disparos (24h)</span>
-                <span className="font-semibold text-amber-700 font-mono">{stats?.kpis.flagsCount ?? '—'} eventos</span>
+                <span className="font-semibold text-amber-700 font-mono">{alertCounts.flags || '—'} eventos</span>
               </div>
             </div>
           </div>
@@ -434,7 +492,9 @@ export default function DashboardView({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#e6e4df]">
-                  {recentEvents.map((event) => (
+                  {recentEvents.filter((e) => e.verdict !== "pass").map((event) => {
+                    const isBlock = String(event.verdict).toUpperCase() === "BLOCK";
+                    return (
                     <tr
                       key={event.id}
                       className="hover:bg-[#f5f4f0]/60 text-[#1a1a1a] transition-colors cursor-pointer"
@@ -447,12 +507,12 @@ export default function DashboardView({
                       <td className="py-3 px-5">
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold font-mono ${
-                            event.verdict === "BLOCK"
+                            isBlock
                               ? "bg-red-50 text-red-800 border border-red-200"
                               : "bg-amber-50 text-amber-800 border border-amber-200"
                           }`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full ${event.verdict === "BLOCK" ? "bg-red-600" : "bg-amber-600"}`} />
+                          <span className={`w-1.5 h-1.5 rounded-full ${isBlock ? "bg-red-600" : "bg-amber-600"}`} />
                           {event.verdict}
                         </span>
                       </td>
@@ -463,7 +523,8 @@ export default function DashboardView({
                         {new Date(event.timestamp).toLocaleTimeString("pt-BR")}
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

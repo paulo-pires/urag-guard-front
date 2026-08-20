@@ -29,10 +29,13 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [runPage, setRunPage] = useState(1);
+  const runPageSize = 15;
 
   useEffect(() => {
     setLoading(true);
     setError(false);
+    setRunPage(1);
     api
       .getSession(sessionId)
       .then((data) => {
@@ -45,6 +48,22 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
         setLoading(false);
       });
   }, [sessionId]);
+
+  // Runs da sessão paginados no servidor (list_runs por session_id) em vez de
+  // depender dos runs embutidos no get_session (limitados a 100).
+  const [sessionRuns, setSessionRuns] = useState<Run[]>([]);
+  const [runsTotal, setRunsTotal] = useState(0);
+
+  useEffect(() => {
+    if (!sessionId) return;
+    api
+      .getRuns({ session_id: sessionId, page: runPage, page_size: runPageSize })
+      .then((data) => {
+        setSessionRuns(data.runs);
+        setRunsTotal(data.total);
+      })
+      .catch(() => setSessionRuns([]));
+  }, [sessionId, runPage]);
 
   const handleCopy = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -263,15 +282,15 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
               </tr>
             </thead>
             <tbody>
-              {session.runs && session.runs.length > 0 ? (
-                session.runs.map((run, index) => (
+              {sessionRuns && sessionRuns.length > 0 ? (
+                sessionRuns.map((run, index) => (
                   <tr
                     key={run.id}
                     onClick={() => onNavigateToTab(`run-detail-${run.id}`)}
                     className="border-b border-[#e6e4df] hover:bg-[#f5f4f0] cursor-pointer text-[#1a1a1a] transition-colors"
                   >
                     <td className="px-6 py-4 font-mono text-[10px] text-[#6e6d68]">
-                      Step {index + 1} ({run.id})
+                      Step {index + 1 + (runPage - 1) * runPageSize} ({run.id})
                     </td>
                     <td className="px-6 py-4 text-[#575652] font-mono whitespace-nowrap">
                       {new Date(run.timestamp).toLocaleTimeString()}
@@ -323,6 +342,32 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
               )}
             </tbody>
           </table>
+          {runsTotal > runPageSize && (
+            <div className="flex items-center justify-between px-6 py-2.5 border-t border-[#e6e4df] bg-[#faf9f6] text-[11px]">
+              <span className="text-[#6e6d68]">
+                Mostrando {Math.min(runPage * runPageSize, runsTotal)} de {runsTotal} passos
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setRunPage((p) => Math.max(1, p - 1))}
+                  disabled={runPage <= 1}
+                  className="px-2 py-1 rounded border border-[#e6e4df] bg-[#ffffff] text-[#1a1a1a] hover:bg-[#f5f4f0] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  ← Anterior
+                </button>
+                <span className="text-[#6e6d68] font-mono">
+                  Página {runPage} de {Math.max(1, Math.ceil(runsTotal / runPageSize))}
+                </span>
+                <button
+                  onClick={() => setRunPage((p) => Math.min(Math.ceil(runsTotal / runPageSize), p + 1))}
+                  disabled={runPage >= Math.ceil(runsTotal / runPageSize)}
+                  className="px-2 py-1 rounded border border-[#e6e4df] bg-[#ffffff] text-[#1a1a1a] hover:bg-[#f5f4f0] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  Próxima →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

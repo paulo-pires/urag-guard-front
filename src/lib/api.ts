@@ -66,7 +66,9 @@ export async function callMCPTool<T = unknown>(
   const body = await res.text();
   const json = parseMcpResponse(body);
   if (json.error) throw new Error(json.error.message || '');
-  const txt = json.result?.content?.[0]?.text;
+  const result = json.result as any;
+  if (result?.isError) throw new Error(result?.content?.[0]?.text || 'tool error');
+  const txt = result?.content?.[0]?.text;
   if (!txt) throw new Error('empty MCP response');
   return JSON.parse(txt) as T;
 }
@@ -83,6 +85,127 @@ async function restPost<T>(path: string, b?: unknown): Promise<T> { const r = aw
 async function restPut<T>(path: string, b: unknown): Promise<T> { const r = await fetch(apiUrl(path), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) }); if (!r.ok) throw new Error(`REST PUT ${r.status}`); return r.json(); }
 async function restDelete<T>(path: string): Promise<T> { const r = await fetch(apiUrl(path), { method: 'DELETE' }); if (!r.ok) throw new Error(`REST DELETE ${r.status}`); return r.json(); }
 
+// ── Normalizers ───────────────────────────────────────────────────────────────
+
+// The guard REST API uses snake_case names that differ from the frontend Session type.
+// started_at → start_time, total_tokens → tokens_total, total_cost_usd → cost_total,
+// duration_ms is computed from ended_at - started_at.
+function normalizeSession(s: any): any {
+  if (!s) return s;
+  const startedAt: string = s.start_time ?? s.started_at ?? '';
+  const endedAt: string | undefined = s.ended_at;
+  const durationMs = s.duration_ms ?? (startedAt && endedAt
+    ? new Date(endedAt).getTime() - new Date(startedAt).getTime()
+    : 0);
+  return {
+    ...s,
+    start_time: startedAt,
+    start_time_ms: s.start_time_ms ?? (startedAt ? new Date(startedAt).getTime() : 0),
+    tokens_total: s.tokens_total ?? s.total_tokens ?? 0,
+    cost_total: s.cost_total ?? s.total_cost_usd ?? 0,
+    duration_ms: durationMs,
+  };
+}
+
+// Normaliza um span do guard (started_at/ended_at/cost_usd) para o tipo Span do front.
+function normalizeSpan(sp: any): any {
+  if (!sp) return sp;
+  return {
+    ...sp,
+    start_time: sp.start_time ?? sp.started_at ?? '',
+    end_time: sp.end_time ?? sp.ended_at ?? sp.start_time ?? sp.started_at ?? '',
+    cost: sp.cost ?? sp.cost_usd ?? 0,
+  };
+}
+
+// Normaliza um guardrail event do guard (created_at/detail) para o tipo do front.
+function normalizeGuardrailEvent(e: any): any {
+  if (!e) return e;
+  const ts: string = e.timestamp ?? e.created_at ?? '';
+  return {
+    ...e,
+    timestamp: ts,
+    timestamp_ms: e.timestamp_ms ?? (ts ? new Date(ts).getTime() : 0),
+    details: e.details ?? e.detail ?? '',
+  };
+}
+
+// Normaliza um run do guard (started_at/cost_usd/scores) para o tipo Run do front.
+function normalizeRun(r: any): any {
+  if (!r) return r;
+  const ts: string = r.timestamp ?? r.started_at ?? r.created_at ?? '';
+  const events = Array.isArray(r.guardrail_events) ? r.guardrail_events : [];
+  const spans = Array.isArray(r.spans) ? r.spans.map(normalizeSpan) : [];
+  const rawScores = Array.isArray(r.eval_scores) ? r.eval_scores : Array.isArray(r.scores) ? r.scores : [];
+  const evalScores = rawScores.map((sc: any) => {
+    const sts: string = sc.timestamp ?? sc.created_at ?? '';
+    const v = Number(sc.value ?? 0);
+    const verdict = sc.verdict ?? (v >= 0.7 ? 'pass' : v >= 0.5 ? 'warn' : 'fail');
+    return {
+      ...sc,
+      metric: sc.metric ?? sc.eval_name ?? '',
+      value: v,
+      verdict,
+      timestamp: sts,
+      timestamp_ms: sc.timestamp_ms ?? (sts ? new Date(sts).getTime() : 0),
+      comment: sc.comment ?? '',
+    };
+  });
+  return {
+    ...r,
+    timestamp: ts,
+    timestamp_ms: r.timestamp_ms ?? (ts ? new Date(ts).getTime() : 0),
+    cost: r.cost ?? r.cost_usd ?? 0,
+    tags: Array.isArray(r.tags) ? r.tags : [],
+    spans,
+    has_violation: r.has_violation ?? events.some((e: any) => e.verdict === 'flag' || e.verdict === 'block'),
+    max_violation_verdict: r.max_violation_verdict ?? (events.some((e: any) => e.verdict === 'block') ? 'block' : events.some((e: any) => e.verdict === 'flag') ? 'flag' : undefined),
+    guardrail_events: events.map(normalizeGuardrailEvent),
+    eval_scores: evalScores,
+  };
+}
+
+// Normaliza uma linha de usage do guard (runs/cost_usd → count/cost).
+function normalizeUsage(u: any): any {
+  if (!u) return u;
+  return {
+    ...u,
+    count: u.count ?? u.runs ?? 0,
+    cost: u.cost ?? u.cost_usd ?? 0,
+  };
+}
+
+// Normaliza um eval config do guard (sample_rate → sampling_rate, defaults).
+function normalizeEvalConfig(c: any): any {
+  if (!c) return c;
+  return {
+    ...c,
+    sampling_rate: c.sampling_rate ?? c.sample_rate ?? 0,
+    scope: Array.isArray(c.scope) ? c.scope : [],
+    threshold_warn: c.threshold_warn ?? 0,
+    threshold_fail: c.threshold_fail ?? 0,
+    enabled: !!c.enabled,
+    config: c.config ?? {},
+  };
+}
+
+// Normaliza um score do guard (eval_name/created_at) para o tipo EvalScore do front.
+function normalizeScore(sc: any): any {
+  if (!sc) return sc;
+  const sts: string = sc.timestamp ?? sc.created_at ?? '';
+  const v = Number(sc.value ?? 0);
+  const verdict = sc.verdict ?? (v >= 0.7 ? 'pass' : v >= 0.5 ? 'warn' : 'fail');
+  return {
+    ...sc,
+    metric: sc.metric ?? sc.eval_name ?? '',
+    value: v,
+    verdict,
+    timestamp: sts,
+    timestamp_ms: sc.timestamp_ms ?? (sts ? new Date(sts).getTime() : 0),
+    comment: sc.comment ?? '',
+  };
+}
+
 // ── API ───────────────────────────────────────────────────────────────────────
 
 export const api = {
@@ -94,24 +217,34 @@ export const api = {
 
   // Runs — MCP
   async getRuns(params: QueryFilters = {}): Promise<{ runs: Run[]; total: number; page: number; page_size: number; total_pages: number }> {
-    const raw = await callMCPTool('list_runs', params);
+    // Remove filtros "sentinela" que o guard/observability trataria como valor
+    // literal (ex: status="todos" e model="all" zerariam a listagem).
+    const clean: QueryFilters = {};
+    for (const [k, v] of Object.entries(params)) {
+      if (v === undefined || v === null || v === '' || v === 'todos' || v === 'all') continue;
+      clean[k] = v;
+    }
+    const raw = await callMCPTool('list_runs', clean);
     const d = (raw as any)?.result ?? raw;
-    return { runs: d?.runs ?? d?.items ?? [], total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
+    const items = (d?.runs ?? d?.items ?? []).map(normalizeRun);
+    return { runs: items, total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
   },
   async getRun(id: string): Promise<Run & { guardrail_events: GuardrailEvent[]; eval_scores: EvalScore[] }> {
     const raw = await callMCPTool('get_run', { id });
-    return (raw as any)?.result ?? raw;
+    return normalizeRun((raw as any)?.result ?? raw);
   },
 
   // Sessions — MCP
   async getSessions(params: QueryFilters = {}): Promise<{ sessions: Session[]; total: number; page: number; page_size: number; total_pages: number }> {
     const raw = await callMCPTool('list_sessions', params);
     const d = (raw as any)?.result ?? raw;
-    return { sessions: d?.sessions ?? d?.items ?? [], total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
+    const items = (d?.sessions ?? d?.items ?? []).map(normalizeSession);
+    return { sessions: items, total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
   },
   async getSession(id: string): Promise<Session & { runs: Run[]; total_violations: number; average_eval_score?: number }> {
     const raw = await callMCPTool('get_session', { id });
-    return (raw as any)?.result ?? raw;
+    const d = (raw as any)?.result ?? raw;
+    return { ...normalizeSession(d), runs: (d?.runs ?? []).map(normalizeRun), total_violations: d?.total_violations ?? 0, average_eval_score: d?.average_eval_score };
   },
 
   // Guardrail Rules — REST (admin, sem MCP)
@@ -124,11 +257,12 @@ export const api = {
   async getGuardrailEvents(params: QueryFilters = {}): Promise<{ events: GuardrailEvent[]; total: number; page: number; page_size: number; total_pages: number }> {
     const raw = await callMCPTool('list_guardrail_events', params);
     const d = (raw as any)?.result ?? raw;
-    return { events: d?.events ?? d?.items ?? [], total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
+    const items = (d?.events ?? d?.items ?? []).map(normalizeGuardrailEvent);
+    return { events: items, total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
   },
 
   // Eval Configs — REST (admin, sem MCP)
-  async getEvalConfigs(): Promise<EvalConfig[]> { return restGet('/v1/eval-configs'); },
+  async getEvalConfigs(): Promise<EvalConfig[]> { return (await restGet<any[]>('/v1/eval-configs')).map(normalizeEvalConfig); },
   async createEvalConfig(config: Partial<EvalConfig>): Promise<EvalConfig> { return restPost('/v1/eval-configs', config); },
   async updateEvalConfig(id: string, config: Partial<EvalConfig>): Promise<EvalConfig> { return restPut(`/v1/eval-configs/${id}`, config); },
   async deleteEvalConfig(id: string): Promise<{ success: boolean }> { return restDelete(`/v1/eval-configs/${id}`); },
@@ -137,13 +271,16 @@ export const api = {
   async getScores(params: QueryFilters = {}): Promise<{ scores: EvalScore[]; total: number; page: number; page_size: number; total_pages: number }> {
     const raw = await callMCPTool('list_scores', params);
     const d = (raw as any)?.result ?? raw;
-    return { scores: d?.scores ?? d?.items ?? [], total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
+    const items = (d?.scores ?? d?.items ?? []).map(normalizeScore);
+    return { scores: items, total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
   },
 
   // Usage — MCP
   async getUsage(params: QueryFilters = {}): Promise<UsageGroup[]> {
     const raw = await callMCPTool('get_usage_stats', params);
-    return (raw as any)?.result ?? raw;
+    const d = (raw as any)?.result ?? raw;
+    const items = Array.isArray(d) ? d : Array.isArray(d?.items) ? d.items : [];
+    return items.map(normalizeUsage);
   },
 
   // Projects & API Keys — REST (admin, sem MCP)

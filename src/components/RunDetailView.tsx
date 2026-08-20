@@ -251,9 +251,9 @@ export default function RunDetailView({ runId, onNavigateToTab, onBack }: RunDet
             >
               <Icon size={14} />
               <span>{tab.label}</span>
-              {tab.id === "guardrails" && run.guardrail_events.length > 0 && (
+              {tab.id === "guardrails" && (run.guardrail_events || []).filter(e => e.verdict !== "pass").length > 0 && (
                 <span className="px-1.5 py-0.2 bg-red-100 border border-red-200 text-red-800 text-[9px] rounded-full font-bold">
-                  {run.guardrail_events.length}
+                  {(run.guardrail_events || []).filter(e => e.verdict !== "pass").length}
                 </span>
               )}
             </button>
@@ -444,65 +444,73 @@ export default function RunDetailView({ runId, onNavigateToTab, onBack }: RunDet
         {/* 3. Guardrails Tab */}
         {activeTab === "guardrails" && (
           <div className="space-y-4">
-            {run.guardrail_events && run.guardrail_events.length > 0 ? (
-              <div className="space-y-4">
-                {run.guardrail_events.map((evt) => (
-                  <div
-                    key={evt.id}
-                    className="p-5 border border-[#e6e4df] rounded-xl bg-[#ffffff] shadow-xs space-y-3.5"
-                  >
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle size={15} className={evt.verdict === "block" ? "text-red-600" : "text-amber-600"} />
-                        <h4 className="font-semibold text-[#1a1a1a] text-sm">{evt.rule_name}</h4>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-[#f5f4f0] text-[#575652] border border-[#e6e4df]">
-                          ID: {evt.rule_id}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[#f5f4f0] text-[#575652] border border-[#e6e4df]">
-                          Fase: {evt.stage.toUpperCase()}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                            evt.verdict === "block"
-                              ? "bg-red-50 text-red-800 border-red-200"
-                              : "bg-amber-50 text-amber-800 border-amber-200"
-                          }`}
-                        >
-                          {evt.verdict.toUpperCase()}
-                        </span>
-                      </div>
+            {(() => {
+              const violations = (run.guardrail_events || []).filter(e => e.verdict !== "pass");
+              if (violations.length === 0) {
+                return (
+                  <div className="flex flex-col items-center justify-center py-16 border border-[#e6e4df] rounded-xl bg-[#ffffff] shadow-xs text-center space-y-2">
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+                      <Check size={18} className="text-emerald-700" />
                     </div>
-
-                    {/* Snippet display */}
-                    <div className="bg-[#faf9f6] border border-red-200 p-4 rounded-lg space-y-2 text-xs">
-                      <p className="text-[#6e6d68] font-medium">Trecho Violado Detectado</p>
-                      <p className="font-mono text-red-700 leading-relaxed bg-red-50 px-2.5 py-1.5 rounded border border-red-200 whitespace-pre-wrap">
-                        "{evt.snippet}"
-                      </p>
-                    </div>
-
-                    {evt.details && (
-                      <p className="text-xs text-[#575652] leading-relaxed">
-                        <span className="text-[#6e6d68] font-medium block mb-0.5">Diagnóstico Adicional:</span>
-                        {evt.details}
-                      </p>
-                    )}
+                    <h4 className="font-medium text-[#1a1a1a] text-sm">Nenhuma violação de Guardrail</h4>
+                    <p className="text-xs text-[#6e6d68] max-w-xs">
+                      Esta execução passou com sucesso em todas as regras ativas de proteção e integridade de conteúdo.
+                    </p>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-16 border border-[#e6e4df] rounded-xl bg-[#ffffff] shadow-xs text-center space-y-2">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
-                  <Check size={18} className="text-emerald-700" />
+                );
+              }
+              return (
+                <div className="space-y-4">
+                  {violations.map((evt) => (
+                    <div
+                      key={evt.id}
+                      className="p-5 border border-[#e6e4df] rounded-xl bg-[#ffffff] shadow-xs space-y-3.5"
+                    >
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle size={15} className={evt.verdict === "block" ? "text-red-600" : "text-amber-600"} />
+                          <h4 className="font-semibold text-[#1a1a1a] text-sm">{evt.rule_name}</h4>
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-[#f5f4f0] text-[#575652] border border-[#e6e4df]">
+                            ID: {evt.rule_id}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[#f5f4f0] text-[#575652] border border-[#e6e4df]">
+                            Fase: {evt.stage.toUpperCase()}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                              evt.verdict === "block"
+                                ? "bg-red-50 text-red-800 border-red-200"
+                                : "bg-amber-50 text-amber-800 border-amber-200"
+                            }`}
+                          >
+                            {evt.verdict.toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Snippet display */}
+                      {evt.snippet ? (
+                        <div className="bg-[#faf9f6] border border-red-200 p-4 rounded-lg space-y-2 text-xs">
+                          <p className="text-[#6e6d68] font-medium">Trecho Violado Detectado</p>
+                          <p className="font-mono text-red-700 leading-relaxed bg-red-50 px-2.5 py-1.5 rounded border border-red-200 whitespace-pre-wrap">
+                            "{evt.snippet}"
+                          </p>
+                        </div>
+                      ) : null}
+
+                      {evt.details && (
+                        <p className="text-xs text-[#575652] leading-relaxed">
+                          <span className="text-[#6e6d68] font-medium block mb-0.5">Diagnóstico Adicional:</span>
+                          {evt.details}
+                        </p>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                <h4 className="font-medium text-[#1a1a1a] text-sm">Nenhuma violação de Guardrail</h4>
-                <p className="text-xs text-[#6e6d68] max-w-xs">
-                  Esta execução passou com sucesso em todas as regras ativas de proteção e integridade de conteúdo.
-                </p>
-              </div>
-            )}
+              );
+            })()}
           </div>
         )}
 

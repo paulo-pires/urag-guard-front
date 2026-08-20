@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Calendar, Layers, ChevronDown, Check } from "lucide-react";
+import { Calendar, Layers, ChevronDown, Check, Crown, Shield, Lock, Sparkles, Wrench } from "lucide-react";
+import { useViewMode } from "../context/ViewModeContext";
 
 interface TopbarProps {
   currentTab: string;
@@ -36,6 +37,8 @@ export default function Topbar({
 }: TopbarProps) {
   const [isSourceDropdownOpen, setIsSourceDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { viewMode, toggleViewMode } = useViewMode();
+  const [userRole, setUserRole] = useState<string>("");
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -46,6 +49,14 @@ export default function Topbar({
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch user role
+  useEffect(() => {
+    fetch("/api/tenant/me")
+      .then((r) => r.json())
+      .then((data) => setUserRole(data.role || ""))
+      .catch(() => {});
   }, []);
 
   const handleSourceToggle = (sourceId: string) => {
@@ -75,7 +86,16 @@ export default function Topbar({
 
   const activeBaseTab = getBaseTab();
 
-  const tabs = [
+  const tabsGestao = [
+    { id: "dashboard", label: "Visão Geral" },
+    { id: "usage", label: "Consumo" },
+    { id: "runs", label: "Atividade" },
+    { id: "sessions", label: "Conversas" },
+    { id: "assurance", label: "Qualidade" },
+    { id: "guardrails-events", label: "Alertas" },
+    { id: "projects", label: "Equipe" },
+  ];
+  const tabsTecnico = [
     { id: "dashboard", label: "Monitoramento" },
     { id: "runs", label: "Runs" },
     { id: "sessions", label: "Sessions" },
@@ -86,6 +106,7 @@ export default function Topbar({
     { id: "usage", label: "Consumo" },
     { id: "projects", label: "Projetos & Keys" },
   ];
+  const tabs = viewMode === 'gestao' ? tabsGestao : tabsTecnico;
 
   return (
     <header className="flex flex-col bg-[#F4F1EE] border-b border-[#D3D1CE] shrink-0 select-none">
@@ -185,6 +206,43 @@ export default function Topbar({
               </div>
             )}
           </div>
+
+          {/* View Mode Toggle */}
+          <button
+            onClick={toggleViewMode}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-bold border transition-all shadow-xs cursor-pointer ${
+              viewMode === 'gestao'
+                ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                : 'bg-[#EBE7E2] text-[#575652] border-[#D3D1CE] hover:bg-[#D3D1CE]'
+            }`}
+            title={viewMode === 'gestao' ? 'Modo Gestão (clique para Técnico)' : 'Modo Técnico (clique para Gestão)'}
+          >
+            {viewMode === 'gestao' ? <Sparkles size={12} /> : <Wrench size={12} />}
+            <span className="hidden sm:inline">{viewMode === 'gestao' ? 'Gestão' : 'Técnico'}</span>
+          </button>
+
+          {/* Role Badge */}
+          {userRole && (
+            <div
+              className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold border cursor-default $
+                userRole === "owner"
+                  ? "bg-amber-50 text-amber-800 border-amber-200"
+                  : userRole === "admin"
+                  ? "bg-blue-50 text-blue-800 border-blue-200"
+                  : "bg-neutral-100 text-neutral-600 border-neutral-200"
+              }`}
+              title={`Você é ${userRole} neste tenant`}
+            >
+              {userRole === "owner" ? (
+                <Crown size={10} />
+              ) : userRole === "admin" ? (
+                <Shield size={10} />
+              ) : (
+                <Lock size={10} />
+              )}
+              {userRole}
+            </div>
+          )}
         </div>
       </div>
 

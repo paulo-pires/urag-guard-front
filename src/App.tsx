@@ -16,6 +16,9 @@ import { ModelsView } from "./components/ModelsView";
 import { DriftView } from "./components/DriftView";
 import { SimulationView } from "./components/SimulationView";
 import { AssuranceView } from "./components/AssuranceView";
+import TenantSettingsView from "./components/TenantSettingsView";
+import OverviewView from "./components/OverviewView";
+import { ViewModeProvider } from "./context/ViewModeContext";
 import { ModelRegistry, McpServerConfig } from "./types";
 
 export default function App() {
@@ -110,8 +113,33 @@ export default function App() {
       );
     }
 
+    if (currentTab.startsWith("drift-")) {
+      const modelId = currentTab.replace("drift-", "");
+      return (
+        <DriftView
+          models={models}
+          driftData={{}}
+          auditLogs={[]}
+          selectedModelId={modelId}
+          onSelectModel={onSelectModelForDrift}
+          config={mcpConfig}
+          onRefresh={fetchModels}
+        />
+      );
+    }
+
     switch (currentTab) {
       case "dashboard":
+        return (
+          <OverviewView
+            period={period}
+            customFrom={customFrom}
+            customTo={customTo}
+            selectedSources={selectedSources}
+            onNavigateToTab={handleNavigateToTab}
+          />
+        );
+      case "dashboard-legacy":
         return (
           <DashboardView
             period={period}
@@ -176,6 +204,8 @@ export default function App() {
         );
       case "projects":
         return <ProjectsView />;
+      case "tenant-settings":
+        return <TenantSettingsView />;
       case "models":
         return (
           <ModelsView
@@ -190,9 +220,12 @@ export default function App() {
         return (
           <DriftView
             models={models}
+            driftData={{}}
+            auditLogs={[]}
+            selectedModelId={models[0]?.id ?? ""}
+            onSelectModel={onSelectModelForDrift}
             config={mcpConfig}
             onRefresh={fetchModels}
-            auditLogs={[]}
           />
         );
       case "simulation":
@@ -225,6 +258,7 @@ export default function App() {
   };
 
   return (
+    <ViewModeProvider>
     <div className="flex w-full h-screen bg-[#F4F1EE] text-[#1A1A1A] overflow-hidden font-sans">
       {/* Sidebar navigation */}
       <Sidebar currentTab={currentTab} setCurrentTab={setCurrentTab} />
@@ -253,5 +287,6 @@ export default function App() {
         </main>
       </div>
     </div>
+    </ViewModeProvider>
   );
 }
