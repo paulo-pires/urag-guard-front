@@ -18,6 +18,7 @@ import { SimulationView } from "./components/SimulationView";
 import { AssuranceView } from "./components/AssuranceView";
 import TenantSettingsView from "./components/TenantSettingsView";
 import OverviewView from "./components/OverviewView";
+import GuardDocsView from "./components/GuardDocsView";
 import { ViewModeProvider } from "./context/ViewModeContext";
 import { ModelRegistry, McpServerConfig } from "./types";
 
@@ -206,6 +207,8 @@ export default function App() {
         return <ProjectsView />;
       case "tenant-settings":
         return <TenantSettingsView />;
+      case "docs":
+        return <GuardDocsView />;
       case "models":
         return (
           <ModelsView

@@ -17,8 +17,10 @@ import {
   PlaySquare,
   Scale,
   Sparkles,
+  BookOpen,
 } from "lucide-react";
 import { useViewMode } from "../context/ViewModeContext";
+import AccountLauncher from "./AccountLauncher";
 
 interface SidebarProps {
   currentTab: string;
@@ -52,6 +54,7 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
     { id: "divider-admin", isDivider: true },
     { id: "projects", label: "Equipe e Acessos", icon: KeyRound },
     { id: "tenant-settings", label: "Configurações", icon: Settings },
+    { id: "docs", label: "Documentação", icon: BookOpen },
   ];
 
   // ── Técnico mode: full technical structure (unchanged) ────────────────────
@@ -170,30 +173,18 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
         })}
       </nav>
 
-      {/* Compact Backend Status Footer */}
-      <div className="p-2 border-t border-[#D3D1CE] text-[10px] text-[#71706F] flex items-center justify-center">
-        {isExpanded ? (
-          <div className="flex items-center justify-between w-full px-1">
-            <span className="truncate max-w-[80px] font-serif italic text-[#1A1A1A]">uRag Guard</span>
-            <div className="flex items-center gap-1 shrink-0">
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  backendOnline ? "bg-emerald-600" : "bg-rose-600"
-                }`}
-              />
-              <span className={backendOnline ? "text-emerald-700 font-medium" : "text-rose-700 font-medium"}>
-                {backendOnline ? "online" : "offline"}
-              </span>
-            </div>
+      {/* Conta — sempre o último item do menu lateral */}
+      <div className="p-2 border-t border-[#D3D1CE]">
+        {isExpanded && (
+          <div className="flex items-center justify-between px-2 pb-1 text-[10px] text-[#71706F]">
+            <span className="font-serif italic text-[#1A1A1A]">uRag Guard</span>
+            <span className="flex items-center gap-1">
+              <span className={`w-1.5 h-1.5 rounded-full ${backendOnline ? "bg-emerald-600" : "bg-rose-600"}`} />
+              {backendOnline ? "online" : "offline"}
+            </span>
           </div>
-        ) : (
-          <div
-            className={`w-1.5 h-1.5 rounded-full ${
-              backendOnline ? "bg-emerald-600" : "bg-rose-600"
-            }`}
-            title={backendOnline ? "API Online" : "API Offline"}
-          />
         )}
+        <AccountLauncher collapsed={!isExpanded} />
       </div>
     </aside>
   );

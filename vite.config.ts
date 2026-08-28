@@ -16,6 +16,11 @@ export default defineConfig(() => {
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
       proxy: {
+        '/api/identity': {
+          target: 'http://localhost:8105',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/identity/, ''),
+        },
         '/v1': 'http://localhost:8091',
         '/mcp-proxy': {
           target: 'http://localhost:8088',

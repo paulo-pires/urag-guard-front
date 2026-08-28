@@ -5,6 +5,7 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 
 export const app = express();
 const PORT = parseInt(process.env.PORT || "3001", 10);
+const IDENTITY_URL = process.env.IDENTITY_URL || "http://urag-identity:8105";
 const GUARD_API_URL = process.env.GUARD_API_URL || "http://urag-guard:8091";
 const OBSERVABILITY_URL = process.env.OBSERVABILITY_URL || "http://urag-observability:8091";
 const GUARD_API_KEY = process.env.GUARD_API_KEY || "";
@@ -31,6 +32,15 @@ app.use("/mcp-proxy", (req, res) => {
   });
   req.pipe(proxyReq);
 });
+
+app.use(
+  "/api/identity",
+  createProxyMiddleware({
+    target: IDENTITY_URL,
+    changeOrigin: true,
+    pathRewrite: { "^/api/identity": "" },
+  })
+);
 
 app.use(express.json());
 

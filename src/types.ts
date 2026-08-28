@@ -38,6 +38,10 @@ export interface EvalScore {
   value: number; // 0 to 1
   verdict: "pass" | "warn" | "fail";
   comment: string;
+  // "system" (ingestão automática, default) | "judge" (LLM-as-judge) | "human"
+  // (anotação manual). Sem isso não dá pra calibrar judge contra humano.
+  source: "system" | "judge" | "human";
+  annotator?: string;
 }
 
 export interface Run {

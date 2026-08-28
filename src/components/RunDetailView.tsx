@@ -33,14 +33,51 @@ export default function RunDetailView({ runId, onNavigateToTab, onBack }: RunDet
   const [activeTab, setActiveTab] = useState<"prompt" | "spans" | "guardrails" | "evals" | "metadata">("prompt");
   const [selectedSpan, setSelectedSpan] = useState<Span | null>(null);
 
-  useEffect(() => {
+  // Anotação humana — ver Parte I do relatório de fronteira: nota binária
+  // passa/falha + comentário livre bate mais anotadores concordando entre si
+  // do que escala de 1 a 5. Formulário fica fechado por padrão para não competir
+  // visualmente com os scores automáticos.
+  const [annotating, setAnnotating] = useState(false);
+  const [annotatorName, setAnnotatorName] = useState("");
+  const [annotationMetric, setAnnotationMetric] = useState("qualidade_geral");
+  const [annotationVerdict, setAnnotationVerdict] = useState<0 | 1 | null>(null);
+  const [annotationComment, setAnnotationComment] = useState("");
+  const [annotationSubmitting, setAnnotationSubmitting] = useState(false);
+  const [annotationError, setAnnotationError] = useState("");
+
+  const submitAnnotation = () => {
+    if (!run || annotationVerdict === null || !annotatorName.trim()) return;
+    setAnnotationSubmitting(true);
+    setAnnotationError("");
+    api
+      .annotateScore({
+        run_id: run.id,
+        eval_name: annotationMetric.trim() || "qualidade_geral",
+        value: annotationVerdict,
+        comment: annotationComment.trim(),
+        annotator: annotatorName.trim(),
+      })
+      .then(() => {
+        setAnnotationSubmitting(false);
+        setAnnotationVerdict(null);
+        setAnnotationComment("");
+        loadRun(false);
+      })
+      .catch((err) => {
+        console.error("Error submitting annotation:", err);
+        setAnnotationError("Não foi possível salvar a anotação.");
+        setAnnotationSubmitting(false);
+      });
+  };
+
+  const loadRun = (selectFirstSpan: boolean) => {
     setLoading(true);
     setError(false);
     api
       .getRun(runId)
       .then((data) => {
         setRun(data);
-        if (data.spans && data.spans.length > 0) {
+        if (selectFirstSpan && data.spans && data.spans.length > 0) {
           setSelectedSpan(data.spans[0]); // Select first span by default
         }
         setLoading(false);
@@ -50,6 +87,11 @@ export default function RunDetailView({ runId, onNavigateToTab, onBack }: RunDet
         setError(true);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadRun(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runId]);
 
   const handleCopyId = () => {
@@ -517,6 +559,94 @@ export default function RunDetailView({ runId, onNavigateToTab, onBack }: RunDet
         {/* 4. Evals Tab */}
         {activeTab === "evals" && (
           <div className="space-y-4">
+            <div className="border border-[#e6e4df] rounded-xl bg-[#ffffff] shadow-xs">
+              <button
+                onClick={() => setAnnotating((v) => !v)}
+                className="w-full flex items-center justify-between px-5 py-3 text-xs font-semibold text-[#1a1a1a]"
+              >
+                <span>Adicionar anotação humana</span>
+                <span className="text-[#6e6d68]">{annotating ? "−" : "+"}</span>
+              </button>
+              {annotating && (
+                <div className="px-5 pb-5 pt-1 space-y-3 border-t border-[#e6e4df]">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-semibold text-[#6e6d68] uppercase">Métrica</label>
+                      <input
+                        type="text"
+                        value={annotationMetric}
+                        onChange={(e) => setAnnotationMetric(e.target.value)}
+                        placeholder="qualidade_geral"
+                        className="w-full text-xs px-2.5 py-1.5 rounded border border-[#e6e4df] bg-[#faf9f6]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-semibold text-[#6e6d68] uppercase">Seu nome/e-mail</label>
+                      <input
+                        type="text"
+                        value={annotatorName}
+                        onChange={(e) => setAnnotatorName(e.target.value)}
+                        placeholder="ana@empresa.com"
+                        className="w-full text-xs px-2.5 py-1.5 rounded border border-[#e6e4df] bg-[#faf9f6]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Binário (passa/falha), não escala de 1-5 — nota livre
+                      substitui granularidade numérica. É a recomendação
+                      metodológica do relatório de fronteira (Parte I). */}
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-semibold text-[#6e6d68] uppercase">Veredito</label>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setAnnotationVerdict(1)}
+                        className={`flex-1 text-xs font-semibold py-1.5 rounded border ${
+                          annotationVerdict === 1
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                            : "bg-[#faf9f6] text-[#6e6d68] border-[#e6e4df]"
+                        }`}
+                      >
+                        Passa
+                      </button>
+                      <button
+                        onClick={() => setAnnotationVerdict(0)}
+                        className={`flex-1 text-xs font-semibold py-1.5 rounded border ${
+                          annotationVerdict === 0
+                            ? "bg-red-50 text-red-800 border-red-300"
+                            : "bg-[#faf9f6] text-[#6e6d68] border-[#e6e4df]"
+                        }`}
+                      >
+                        Falha
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-semibold text-[#6e6d68] uppercase">
+                      O que você observou (nota livre)
+                    </label>
+                    <textarea
+                      value={annotationComment}
+                      onChange={(e) => setAnnotationComment(e.target.value)}
+                      placeholder="o que foi difícil, o que quase deu errado, o que ficou errado..."
+                      rows={3}
+                      className="w-full text-xs px-2.5 py-1.5 rounded border border-[#e6e4df] bg-[#faf9f6] font-mono"
+                    />
+                  </div>
+
+                  {annotationError && <p className="text-[11px] text-red-700">{annotationError}</p>}
+
+                  <button
+                    onClick={submitAnnotation}
+                    disabled={annotationVerdict === null || !annotatorName.trim() || annotationSubmitting}
+                    className="text-xs font-semibold px-3 py-1.5 rounded bg-[#1a1a1a] text-white disabled:opacity-40"
+                  >
+                    {annotationSubmitting ? "Salvando…" : "Salvar anotação"}
+                  </button>
+                </div>
+              )}
+            </div>
+
             {run.eval_scores && run.eval_scores.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {run.eval_scores.map((score) => {
@@ -538,13 +668,30 @@ export default function RunDetailView({ runId, onNavigateToTab, onBack }: RunDet
                       className="p-5 border border-[#e6e4df] rounded-xl bg-[#ffffff] shadow-xs flex flex-col justify-between space-y-4"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-[#1a1a1a] capitalize">
-                          {score.metric.replace("_", " ")}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-semibold text-[#1a1a1a] capitalize">
+                            {score.metric.replace("_", " ")}
+                          </span>
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[9px] font-bold border ${
+                              score.source === "human"
+                                ? "bg-violet-50 text-violet-800 border-violet-200"
+                                : score.source === "judge"
+                                ? "bg-sky-50 text-sky-800 border-sky-200"
+                                : "bg-[#f5f4f0] text-[#6e6d68] border-[#e6e4df]"
+                            }`}
+                            title={score.annotator ? `Anotado por ${score.annotator}` : undefined}
+                          >
+                            {score.source === "human" ? "HUMANO" : score.source === "judge" ? "JUDGE" : "SISTEMA"}
+                          </span>
+                        </div>
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass}`}>
                           {score.verdict.toUpperCase()}
                         </span>
                       </div>
+                      {score.annotator && (
+                        <p className="text-[10px] text-[#8a8a85] -mt-2">por {score.annotator}</p>
+                      )}
 
                       {/* Bar indicator */}
                       <div className="space-y-1">

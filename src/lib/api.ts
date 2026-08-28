@@ -149,6 +149,8 @@ function normalizeRun(r: any): any {
       timestamp: sts,
       timestamp_ms: sc.timestamp_ms ?? (sts ? new Date(sts).getTime() : 0),
       comment: sc.comment ?? '',
+      source: sc.source ?? 'system',
+      annotator: sc.annotator ?? undefined,
     };
   });
   return {
@@ -203,6 +205,8 @@ function normalizeScore(sc: any): any {
     timestamp: sts,
     timestamp_ms: sc.timestamp_ms ?? (sts ? new Date(sts).getTime() : 0),
     comment: sc.comment ?? '',
+    source: sc.source ?? 'system',
+    annotator: sc.annotator ?? undefined,
   };
 }
 
@@ -273,6 +277,22 @@ export const api = {
     const d = (raw as any)?.result ?? raw;
     const items = (d?.scores ?? d?.items ?? []).map(normalizeScore);
     return { scores: items, total: d?.total ?? 0, page: d?.page ?? 1, page_size: d?.page_size ?? 20, total_pages: d?.total_pages ?? Math.ceil((d?.total ?? 0) / (d?.page_size ?? 20)) };
+  },
+
+  // Anotação humana — reusa o mesmo pipeline de ingestão de score (ingest_score
+  // → POST /v1/scores no guard), com source="human" explícito. É o passo que
+  // faltava para calibrar o judge automático contra nota humana (GAP-02):
+  // antes não havia como uma pessoa registrar avaliação nenhuma pelo dashboard.
+  async annotateScore(input: { run_id: string; eval_name: string; value: 0 | 1; comment: string; annotator: string }): Promise<{ id: string }> {
+    const raw = await callMCPTool('ingest_score', {
+      run_id: input.run_id,
+      eval_name: input.eval_name,
+      value: input.value,
+      comment: input.comment,
+      annotator: input.annotator,
+      source: 'human',
+    });
+    return (raw as any)?.result ?? raw;
   },
 
   // Usage — MCP
