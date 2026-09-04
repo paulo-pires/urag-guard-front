@@ -16,6 +16,8 @@ import { ModelsView } from "./components/ModelsView";
 import { DriftView } from "./components/DriftView";
 import { SimulationView } from "./components/SimulationView";
 import { AssuranceView } from "./components/AssuranceView";
+import { PromptsView } from "./components/PromptsView";
+import { DatasetsView } from "./components/DatasetsView";
 import TenantSettingsView from "./components/TenantSettingsView";
 import OverviewView from "./components/OverviewView";
 import GuardDocsView from "./components/GuardDocsView";
@@ -247,6 +249,10 @@ export default function App() {
             config={mcpConfig}
           />
         );
+      case "prompts":
+        return <PromptsView />;
+      case "datasets":
+        return <DatasetsView onNavigateToTab={handleNavigateToTab} />;
       default:
         return (
           <DashboardView

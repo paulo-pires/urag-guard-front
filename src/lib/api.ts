@@ -1,4 +1,4 @@
-import { DashboardStats, Run, Session, GuardrailRule, GuardrailEvent, EvalConfig, EvalScore, UsageGroup, Project, APIKey, QueryFilters, McpResponse } from "../types";
+import { DashboardStats, Run, Session, GuardrailRule, GuardrailEvent, EvalConfig, EvalScore, UsageGroup, Project, APIKey, QueryFilters, McpResponse, Prompt, PromptDetail, Dataset, DatasetItem, DatasetDiff } from "../types";
 
 // ── MCP-only client for urag-observability-go (:8088) ────────────────────────
 
@@ -309,6 +309,60 @@ export const api = {
   async getProjectAPIKeys(projectId: string): Promise<APIKey[]> { return restGet(`/v1/projects/${projectId}/api-keys`); },
   async createProjectAPIKey(projectId: string, kind: "ingest" | "dashboard"): Promise<{ key: string }> { return restPost(`/v1/projects/${projectId}/api-keys`, { kind }); },
   async deleteProjectAPIKey(projectId: string, keyId: string): Promise<{ status: string }> { return restDelete(`/v1/projects/${projectId}/api-keys/${keyId}`); },
+
+  // Prompts — REST (admin, sem MCP). GET /v1/prompts, GET /v1/prompts/:id (com versões).
+  async getPrompts(): Promise<Prompt[]> {
+    const raw = await restGet<Prompt[] | { prompts?: Prompt[] }>('/v1/prompts');
+    if (Array.isArray(raw)) return raw;
+    return Array.isArray(raw?.prompts) ? raw.prompts : [];
+  },
+  async createPrompt(name: string, description?: string): Promise<{ id: string }> {
+    return restPost('/v1/prompts', { name, description: description || '' });
+  },
+  async getPrompt(id: string): Promise<PromptDetail> {
+    const raw = await restGet<PromptDetail>(`/v1/prompts/${id}`);
+    return { ...raw, versions: Array.isArray(raw?.versions) ? raw.versions : [] };
+  },
+  async createPromptVersion(promptId: string, template: string, activate = false): Promise<{ id: string }> {
+    return restPost(`/v1/prompts/${promptId}/versions`, { template, activate });
+  },
+  async activatePromptVersion(promptId: string, versionId: string): Promise<{ status: string }> {
+    return restPost(`/v1/prompts/${promptId}/versions/${versionId}/activate`);
+  },
+
+  // Datasets & Diff — REST (admin, sem MCP)
+  async getDatasets(): Promise<Dataset[]> {
+    const raw = await restGet<Dataset[] | { datasets?: Dataset[] }>('/v1/datasets');
+    if (Array.isArray(raw)) return raw;
+    return Array.isArray(raw?.datasets) ? raw.datasets : [];
+  },
+  async getDataset(id: string): Promise<Dataset & { items?: DatasetItem[] }> {
+    return restGet<Dataset & { items?: DatasetItem[] }>(`/v1/datasets/${id}`);
+  },
+  async createDataset(name: string, description?: string): Promise<{ id: string }> {
+    return restPost('/v1/datasets', { name, description: description || '' });
+  },
+  async deleteDataset(id: string): Promise<{ status: string }> {
+    return restDelete(`/v1/datasets/${id}`);
+  },
+  async getDatasetItems(id: string): Promise<DatasetItem[]> {
+    const raw = await restGet<DatasetItem[] | { items?: DatasetItem[] }>(`/v1/datasets/${id}/items`);
+    if (Array.isArray(raw)) return raw;
+    return Array.isArray(raw?.items) ? raw.items : [];
+  },
+  async addDatasetItems(id: string, items: Array<{ input: unknown; expected_output?: unknown; metadata?: unknown }>): Promise<{ ids: string[] }> {
+    return restPost(`/v1/datasets/${id}/items`, items);
+  },
+  async deleteDatasetItem(id: string, itemId: string): Promise<{ status: string }> {
+    return restDelete(`/v1/datasets/${id}/items/${itemId}`);
+  },
+  async buildDatasetFromRuns(id: string, minScore = 0.9, limit = 100): Promise<{ dataset_id: string; created: number; item_ids: string[]; imported: number }> {
+    const res = await restPost<{ dataset_id: string; created: number; item_ids: string[] }>(`/v1/datasets/${id}/from-runs?min_score=${minScore}&limit=${limit}`);
+    return { ...res, imported: res.created };
+  },
+  async getDatasetDiff(baseId: string, compareToId: string): Promise<DatasetDiff> {
+    return restGet<DatasetDiff>(`/v1/datasets/${baseId}/diff?compare_to=${encodeURIComponent(compareToId)}`);
+  },
 };
 
 // ── Proxy Models ──────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode, type Key } from "react";
 import { mergeStackModules, type StackModuleState } from "./stackModules";
 import {
   ADDON_CATALOG,
@@ -116,7 +116,7 @@ function NavBtn({ active, children, onClick }: { active: boolean; children: Reac
   );
 }
 
-function Row({ title, subtitle, action }: { title: string; subtitle?: string; action: ReactNode }) {
+function Row({ title, subtitle, action }: { title: string; subtitle?: string; action: ReactNode; key?: Key }) {
   return (
     <li
       style={{

@@ -18,6 +18,8 @@ import {
   Scale,
   Sparkles,
   BookOpen,
+  FileText,
+  Database,
 } from "lucide-react";
 import { useViewMode } from "../context/ViewModeContext";
 import AccountLauncher from "./AccountLauncher";
@@ -50,6 +52,8 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
     { id: "sessions", label: "Conversas", icon: MessageSquare },
     { id: "divider-1", isDivider: true },
     { id: "assurance", label: "Qualidade das Respostas", icon: Scale },
+    { id: "prompts", label: "Prompts", icon: FileText },
+    { id: "datasets", label: "Datasets & Diff", icon: Database },
     { id: "guardrails-events", label: "Alertas de Comportamento", icon: AlertTriangle },
     { id: "divider-admin", isDivider: true },
     { id: "projects", label: "Equipe e Acessos", icon: KeyRound },
@@ -73,6 +77,8 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
     { id: "drift", label: "Drift", icon: Activity },
     { id: "simulation", label: "Simulação", icon: PlaySquare },
     { id: "assurance", label: "Avaliação", icon: Scale },
+    { id: "prompts", label: "Prompts", icon: FileText },
+    { id: "datasets", label: "Datasets & Diff", icon: Database },
     { id: "divider-3", isDivider: true },
     { id: "usage", label: "Consumo", icon: Cpu },
     { id: "divider-admin", isDivider: true },

@@ -286,6 +286,54 @@ export interface McpServerConfig {
   forceDemoMode: boolean;
 }
 
+export interface Prompt {
+  id: string;
+  name: string;
+  description?: string;
+  created_at: string;
+}
+
+export interface PromptVersion {
+  id: string;
+  prompt_id: string;
+  version: number;
+  template: string;
+  variables?: unknown;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface PromptDetail extends Prompt {
+  versions: PromptVersion[];
+}
+
+export interface Dataset {
+  id: string;
+  name: string;
+  description?: string;
+  created_at: string;
+  items?: DatasetItem[];
+}
+
+export interface DatasetItem {
+  id: string;
+  dataset_id: string;
+  input: unknown;
+  expected_output?: unknown;
+  metadata?: unknown;
+  created_at: string;
+}
+
+export interface DatasetDiff {
+  base_dataset_id: string;
+  target_dataset_id: string;
+  added: DatasetItem[];
+  removed: DatasetItem[];
+  unchanged: DatasetItem[];
+  total_base: number;
+  total_target: number;
+}
+
 // ── MCP Streamable HTTP (JSON-RPC 2.0) ───────────────────────────────────────
 
 /** Requisição JSON-RPC enviada ao servidor MCP. */

@@ -92,6 +92,7 @@ export default function Topbar({
     { id: "runs", label: "Atividade" },
     { id: "sessions", label: "Conversas" },
     { id: "assurance", label: "Qualidade" },
+    { id: "prompts", label: "Prompts" },
     { id: "guardrails-events", label: "Alertas" },
     { id: "projects", label: "Equipe" },
   ];
@@ -103,6 +104,7 @@ export default function Topbar({
     { id: "guardrails-events", label: "Guardrail Events" },
     { id: "evals-configs", label: "Eval Configs" },
     { id: "evals-scores", label: "Eval Scores" },
+    { id: "prompts", label: "Prompts" },
     { id: "usage", label: "Consumo" },
     { id: "projects", label: "Projetos & Keys" },
   ];
