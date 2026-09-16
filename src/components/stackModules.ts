@@ -51,16 +51,8 @@ export const STACK_MODULES: readonly StackModuleDef[] = [
   },
 ];
 
-export type StackModuleState = {
-  id: string;
-  name: string;
-  description?: string;
-  enabled: boolean;
-  visible: boolean;
-  always_on?: boolean;
-  my_access: string | null;
-  unit_cents?: number;
-};
+import type { StackModuleState } from "@urag/ui";
+export type { StackModuleState };
 
 export function mergeStackModules(input: {
   modules?: StackModuleState[] | null;

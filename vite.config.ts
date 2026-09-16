@@ -8,9 +8,14 @@ export default defineConfig(() => {
     plugins: [react(), tailwindcss()],
     css: { postcss: {} },
     resolve: {
+      dedupe: ['react', 'react-dom'],
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
+    },
+    test: {
+      globals: true,
+      environment: 'jsdom',
     },
     server: {
       hmr: process.env.DISABLE_HMR !== 'true',

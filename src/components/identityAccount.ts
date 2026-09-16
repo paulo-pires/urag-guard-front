@@ -1,5 +1,5 @@
 import { modulesPutBody, modulesPutEnableIds } from "./stackModules";
-import type { AccountOverview } from "./AccountPanel";
+import type { AccountOverview } from "@urag/ui";
 
 async function readJson<T = Record<string, unknown>>(res: Response): Promise<T> {
   const json = (await res.json().catch(() => ({}))) as T & { error?: string };

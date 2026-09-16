@@ -20,9 +20,13 @@ import {
   BookOpen,
   FileText,
   Database,
+  Sliders,
 } from "lucide-react";
 import { useViewMode } from "../context/ViewModeContext";
-import AccountLauncher from "./AccountLauncher";
+import { AccountLauncher, StackAdminPanel } from "@urag/ui";
+import { useAccountSession } from "../hooks/useAccountSession";
+import { useStackAdmin } from "../hooks/useStackAdmin";
+import { MODULE_CATALOG, ADDON_CATALOG, COMBOS } from "./accountCatalog";
 
 interface SidebarProps {
   currentTab: string;
@@ -32,6 +36,27 @@ interface SidebarProps {
 export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
   const [isExpanded, setIsExpanded] = useState(true); // Default expanded (match appstudio reference)
   const [backendOnline, setBackendOnline] = useState(true);
+
+  const session = useAccountSession();
+  const admin = useStackAdmin();
+  const [adminOpen, setAdminOpen] = useState(false);
+
+  const handleOpenAdmin = async () => {
+    await admin.load();
+    setAdminOpen(true);
+  };
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem("identity_session");
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("guard_token");
+      document.cookie = "identity_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    } catch {
+      // ignore
+    }
+    window.location.href = "/";
+  };
 
   useEffect(() => {
     fetch("/v1/health")
@@ -100,6 +125,7 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
   };
 
   return (
+    <>
     <aside
       className={`flex flex-col h-screen border-r border-[#D3D1CE] bg-[#EBE7E2] text-[#1A1A1A] transition-all duration-200 select-none ${
         isExpanded ? "w-52" : "w-14"
@@ -179,6 +205,27 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
         })}
       </nav>
 
+      {/* Botão de Administração da Stack */}
+      <div className="px-2 pt-1">
+        <button
+          type="button"
+          onClick={() => void handleOpenAdmin()}
+          className={`flex items-center w-full rounded transition-colors group relative ${
+            isExpanded ? "px-2.5 py-1.5 gap-2.5" : "p-2.5 justify-center"
+          } text-[#575652] hover:bg-[#e8e6e1] hover:text-[#1A1A1A]`}
+          title={!isExpanded ? "Administração da Stack" : undefined}
+          aria-label="Administração da Stack"
+        >
+          <Sliders size={16} className="shrink-0" />
+          {isExpanded && <span className="text-xs truncate">Administração</span>}
+          {!isExpanded && (
+            <div className="absolute left-full ml-2 px-2.5 py-1 bg-[#1a1a1a] text-white text-[11px] font-normal rounded border border-[#1a1a1a] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-md">
+              Administração da Stack
+            </div>
+          )}
+        </button>
+      </div>
+
       {/* Conta — sempre o último item do menu lateral */}
       <div className="p-2 border-t border-[#D3D1CE]">
         {isExpanded && (
@@ -190,8 +237,38 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
             </span>
           </div>
         )}
-        <AccountLauncher collapsed={!isExpanded} />
+        <AccountLauncher
+          session={session}
+          showName={isExpanded}
+          showChevron={isExpanded}
+          onLogout={handleLogout}
+          onBilling={() => void handleOpenAdmin()}
+          showPlanBadge={true}
+          placement="top-left"
+          wrapperClassName="w-full"
+        />
       </div>
     </aside>
+
+    {adminOpen && admin.overview && (
+      <StackAdminPanel
+        open={adminOpen}
+        overview={admin.overview}
+        busy={admin.busy}
+        error={admin.error}
+        onClose={() => setAdminOpen(false)}
+        moduleCatalog={MODULE_CATALOG}
+        addonCatalog={ADDON_CATALOG}
+        combos={COMBOS}
+        onToggleModule={admin.handleToggleModule}
+        onApplyCombo={admin.handleApplyCombo}
+        onContractAddon={admin.handleContractAddon}
+        onSelectPlan={admin.handleSelectPlan}
+        onInviteMember={admin.handleInviteMember}
+        onAssignRole={admin.handleAssignRole}
+        onCreateRole={admin.handleCreateRole}
+      />
+    )}
+    </>
   );
 }
