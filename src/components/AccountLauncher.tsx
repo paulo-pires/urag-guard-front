@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { LogOut } from "lucide-react";
 import AccountPanel, { type AccountOverview } from "./AccountPanel";
 import { identityAccountClient } from "./identityAccount";
 
@@ -108,24 +109,48 @@ export default function AccountLauncher({ collapsed }: { collapsed?: boolean }) 
   const role = overview ? roleLabel(overview.permission_level) : "tenant / time";
   const can = Boolean(overview?.can_contract);
 
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem("identity_session");
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("guard_token");
+      document.cookie = "identity_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    } catch {
+      // ignore
+    }
+    window.location.href = "/";
+  };
+
   return (
     <>
-      <button
-        type="button"
-        onClick={() => void load()}
-        title="Conta, tenant e time"
-        className="w-full flex items-center gap-2.5 rounded-xl border border-[#D3D1CE] bg-[#FAF8F5] px-2.5 py-2 text-left hover:bg-[#EBE7E2] transition-colors"
-      >
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1A1A1A] text-[11px] font-bold text-[#F4F1EE]">
-          {initials(name)}
-        </span>
-        {!collapsed && (
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-[13px] font-semibold text-[#1A1A1A]">{name}</span>
-            <span className="block truncate text-[10px] uppercase tracking-wider text-[#71706F]">{role}</span>
+      <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => void load()}
+          title="Conta, tenant e time"
+          className="min-w-0 flex-1 flex items-center gap-2.5 rounded-xl border border-[#D3D1CE] bg-[#FAF8F5] px-2.5 py-2 text-left hover:bg-[#EBE7E2] transition-colors"
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1A1A1A] text-[11px] font-bold text-[#F4F1EE]">
+            {initials(name)}
           </span>
-        )}
-      </button>
+          {!collapsed && (
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[13px] font-semibold text-[#1A1A1A]">{name}</span>
+              <span className="block truncate text-[10px] uppercase tracking-wider text-[#71706F]">{role}</span>
+            </span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          title="Sair"
+          aria-label="Sair da conta"
+          className="shrink-0 rounded-xl border border-[#D3D1CE] bg-[#FAF8F5] p-2 text-[#1A1A1A]/70 transition-colors hover:bg-[#8C3A27]/10 hover:text-[#8C3A27]"
+        >
+          <LogOut className="h-4 w-4" />
+        </button>
+      </div>
       {open && overview && (
         <AccountPanel
           overview={overview}

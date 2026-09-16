@@ -308,7 +308,7 @@ export default function RunsView({
                       <span className="truncate max-w-[50px] text-[#6e6d68]">{run.id}</span>
                       <button
                         onClick={(e) => handleCopy(run.id, e)}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 text-[#8e8d87] hover:text-[#1a1a1a] rounded transition-opacity"
+                        className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 p-0.5 text-[#8e8d87] hover:text-[#1a1a1a] rounded transition-opacity"
                         title="Copy ID"
                       >
                         {copiedId === run.id ? <Check size={10} className="text-emerald-700" /> : <Copy size={10} />}

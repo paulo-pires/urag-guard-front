@@ -181,7 +181,7 @@ export default function SessionsView({
                       <span className="truncate max-w-[80px] text-[#6e6d68] group-hover:text-[#1a1a1a]">{session.id}</span>
                       <button
                         onClick={(e) => handleCopy(session.id, e)}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 text-[#6e6d68] hover:text-[#1a1a1a] rounded transition-opacity"
+                        className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 p-0.5 text-[#6e6d68] hover:text-[#1a1a1a] rounded transition-opacity"
                         title="Copy ID"
                       >
                         {copiedId === session.id ? <Check size={10} className="text-emerald-700" /> : <Copy size={10} />}
