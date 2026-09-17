@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import DashboardView from "./components/DashboardView";
@@ -22,6 +22,7 @@ import TenantSettingsView from "./components/TenantSettingsView";
 import OverviewView from "./components/OverviewView";
 import GuardDocsView from "./components/GuardDocsView";
 import { ViewModeProvider } from "./context/ViewModeContext";
+import { api } from "./lib/api";
 import { ModelRegistry, McpServerConfig } from "./types";
 
 export default function App() {
@@ -47,6 +48,12 @@ export default function App() {
   const [customTo, setCustomTo] = useState(formatDate(today));
   const [selectedSources, setSelectedSources] = useState<string[]>([]); // empty represents "All"
 
+  // Contagens da navegação. O Sidebar NÃO busca nada por conta própria: quem
+  // sabe período e fontes é aqui, e a mesma chamada que a Visão Geral técnica
+  // já faz serve para o badge. Sem este produtor, `badgeCounts` seria uma prop
+  // que ninguém alimenta — caminho de leitura sem caminho de escrita.
+  const [badgeCounts, setBadgeCounts] = useState<Record<string, number>>({});
+
   // Simulation / ModelOps state
   const [models, setModels] = useState<ModelRegistry[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
@@ -59,6 +66,29 @@ export default function App() {
     token: "",
     forceDemoMode: false,
   };
+
+  useEffect(() => {
+    let vivo = true;
+    api
+      .getDashboardStats({
+        from: period,
+        source: selectedSources.join(","),
+      })
+      .then((st) => {
+        if (!vivo) return;
+        // Só violação de guardrail vira badge: é a única contagem em que
+        // "tem coisa nova" muda o que a pessoa faz a seguir. Número de runs
+        // sobe sempre e viraria ruído permanente.
+        setBadgeCounts({ "guardrails-events": st.guardrail_violations ?? 0 });
+      })
+      .catch(() => {
+        // Badge é informação acessória: falha não pode derrubar a navegação.
+        if (vivo) setBadgeCounts({});
+      });
+    return () => {
+      vivo = false;
+    };
+  }, [period, selectedSources]);
 
   const fetchModels = async () => {
     setLoadingModels(true);
@@ -270,7 +300,7 @@ export default function App() {
     <ViewModeProvider>
     <div className="flex w-full h-screen bg-[#F4F1EE] text-[#1A1A1A] overflow-hidden font-sans">
       {/* Sidebar navigation */}
-      <Sidebar currentTab={currentTab} setCurrentTab={setCurrentTab} />
+      <Sidebar currentTab={currentTab} setCurrentTab={setCurrentTab} badgeCounts={badgeCounts} />
 
       {/* Main panel */}
       <div className="flex flex-col flex-1 h-screen overflow-hidden">

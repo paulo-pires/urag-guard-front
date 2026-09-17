@@ -36,6 +36,24 @@ interface SidebarProps {
   setCurrentTab: (tab: string) => void;
   mobileOpen?: boolean;
   onNavigate?: () => void;
+  badgeCounts?: Record<string, number>;
+  initialCollapsed?: boolean;
+}
+
+export function formatBadge(count: number | undefined): React.ReactNode | undefined {
+  if (count === undefined || count === null || count <= 0) {
+    return undefined;
+  }
+  const display = count > 99 ? "99+" : String(count);
+  return (
+    <span
+      data-testid="sidebar-badge"
+      aria-label={`${count} alertas`}
+      className="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-medium font-mono rounded-full bg-[#E8E6E3] text-[#1A1A1A] border border-[#D3D1CE]"
+    >
+      {display}
+    </span>
+  );
 }
 
 export default function Sidebar({
@@ -43,8 +61,10 @@ export default function Sidebar({
   setCurrentTab,
   mobileOpen = false,
   onNavigate,
+  badgeCounts,
+  initialCollapsed = false,
 }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(initialCollapsed);
   const [backendOnline, setBackendOnline] = useState(true);
 
   const session = useAccountSession();
@@ -79,40 +99,41 @@ export default function Sidebar({
   }, []);
 
   const { viewMode } = useViewMode();
+  const getBadge = (id: string) => formatBadge(badgeCounts?.[id]);
 
   // ── Gestão mode: simplified, business-friendly grouping ───────────────────
   const navItemsGestao: SidebarNavItem[] = [
-    { id: "dashboard", label: "Visão Geral", icon: Sparkles },
-    { id: "usage", label: "Consumo e Custos", icon: Cpu },
-    { id: "runs", label: "Atividade dos Agentes", icon: PlayCircle },
-    { id: "sessions", label: "Conversas", icon: MessageSquare },
-    { id: "assurance", label: "Qualidade das Respostas", icon: Scale },
-    { id: "prompts", label: "Prompts", icon: FileText },
-    { id: "datasets", label: "Datasets & Diff", icon: Database },
-    { id: "guardrails-events", label: "Alertas de Comportamento", icon: AlertTriangle },
-    { id: "projects", label: "Equipe e Acessos", icon: KeyRound },
-    { id: "tenant-settings", label: "Configurações", icon: Settings },
-    { id: "docs", label: "Documentação", icon: BookOpen },
+    { id: "dashboard", label: "Visão Geral", icon: Sparkles, badge: getBadge("dashboard") },
+    { id: "usage", label: "Consumo e Custos", icon: Cpu, badge: getBadge("usage") },
+    { id: "runs", label: "Atividade dos Agentes", icon: PlayCircle, badge: getBadge("runs") },
+    { id: "sessions", label: "Conversas", icon: MessageSquare, badge: getBadge("sessions") },
+    { id: "assurance", label: "Qualidade das Respostas", icon: Scale, badge: getBadge("assurance") },
+    { id: "prompts", label: "Prompts", icon: FileText, badge: getBadge("prompts") },
+    { id: "datasets", label: "Datasets & Diff", icon: Database, badge: getBadge("datasets") },
+    { id: "guardrails-events", label: "Alertas de Comportamento", icon: AlertTriangle, badge: getBadge("guardrails-events") },
+    { id: "projects", label: "Equipe e Acessos", icon: KeyRound, badge: getBadge("projects") },
+    { id: "tenant-settings", label: "Configurações", icon: Settings, badge: getBadge("tenant-settings") },
+    { id: "docs", label: "Documentação", icon: BookOpen, badge: getBadge("docs") },
   ];
 
   // ── Técnico mode: full technical structure ────────────────────────────────
   const navItemsTecnico: SidebarNavItem[] = [
-    { id: "dashboard", label: "Monitoramento", icon: LayoutDashboard },
-    { id: "runs", label: "Runs", icon: PlayCircle },
-    { id: "sessions", label: "Sessions", icon: MessageSquare },
-    { id: "guardrails-rules", label: "Regras Guardrail", icon: ListFilter },
-    { id: "guardrails-events", label: "Eventos Guardrail", icon: AlertTriangle },
-    { id: "evals-configs", label: "Configs Evals", icon: Settings },
-    { id: "evals-scores", label: "Scores Evals", icon: BarChart3 },
-    { id: "models", label: "Modelos", icon: Box },
-    { id: "drift", label: "Drift", icon: Activity },
-    { id: "simulation", label: "Simulação", icon: PlaySquare },
-    { id: "assurance", label: "Avaliação", icon: Scale },
-    { id: "prompts", label: "Prompts", icon: FileText },
-    { id: "datasets", label: "Datasets & Diff", icon: Database },
-    { id: "usage", label: "Consumo", icon: Cpu },
-    { id: "projects", label: "Projetos & Keys", icon: KeyRound },
-    { id: "tenant-settings", label: "Configurações", icon: Settings },
+    { id: "dashboard", label: "Monitoramento", icon: LayoutDashboard, badge: getBadge("dashboard") },
+    { id: "runs", label: "Runs", icon: PlayCircle, badge: getBadge("runs") },
+    { id: "sessions", label: "Sessions", icon: MessageSquare, badge: getBadge("sessions") },
+    { id: "guardrails-rules", label: "Regras Guardrail", icon: ListFilter, badge: getBadge("guardrails-rules") },
+    { id: "guardrails-events", label: "Eventos Guardrail", icon: AlertTriangle, badge: getBadge("guardrails-events") },
+    { id: "evals-configs", label: "Configs Evals", icon: Settings, badge: getBadge("evals-configs") },
+    { id: "evals-scores", label: "Scores Evals", icon: BarChart3, badge: getBadge("evals-scores") },
+    { id: "models", label: "Modelos", icon: Box, badge: getBadge("models") },
+    { id: "drift", label: "Drift", icon: Activity, badge: getBadge("drift") },
+    { id: "simulation", label: "Simulação", icon: PlaySquare, badge: getBadge("simulation") },
+    { id: "assurance", label: "Avaliação", icon: Scale, badge: getBadge("assurance") },
+    { id: "prompts", label: "Prompts", icon: FileText, badge: getBadge("prompts") },
+    { id: "datasets", label: "Datasets & Diff", icon: Database, badge: getBadge("datasets") },
+    { id: "usage", label: "Consumo", icon: Cpu, badge: getBadge("usage") },
+    { id: "projects", label: "Projetos & Keys", icon: KeyRound, badge: getBadge("projects") },
+    { id: "tenant-settings", label: "Configurações", icon: Settings, badge: getBadge("tenant-settings") },
   ];
 
   const navItems = viewMode === "gestao" ? navItemsGestao : navItemsTecnico;
