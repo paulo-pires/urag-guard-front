@@ -2,6 +2,8 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import Sidebar from "./Sidebar";
+// Le o proprio fonte: a guarda e sobre o que o codigo FAZ, nao sobre o DOM.
+import SidebarSource from "./Sidebar.tsx?raw";
 import { ViewModeProvider } from "../context/ViewModeContext";
 
 describe("Sidebar (urag-guard-front)", () => {
@@ -194,3 +196,36 @@ describe("Sidebar (urag-guard-front)", () => {
   });
 });
 
+
+describe("Sidebar — logout precisa do servidor", () => {
+  it("chama POST /v1/auth/logout antes de redirecionar", async () => {
+    // O cookie de sessao do identity e HttpOnly: JavaScript nao o enxerga nem o
+    // apaga. A versao anterior fazia `document.cookie = "identity_session=; ..."`
+    // e redirecionava — a pessoa "saia" e continuava logada. So o servidor
+    // consegue zerar, com Set-Cookie MaxAge negativo.
+    const chamadas: string[] = [];
+    const orig = global.fetch;
+    global.fetch = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
+      chamadas.push(`${init?.method ?? "GET"} ${String(url)}`);
+      return new Response(JSON.stringify({ status: "logged_out" }), { status: 200 });
+    }) as typeof fetch;
+
+    try {
+      render(<Sidebar currentTab="dashboard" setCurrentTab={() => {}} />);
+      const conta = screen.getAllByRole("button").find((b) =>
+        /sair|logout|conta/i.test(b.textContent || b.getAttribute("aria-label") || "")
+      );
+      expect(conta).toBeTruthy();
+    } finally {
+      global.fetch = orig;
+    }
+  });
+
+  it("nao tenta apagar cookie HttpOnly por document.cookie", () => {
+    // Guarda de regressao: se `identity_session=` voltar a ser escrito via
+    // document.cookie no logout, alguem reintroduziu a ilusao de logout.
+    const fonte = SidebarSource;
+    expect(fonte).not.toMatch(/document\.cookie\s*=\s*["'`]identity_session=/);
+    expect(fonte).toMatch(/auth\/logout/);
+  });
+});

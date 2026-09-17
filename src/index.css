@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* O scanner do Tailwind 4 nao enxerga arquivo fora da raiz do app, e @urag/ui
+   resolve para node_modules (symlink do workspace), que ele ignora por padrao.
+   Sem esta linha, toda classe usada SO dentro do pacote fica fora do CSS
+   gerado — o componente renderiza, mas sem cor: texto claro vira texto herdado
+   sobre fundo escuro, e some. Mesmo motivo do @source de geo-widgets no
+   urag-appstudio-front. */
+@source "../../packages/ui/src";
+
+
 @theme {
   --font-serif: 'Lora', 'Playfair Display', Georgia, serif;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;

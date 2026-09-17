@@ -76,13 +76,25 @@ export default function Sidebar({
     setAdminOpen(true);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // O cookie de sessao do identity e HttpOnly (handlers.go:759), entao
+    // `document.cookie = ...` daqui NAO o apaga — JavaScript nao enxerga cookie
+    // HttpOnly. Era exatamente o que esta funcao fazia: limpava o localStorage,
+    // redirecionava, e a sessao continuava valida. A unica forma de zerar e o
+    // servidor mandar Set-Cookie com MaxAge negativo, que e o que
+    // POST /v1/auth/logout faz (handlers.go:627).
+    try {
+      await fetch("/api/identity/v1/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch {
+      // Rede fora nao pode prender a pessoa na sessao: segue e limpa o local.
+    }
     try {
       localStorage.removeItem("identity_session");
       localStorage.removeItem("auth_token");
       localStorage.removeItem("guard_token");
-      document.cookie =
-        "identity_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     } catch {
       // ignore
     }
