@@ -1,17 +1,26 @@
 # ── builder ──────────────────────────────────────────────────────────────────
-FROM oven/bun:1-alpine AS builder
+# Contexto de build = RAIZ do mono-repo (workspace bun), nao este diretorio.
+# O compose passa `context: .` e `dockerfile: urag-guard-front/Dockerfile`.
+# Sem a raiz, `@urag/ui: workspace:*` nao resolve.
+FROM oven/bun:1-debian AS builder
 WORKDIR /app
 
-COPY bun.lock package.json ./
+COPY package.json bun.lock ./
+# packages/ui vem INTEIRO antes do install (408 KB): o script `prepare` dele
+# roda tsup durante o `bun install`, e sem a fonte o tsup falha com "No input
+# files". Ele tambem produz o dist/ que o front importa -- dist/ e gitignorado,
+# entao tem que nascer aqui dentro.
+COPY packages/ui packages/ui
+COPY urag-guard-front/package.json urag-guard-front/
 RUN bun install --frozen-lockfile
 
-COPY . .
+COPY urag-guard-front urag-guard-front
 
 # Build Vite static assets
-RUN bun x vite build
+RUN cd urag-guard-front && bun x vite build
 
 # Bundle Express server completo (sem --packages=external = sem node_modules em runtime)
-RUN bun x esbuild server.ts \
+RUN cd urag-guard-front && bun x esbuild server.ts \
       --bundle \
       --platform=node \
       --format=cjs \
@@ -27,7 +36,7 @@ ENV NODE_ENV=production \
     GUARD_API_URL=http://urag-guard:8091 \
     GUARD_API_KEY=
 
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/urag-guard-front/dist ./dist
 
 EXPOSE 3001
 
