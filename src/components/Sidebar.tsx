@@ -8,8 +8,6 @@ import {
   Settings,
   BarChart3,
   Cpu,
-  ChevronLeft,
-  ChevronRight,
   ShieldCheck,
   KeyRound,
   Box,
@@ -23,7 +21,12 @@ import {
   Sliders,
 } from "lucide-react";
 import { useViewMode } from "../context/ViewModeContext";
-import { AccountLauncher, StackAdminPanel } from "@urag/ui";
+import {
+  AccountLauncher,
+  StackAdminPanel,
+  StackSidebar,
+  type SidebarNavItem,
+} from "@urag/ui";
 import { useAccountSession } from "../hooks/useAccountSession";
 import { useStackAdmin } from "../hooks/useStackAdmin";
 import { MODULE_CATALOG, ADDON_CATALOG, COMBOS } from "./accountCatalog";
@@ -31,10 +34,17 @@ import { MODULE_CATALOG, ADDON_CATALOG, COMBOS } from "./accountCatalog";
 interface SidebarProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
+  mobileOpen?: boolean;
+  onNavigate?: () => void;
 }
 
-export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
-  const [isExpanded, setIsExpanded] = useState(true); // Default expanded (match appstudio reference)
+export default function Sidebar({
+  currentTab,
+  setCurrentTab,
+  mobileOpen = false,
+  onNavigate,
+}: SidebarProps) {
+  const [collapsed, setCollapsed] = useState(false);
   const [backendOnline, setBackendOnline] = useState(true);
 
   const session = useAccountSession();
@@ -51,7 +61,8 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
       localStorage.removeItem("identity_session");
       localStorage.removeItem("auth_token");
       localStorage.removeItem("guard_token");
-      document.cookie = "identity_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+      document.cookie =
+        "identity_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     } catch {
       // ignore
     }
@@ -70,205 +81,142 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
   const { viewMode } = useViewMode();
 
   // ── Gestão mode: simplified, business-friendly grouping ───────────────────
-  const navItemsGestao = [
+  const navItemsGestao: SidebarNavItem[] = [
     { id: "dashboard", label: "Visão Geral", icon: Sparkles },
     { id: "usage", label: "Consumo e Custos", icon: Cpu },
     { id: "runs", label: "Atividade dos Agentes", icon: PlayCircle },
     { id: "sessions", label: "Conversas", icon: MessageSquare },
-    { id: "divider-1", isDivider: true },
     { id: "assurance", label: "Qualidade das Respostas", icon: Scale },
     { id: "prompts", label: "Prompts", icon: FileText },
     { id: "datasets", label: "Datasets & Diff", icon: Database },
     { id: "guardrails-events", label: "Alertas de Comportamento", icon: AlertTriangle },
-    { id: "divider-admin", isDivider: true },
     { id: "projects", label: "Equipe e Acessos", icon: KeyRound },
     { id: "tenant-settings", label: "Configurações", icon: Settings },
     { id: "docs", label: "Documentação", icon: BookOpen },
   ];
 
-  // ── Técnico mode: full technical structure (unchanged) ────────────────────
-  const navItemsTecnico = [
+  // ── Técnico mode: full technical structure ────────────────────────────────
+  const navItemsTecnico: SidebarNavItem[] = [
     { id: "dashboard", label: "Monitoramento", icon: LayoutDashboard },
     { id: "runs", label: "Runs", icon: PlayCircle },
     { id: "sessions", label: "Sessions", icon: MessageSquare },
-    { id: "divider-1", isDivider: true },
     { id: "guardrails-rules", label: "Regras Guardrail", icon: ListFilter },
     { id: "guardrails-events", label: "Eventos Guardrail", icon: AlertTriangle },
-    { id: "divider-2", isDivider: true },
     { id: "evals-configs", label: "Configs Evals", icon: Settings },
     { id: "evals-scores", label: "Scores Evals", icon: BarChart3 },
-    { id: "divider-modelops", isDivider: true },
     { id: "models", label: "Modelos", icon: Box },
     { id: "drift", label: "Drift", icon: Activity },
     { id: "simulation", label: "Simulação", icon: PlaySquare },
     { id: "assurance", label: "Avaliação", icon: Scale },
     { id: "prompts", label: "Prompts", icon: FileText },
     { id: "datasets", label: "Datasets & Diff", icon: Database },
-    { id: "divider-3", isDivider: true },
     { id: "usage", label: "Consumo", icon: Cpu },
-    { id: "divider-admin", isDivider: true },
     { id: "projects", label: "Projetos & Keys", icon: KeyRound },
     { id: "tenant-settings", label: "Configurações", icon: Settings },
   ];
 
-  const navItems = viewMode === 'gestao' ? navItemsGestao : navItemsTecnico;
+  const navItems = viewMode === "gestao" ? navItemsGestao : navItemsTecnico;
 
-  const handleTabClick = (tabId: string) => {
-    setCurrentTab(tabId);
-  };
-
-  const isTabActive = (itemId: string) => {
-    if (currentTab === itemId) return true;
-    if (itemId === "runs" && currentTab.startsWith("run-detail-")) return true;
-    if (itemId === "sessions" && currentTab.startsWith("session-detail-")) return true;
-    return false;
-  };
+  const activeId =
+    currentTab.startsWith("run-detail-")
+      ? "runs"
+      : currentTab.startsWith("session-detail-")
+      ? "sessions"
+      : currentTab;
 
   return (
     <>
-    <aside
-      className={`flex flex-col h-screen border-r border-[#D3D1CE] bg-[#EBE7E2] text-[#1A1A1A] transition-all duration-200 select-none ${
-        isExpanded ? "w-52" : "w-14"
-      }`}
-    >
-      {/* Brand Logo / Slim Header */}
-      <div className="flex items-center justify-between h-12 px-3 border-b border-[#D3D1CE]">
-        <div className="flex items-center gap-2 overflow-hidden">
-          <div className="flex items-center justify-center w-8 h-8 rounded bg-[#1a1a1a] text-white border border-[#1a1a1a] shrink-0">
-            <ShieldCheck size={16} className="text-white" />
-          </div>
-          {isExpanded && (
-            <span className="font-serif italic font-semibold text-sm tracking-tight text-[#1A1A1A] whitespace-nowrap">
-              uRag Guard
-            </span>
-          )}
-        </div>
-        {isExpanded && (
-          <button
-            onClick={() => setIsExpanded(false)}
-            className="flex items-center justify-center w-5 h-5 rounded hover:bg-[#e8e6e1] text-[#71706F] hover:text-[#1A1A1A] transition-colors"
-          >
-            <ChevronLeft size={14} />
-          </button>
-        )}
-        {!isExpanded && (
-          <button
-            onClick={() => setIsExpanded(true)}
-            className="absolute left-11 z-50 flex items-center justify-center w-4 h-8 rounded-r bg-[#EBE7E2] hover:bg-[#e8e6e1] text-[#71706F] hover:text-[#1A1A1A] border-y border-r border-[#D3D1CE] opacity-0 hover:opacity-100 transition-opacity"
-          >
-            <ChevronRight size={12} />
-          </button>
-        )}
-      </div>
-
-      {/* Flat Navigation List */}
-      <nav className="flex-1 px-1.5 py-3 space-y-0.5 overflow-y-auto scrollbar-none">
-        {navItems.map((item) => {
-          if (item.isDivider) {
-            return (
-              <div
-                key={item.id}
-                className="my-2 border-t border-[#D3D1CE] mx-2"
-              />
-            );
-          }
-
-          const active = isTabActive(item.id!);
-          const Icon = item.icon!;
-
-          return (
-            <button
-              key={item.id}
-              onClick={() => handleTabClick(item.id!)}
-              className={`flex items-center w-full rounded transition-colors group relative ${
-                isExpanded ? "px-2.5 py-1.5 gap-2.5" : "p-2.5 justify-center"
-              } ${
-                active
-                  ? "bg-[#1a1a1a] text-white font-medium"
-                  : "text-[#575652] hover:bg-[#e8e6e1] hover:text-[#1A1A1A]"
-              }`}
-              title={!isExpanded ? item.label : undefined}
-            >
-              <Icon size={16} className="shrink-0" />
-              {isExpanded && (
-                <span className="text-xs truncate">{item.label}</span>
-              )}
-              
-              {/* Minimal Tooltip for Slim Mode */}
-              {!isExpanded && (
-                <div className="absolute left-full ml-2 px-2.5 py-1 bg-[#1a1a1a] text-white text-[11px] font-normal rounded border border-[#1a1a1a] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-md">
-                  {item.label}
-                </div>
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* Botão de Administração da Stack */}
-      <div className="px-2 pt-1">
-        <button
-          type="button"
-          onClick={() => void handleOpenAdmin()}
-          className={`flex items-center w-full rounded transition-colors group relative ${
-            isExpanded ? "px-2.5 py-1.5 gap-2.5" : "p-2.5 justify-center"
-          } text-[#575652] hover:bg-[#e8e6e1] hover:text-[#1A1A1A]`}
-          title={!isExpanded ? "Administração da Stack" : undefined}
-          aria-label="Administração da Stack"
-        >
-          <Sliders size={16} className="shrink-0" />
-          {isExpanded && <span className="text-xs truncate">Administração</span>}
-          {!isExpanded && (
-            <div className="absolute left-full ml-2 px-2.5 py-1 bg-[#1a1a1a] text-white text-[11px] font-normal rounded border border-[#1a1a1a] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-md">
-              Administração da Stack
+      <StackSidebar
+        navMode="tabs"
+        items={navItems}
+        activeId={activeId}
+        onSelect={(item) => setCurrentTab(item.id)}
+        collapsed={collapsed}
+        onCollapsedChange={setCollapsed}
+        mobileOpen={mobileOpen}
+        onNavigate={onNavigate}
+        brand={{
+          title: "uRag Guard",
+          subtitle: "AI Safety & Guardrails",
+          mark: (
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#1a1a1a] text-white border border-[#1a1a1a] shrink-0">
+              <ShieldCheck className="w-4 h-4 text-white" />
             </div>
-          )}
-        </button>
-      </div>
-
-      {/* Conta — sempre o último item do menu lateral */}
-      <div className="p-2 border-t border-[#D3D1CE]">
-        {isExpanded && (
-          <div className="flex items-center justify-between px-2 pb-1 text-[10px] text-[#71706F]">
-            <span className="font-serif italic text-[#1A1A1A]">uRag Guard</span>
-            <span className="flex items-center gap-1">
-              <span className={`w-1.5 h-1.5 rounded-full ${backendOnline ? "bg-emerald-600" : "bg-rose-600"}`} />
-              {backendOnline ? "online" : "offline"}
-            </span>
+          ),
+        }}
+        aside={
+          collapsed ? (
+            <div
+              className="flex justify-center py-1"
+              title={`Backend: ${backendOnline ? "online" : "offline"}`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  backendOnline ? "bg-emerald-600" : "bg-rose-600"
+                }`}
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-between px-1 text-[11px] text-[#71706F]">
+              <span className="font-serif italic text-[#1A1A1A]">uRag Guard</span>
+              <span className="flex items-center gap-1.5 font-mono text-[10px]">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    backendOnline ? "bg-emerald-600" : "bg-rose-600"
+                  }`}
+                />
+                {backendOnline ? "online" : "offline"}
+              </span>
+            </div>
+          )
+        }
+        footer={
+          <div className="space-y-1">
+            <button
+              type="button"
+              onClick={() => void handleOpenAdmin()}
+              className={`w-full flex items-center ${
+                collapsed ? "justify-center px-0" : "px-2.5 gap-3"
+              } py-2 rounded-xl text-xs font-medium transition-colors text-[#575652] hover:bg-[#D3D1CE]/50 hover:text-[#1A1A1A] cursor-pointer border-none text-left`}
+              title={collapsed ? "Administração da Stack" : undefined}
+              aria-label="Administração da Stack"
+            >
+              <Sliders className="w-4 h-4 shrink-0" aria-hidden="true" />
+              {!collapsed && <span className="truncate">Administração</span>}
+            </button>
+            <AccountLauncher
+              session={session}
+              showName={!collapsed}
+              showChevron={!collapsed}
+              onLogout={handleLogout}
+              onBilling={() => void handleOpenAdmin()}
+              showPlanBadge={true}
+              placement="top-left"
+              wrapperClassName="w-full"
+            />
           </div>
-        )}
-        <AccountLauncher
-          session={session}
-          showName={isExpanded}
-          showChevron={isExpanded}
-          onLogout={handleLogout}
-          onBilling={() => void handleOpenAdmin()}
-          showPlanBadge={true}
-          placement="top-left"
-          wrapperClassName="w-full"
-        />
-      </div>
-    </aside>
-
-    {adminOpen && admin.overview && (
-      <StackAdminPanel
-        open={adminOpen}
-        overview={admin.overview}
-        busy={admin.busy}
-        error={admin.error}
-        onClose={() => setAdminOpen(false)}
-        moduleCatalog={MODULE_CATALOG}
-        addonCatalog={ADDON_CATALOG}
-        combos={COMBOS}
-        onToggleModule={admin.handleToggleModule}
-        onApplyCombo={admin.handleApplyCombo}
-        onContractAddon={admin.handleContractAddon}
-        onSelectPlan={admin.handleSelectPlan}
-        onInviteMember={admin.handleInviteMember}
-        onAssignRole={admin.handleAssignRole}
-        onCreateRole={admin.handleCreateRole}
+        }
       />
-    )}
+
+      {adminOpen && admin.overview && (
+        <StackAdminPanel
+          open={adminOpen}
+          overview={admin.overview}
+          busy={admin.busy}
+          error={admin.error}
+          onClose={() => setAdminOpen(false)}
+          moduleCatalog={MODULE_CATALOG}
+          addonCatalog={ADDON_CATALOG}
+          combos={COMBOS}
+          onToggleModule={admin.handleToggleModule}
+          onApplyCombo={admin.handleApplyCombo}
+          onContractAddon={admin.handleContractAddon}
+          onSelectPlan={admin.handleSelectPlan}
+          onInviteMember={admin.handleInviteMember}
+          onAssignRole={admin.handleAssignRole}
+          onCreateRole={admin.handleCreateRole}
+        />
+      )}
     </>
   );
 }
