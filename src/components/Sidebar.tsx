@@ -18,18 +18,19 @@ import {
   BookOpen,
   FileText,
   Database,
-  Sliders,
 } from "lucide-react";
 import { useViewMode } from "../context/ViewModeContext";
 import {
-  AccountLauncher,
+  AccountFooter,
   StackAdminPanel,
   StackSidebar,
   type SidebarNavItem,
 } from "@urag/ui";
-import { useAccountSession } from "../hooks/useAccountSession";
+import { useAccountSession, readSession } from "../hooks/useAccountSession";
 import { useStackAdmin } from "../hooks/useStackAdmin";
 import { MODULE_CATALOG, ADDON_CATALOG, COMBOS } from "./accountCatalog";
+import { myTenants, switchTenant } from "./identityAccount";
+import type { TenantOption } from "@urag/ui";
 
 interface SidebarProps {
   currentTab: string;
@@ -66,10 +67,36 @@ export default function Sidebar({
 }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(initialCollapsed);
   const [backendOnline, setBackendOnline] = useState(true);
+  const [tenants, setTenants] = useState<TenantOption[]>([]);
 
   const session = useAccountSession();
   const admin = useStackAdmin();
   const [adminOpen, setAdminOpen] = useState(false);
+
+  useEffect(() => {
+    const token = readSession();
+    if (!token) return;
+    let active = true;
+    myTenants(token)
+      .then((list) => {
+        if (active) {
+          setTenants((list || []).map((t) => ({ id: t.tenant_id, name: t.tenant_name })));
+        }
+      })
+      .catch(() => {
+        if (active) setTenants([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [session.tenant?.slug]);
+
+  const handleSwitchTenant = async (tenantId: string) => {
+    const token = readSession();
+    if (!token) return;
+    await switchTenant(token, tenantId);
+    window.location.reload();
+  };
 
   const handleOpenAdmin = async () => {
     await admin.load();
@@ -177,57 +204,42 @@ export default function Sidebar({
             </div>
           ),
         }}
-        aside={
-          collapsed ? (
-            <div
-              className="flex justify-center py-1"
-              title={`Backend: ${backendOnline ? "online" : "offline"}`}
-            >
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  backendOnline ? "bg-emerald-600" : "bg-rose-600"
-                }`}
-              />
-            </div>
-          ) : (
-            <div className="flex items-center justify-between px-1 text-[11px] text-[#71706F]">
-              <span className="font-serif italic text-[#1A1A1A]">uRag Guard</span>
-              <span className="flex items-center gap-1.5 font-mono text-[10px]">
-                <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    backendOnline ? "bg-emerald-600" : "bg-rose-600"
-                  }`}
-                />
-                {backendOnline ? "online" : "offline"}
-              </span>
-            </div>
-          )
-        }
         footer={
-          <div className="space-y-1">
-            <button
-              type="button"
-              onClick={() => void handleOpenAdmin()}
-              className={`w-full flex items-center ${
-                collapsed ? "justify-center px-0" : "px-2.5 gap-3"
-              } py-2 rounded-xl text-xs font-medium transition-colors text-[#575652] hover:bg-[#D3D1CE]/50 hover:text-[#1A1A1A] cursor-pointer border-none text-left`}
-              title={collapsed ? "Administração da Stack" : undefined}
-              aria-label="Administração da Stack"
-            >
-              <Sliders className="w-4 h-4 shrink-0" aria-hidden="true" />
-              {!collapsed && <span className="truncate">Administração</span>}
-            </button>
-            <AccountLauncher
-              session={session}
-              showName={!collapsed}
-              showChevron={!collapsed}
-              onLogout={handleLogout}
-              onBilling={() => void handleOpenAdmin()}
-              showPlanBadge={true}
-              placement="top-left"
-              wrapperClassName="w-full"
-            />
-          </div>
+          <AccountFooter
+            session={session}
+            collapsed={collapsed}
+            status={
+              collapsed ? (
+                <div
+                  className="flex justify-center py-1"
+                  title={`Backend: ${backendOnline ? "online" : "offline"}`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      backendOnline ? "bg-emerald-600" : "bg-rose-600"
+                    }`}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-between px-1 text-[11px] text-[#71706F]">
+                  <span className="font-serif italic text-[#1A1A1A]">uRag Guard</span>
+                  <span className="flex items-center gap-1.5 font-mono text-[10px]">
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        backendOnline ? "bg-emerald-600" : "bg-rose-600"
+                      }`}
+                    />
+                    {backendOnline ? "online" : "offline"}
+                  </span>
+                </div>
+              )
+            }
+            onAdmin={() => void handleOpenAdmin()}
+            onLogout={handleLogout}
+            tenants={tenants}
+            currentTenantId={session.tenant?.slug}
+            onSwitchTenant={handleSwitchTenant}
+          />
         }
       />
 

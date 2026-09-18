@@ -64,3 +64,49 @@ export function identityAccountClient(session: string, base = "/api/identity/v1/
       ),
   };
 }
+
+export interface TenantOption {
+  tenant_id: string;
+  tenant_name: string;
+  user_id: string;
+  current: boolean;
+  modules: string[];
+}
+
+/** Workspaces onde este e-mail está ativo. */
+export async function myTenants(session: string): Promise<TenantOption[]> {
+  try {
+    const res = await fetch(`/api/identity/v1/me/tenants`, {
+      headers: { "X-Session-Token": session },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.tenants || []) as TenantOption[];
+  } catch {
+    return [];
+  }
+}
+
+/** Troca de workspace sem novo login. Revalida emitindo nova sessão. */
+export async function switchTenant(session: string, tenantId: string): Promise<string> {
+  const res = await fetch(`/api/identity/v1/session/switch`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Session-Token": session },
+    body: JSON.stringify({ tenant_id: tenantId }),
+  });
+  if (!res.ok) {
+    let fallback = "Não foi possível trocar de workspace.";
+    try {
+      const data = await res.json();
+      fallback = data.error || data.message || fallback;
+    } catch {}
+    throw new Error(fallback);
+  }
+  const data = await res.json();
+  try {
+    localStorage.setItem("identity_session", data.token);
+    if (data.user) localStorage.setItem("identity_user", JSON.stringify(data.user));
+  } catch {}
+  return data.token as string;
+}
+

@@ -228,4 +228,29 @@ describe("Sidebar — logout precisa do servidor", () => {
     expect(fonte).not.toMatch(/document\.cookie\s*=\s*["'`]identity_session=/);
     expect(fonte).toMatch(/auth\/logout/);
   });
+
+  it("busca workspaces com myTenants e falha na busca não quebra o menu da conta", async () => {
+    // Falha ao buscar a lista de tenants NÃO pode quebrar o menu da conta
+    global.fetch = vi.fn().mockImplementation(async (url: RequestInfo | URL) => {
+      const urlStr = String(url);
+      if (urlStr.includes("/v1/me/tenants")) {
+        throw new Error("Identity down");
+      }
+      return new Response(JSON.stringify({ status: "online" }), { status: 200 });
+    });
+
+    localStorage.setItem("identity_session", "fake-token");
+
+    render(
+      <ViewModeProvider>
+        <Sidebar currentTab="dashboard" setCurrentTab={() => {}} />
+      </ViewModeProvider>
+    );
+
+    // O AccountLauncher continua sendo renderizado perfeitamente
+    await waitFor(() => {
+      expect(screen.getByTestId("account-launcher-trigger")).toBeInTheDocument();
+    });
+  });
 });
+
