@@ -24,6 +24,7 @@ import GuardDocsView from "./components/GuardDocsView";
 import { ViewModeProvider } from "./context/ViewModeContext";
 import { api } from "./lib/api";
 import { ModelRegistry, McpServerConfig } from "./types";
+import SentryTestView from "./components/SentryTestView";
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState("dashboard");
@@ -295,6 +296,10 @@ export default function App() {
         );
     }
   };
+
+  if (typeof window !== "undefined" && window.location.pathname.includes("sentry-test")) {
+    return <SentryTestView />;
+  }
 
   return (
     <ViewModeProvider>
