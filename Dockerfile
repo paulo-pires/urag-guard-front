@@ -16,6 +16,9 @@ RUN bun install --frozen-lockfile
 
 COPY urag-guard-front urag-guard-front
 
+ARG VITE_GLITCHTIP_DSN=
+ENV VITE_GLITCHTIP_DSN=$VITE_GLITCHTIP_DSN
+
 # Build Vite static assets
 RUN cd urag-guard-front && bun x vite build
 
