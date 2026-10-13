@@ -32,20 +32,22 @@ describe("Sidebar (urag-guard-front)", () => {
     );
   }
 
-  it("renderiza exatamente 11 itens no modo gestao", () => {
+  it("renderiza exatamente 12 itens no modo gestao", () => {
     renderSidebar({}, "gestao");
     const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(11);
+    expect(tabs).toHaveLength(12);
+    expect(screen.getByRole("tab", { name: /comparar modelos/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /visão geral/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /alertas de comportamento/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /atividade dos agentes/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /conversas/i })).toBeInTheDocument();
   });
 
-  it("renderiza exatamente 16 itens no modo tecnico", () => {
+  it("renderiza exatamente 17 itens no modo tecnico", () => {
     renderSidebar({}, "tecnico");
     const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(16);
+    expect(tabs).toHaveLength(17);
+    expect(screen.getByRole("tab", { name: /comparar modelos/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /^monitoramento/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /^runs/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /^sessions/i })).toBeInTheDocument();
