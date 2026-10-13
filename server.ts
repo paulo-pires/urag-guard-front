@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import http from "http";
 import { createProxyMiddleware } from "http-proxy-middleware";
+import { playgroundRouter } from "./server/playground";
 
 export const app = express();
 const PORT = parseInt(process.env.PORT || "3001", 10);
@@ -10,6 +11,11 @@ const GUARD_API_URL = process.env.GUARD_API_URL || "http://urag-guard:8091";
 const OBSERVABILITY_URL = process.env.OBSERVABILITY_URL || "http://urag-observability:8091";
 const GUARD_API_KEY = process.env.GUARD_API_KEY || "";
 const GUARD_ADMIN_KEY = process.env.GUARD_ADMIN_KEY || "";
+// Playground (IGN-133): proxy LLM, bases do IgnusTec IA e o token interno
+// compartilhado com urag-guard-go / urag_proxy / ignustec-ia.
+const PROXY_URL = process.env.PROXY_URL || "http://proxy:8080";
+const IGNUSTEC_IA_URL = process.env.IGNUSTEC_IA_URL || "http://ignustec-ia:3000";
+const GUARD_INTERNAL_TOKEN = process.env.GUARD_INTERNAL_TOKEN || "";
 
 // Proxy MCP calls to urag-observability-go (unified)
 // ANTES de express.json(): o body precisa passar íntegro (JSON-RPC initialize).
@@ -43,6 +49,17 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use(
+  "/api/playground",
+  playgroundRouter({
+    identityUrl: IDENTITY_URL,
+    guardApiUrl: GUARD_API_URL,
+    proxyUrl: PROXY_URL,
+    ignustecIaUrl: IGNUSTEC_IA_URL,
+    internalToken: GUARD_INTERNAL_TOKEN,
+  }),
+);
 
 // Health check
 app.get("/v1/health", (_req, res) => {

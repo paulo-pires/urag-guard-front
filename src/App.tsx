@@ -25,9 +25,17 @@ import { ViewModeProvider } from "./context/ViewModeContext";
 import { api } from "./lib/api";
 import { ModelRegistry, McpServerConfig } from "./types";
 import SentryTestView from "./components/SentryTestView";
+import { PlaygroundView } from "./components/PlaygroundView";
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState("dashboard");
+  // ?view=playground&models=… vem do botão "Testar no Guard" do Ignus Code (IGN-133).
+  const [currentTab, setCurrentTab] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).get("view") === "playground" ? "playground" : "dashboard";
+    } catch {
+      return "dashboard";
+    }
+  });
   const [historyStack, setHistoryStack] = useState<string[]>([]);
 
   // Global Period & Source Filters
@@ -242,6 +250,8 @@ export default function App() {
         return <TenantSettingsView />;
       case "docs":
         return <GuardDocsView />;
+      case "playground":
+        return <PlaygroundView onNavigateToTab={handleNavigateToTab} />;
       case "models":
         return (
           <ModelsView
