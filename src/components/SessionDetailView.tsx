@@ -54,16 +54,20 @@ export default function SessionDetailView({ sessionId, onNavigateToTab, onBack }
   const [sessionRuns, setSessionRuns] = useState<Run[]>([]);
   const [runsTotal, setRunsTotal] = useState(0);
 
+  // Filtra pelo id INTERNO da sessão já carregada: a URL pode trazer o id
+  // externo (X-Urag-Session — o playground linka assim, IGN-133), que o
+  // get_session resolve mas o filtro de runs não.
+  const resolvedSessionId = session?.id;
   useEffect(() => {
-    if (!sessionId) return;
+    if (!resolvedSessionId) return;
     api
-      .getRuns({ session_id: sessionId, page: runPage, page_size: runPageSize })
+      .getRuns({ session_id: resolvedSessionId, page: runPage, page_size: runPageSize })
       .then((data) => {
         setSessionRuns(data.runs);
         setRunsTotal(data.total);
       })
       .catch(() => setSessionRuns([]));
-  }, [sessionId, runPage]);
+  }, [resolvedSessionId, runPage]);
 
   const handleCopy = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
