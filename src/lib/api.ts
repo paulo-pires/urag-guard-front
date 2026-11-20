@@ -1,4 +1,5 @@
 import { DashboardStats, Run, Session, GuardrailRule, GuardrailEvent, EvalConfig, EvalScore, UsageGroup, Project, APIKey, QueryFilters, McpResponse, Prompt, PromptDetail, Dataset, DatasetItem, DatasetDiff } from "../types";
+import { readSession } from "../hooks/useAccountSession";
 
 // ── MCP-only client for urag-observability-go (:8088) ────────────────────────
 
@@ -19,13 +20,19 @@ function parseMcpResponse(body: string): McpResponse {
   return JSON.parse(body) as McpResponse;
 }
 
+// IGN-314: o /mcp-proxy só repassa ao observability com a sessão de um admin do painel.
+function comSessao(h: Record<string, string>): Record<string, string> {
+  const s = readSession();
+  return s ? { ...h, 'X-Session-Token': s } : h;
+}
+
 async function ensureSession(): Promise<string | null> {
   const now = Date.now();
   if (mcpSession && mcpSession.expiry > now) return mcpSession.sessionId;
   try {
     const res = await fetch(endpoint(), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' },
+      headers: comSessao({ 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' }),
       body: JSON.stringify({
         jsonrpc: '2.0', id: `init_${now}`, method: 'initialize',
         params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'urag-guard-front', version: '1.0' } }
@@ -35,7 +42,7 @@ async function ensureSession(): Promise<string | null> {
     if (!sid) return null;
     await fetch(endpoint(), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream', 'Mcp-Session-Id': sid },
+      headers: comSessao({ 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream', 'Mcp-Session-Id': sid }),
       body: JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized', params: {} })
     });
     mcpSession = { sessionId: sid, expiry: now + 5 * 60 * 1000 };
@@ -55,7 +62,7 @@ export async function callMCPTool<T = unknown>(
   const args = (typeof a1 === 'number' ? (a3 || {}) : (a2 || {})) as Record<string, unknown>;
 
   const sid = await ensureSession();
-  const h: Record<string, string> = { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' };
+  const h: Record<string, string> = comSessao({ 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' });
   if (sid) h['Mcp-Session-Id'] = sid;
 
   const res = await fetch(endpoint(), {

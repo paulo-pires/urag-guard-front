@@ -1,4 +1,5 @@
 import { DashboardStats, Run, Session, GuardrailRule, GuardrailEvent, EvalConfig, EvalScore, UsageGroup, QueryFilters, McpResponse } from "../types";
+import { readSession } from "../hooks/useAccountSession";
 
 // ── MCP Streamable HTTP Client ────────────────────────────────────────────────
 
@@ -25,6 +26,12 @@ function parseMcpResponse(body: string): McpResponse {
   return JSON.parse(body) as McpResponse;
 }
 
+// IGN-314: o /mcp-proxy só repassa ao observability com a sessão de um admin do painel.
+function comSessao(h: Record<string, string>): Record<string, string> {
+  const s = readSession();
+  return s ? { ...h, 'X-Session-Token': s } : h;
+}
+
 async function ensureSession(): Promise<string | null> {
   const now = Date.now();
   if (currentSession && currentSession.expiry > now) {
@@ -34,7 +41,7 @@ async function ensureSession(): Promise<string | null> {
   try {
     const res = await fetch(getEndpoint(), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' },
+      headers: comSessao({ 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' }),
       body: JSON.stringify({
         jsonrpc: '2.0', id: `init_${now}`,
         method: 'initialize',
@@ -48,7 +55,7 @@ async function ensureSession(): Promise<string | null> {
     // send initialized notification
     await fetch(getEndpoint(), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream', 'Mcp-Session-Id': sessionId },
+      headers: comSessao({ 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream', 'Mcp-Session-Id': sessionId }),
       body: JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized', params: {} })
     });
 
@@ -61,10 +68,10 @@ async function ensureSession(): Promise<string | null> {
 
 async function callMCPTool<T = unknown>(toolName: string, args: Record<string, unknown> = {}): Promise<T> {
   const sessionId = await ensureSession();
-  const headers: Record<string, string> = {
+  const headers: Record<string, string> = comSessao({
     'Content-Type': 'application/json',
     'Accept': 'application/json, text/event-stream'
-  };
+  });
   if (sessionId) headers['Mcp-Session-Id'] = sessionId;
 
   const response = await fetch(getEndpoint(), {
