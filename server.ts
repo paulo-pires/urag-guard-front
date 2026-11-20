@@ -1,8 +1,8 @@
 import express from "express";
 import path from "path";
-import http from "http";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { playgroundRouter } from "./server/playground";
+import { mcpProxy } from "./server/mcpProxy";
 
 export const app = express();
 const PORT = parseInt(process.env.PORT || "3001", 10);
@@ -17,27 +17,16 @@ const PROXY_URL = process.env.PROXY_URL || "http://proxy:8080";
 const IGNUSTEC_IA_URL = process.env.IGNUSTEC_IA_URL || "http://ignustec-ia:3000";
 const GUARD_INTERNAL_TOKEN = process.env.GUARD_INTERNAL_TOKEN || "";
 
-// Proxy MCP calls to urag-observability-go (unified)
-// ANTES de express.json(): o body precisa passar íntegro (JSON-RPC initialize).
-app.use("/mcp-proxy", (req, res) => {
-  const target = new URL(OBSERVABILITY_URL);
-  const proxyReq = http.request({
-    host: target.hostname,
-    port: target.port || "80",
-    path: "/mcp",
-    method: req.method,
-    headers: { ...req.headers, host: target.host },
-  }, (proxyRes) => {
-    res.writeHead(proxyRes.statusCode || 502, proxyRes.headers);
-    proxyRes.pipe(res);
-  });
-  proxyReq.on("error", (err) => {
-    console.error("MCP proxy error:", err.message);
-    if (!res.headersSent) res.writeHead(502, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ jsonrpc: "2.0", id: "proxy", error: { code: -32000, message: err.message } }));
-  });
-  req.pipe(proxyReq);
-});
+// MCP do urag-observability-go: só admin do painel, com o token interno posto
+// aqui (IGN-314). ANTES de express.json(): o body precisa passar íntegro.
+app.use(
+  "/mcp-proxy",
+  mcpProxy({
+    identityUrl: IDENTITY_URL,
+    observabilityUrl: OBSERVABILITY_URL,
+    internalToken: process.env.OBSERVABILITY_INTERNAL_TOKEN || process.env.URAG_INTERNAL_TOKEN || "",
+  }),
+);
 
 app.use(
   "/api/identity",
